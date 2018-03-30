@@ -1,5 +1,6 @@
 package main.java.server;
 
+import main.java.models.Movies;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;

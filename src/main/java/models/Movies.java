@@ -1,4 +1,4 @@
-package main.java.server;
+package main.java.models;
 
 
 public class Movies {
