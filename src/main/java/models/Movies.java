@@ -1,8 +1,11 @@
 package main.java.models;
 
+import javax.persistence.Entity;
+import javax.persistence.Id;
 
+@Entity
 public class Movies {
-    
+    @Id
     private final int id;
     private final String title;
     private final String poster_path;
@@ -14,6 +17,20 @@ public class Movies {
     private final String studio;
     private final String genre;
     private final String directed;
+
+    public Movies() {
+        this.id = -1;
+        this.title = "title";
+        this.poster_path = "poster_path";
+        this.overview = "overview";
+        this.releaseDate = "releaseDate";
+        this.written = "written";
+        this.runtime = "runtime"; 
+        this.boxoffice = "boxoffice";
+        this.studio = "studio";
+        this.genre = "genre";
+        this.directed = "directed";
+    }
 
     public Movies(int id, String title, String poster_path, String overview, String releaseDate, String written, String runtime, String boxoffice, String studio, String genre, String directed){
         this.id = id;
