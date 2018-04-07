@@ -1,4 +1,4 @@
-package main.java.server;
+package main.java.controllers;
 
 import main.java.models.Movies;
 import main.java.managers.ContentManager;
