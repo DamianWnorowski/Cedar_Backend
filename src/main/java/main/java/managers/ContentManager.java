@@ -1,9 +1,9 @@
 package main.java.managers;
 
+import main.java.models.Content;
 import org.springframework.data.repository.CrudRepository;
-import main.java.models.Movies;
 
-public interface ContentManager extends CrudRepository<Movies, Integer> {
+public interface ContentManager extends CrudRepository<Content, Integer> {
 /*
 	private Content featuredMovie;
 	private List<Content> mostPopularShows;
