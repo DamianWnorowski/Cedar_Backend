@@ -1,16 +1,17 @@
 package main.java.managers;
 
+import java.util.Optional;
 import main.java.models.Content;
 import org.springframework.data.repository.CrudRepository;
 
 public interface ContentManager extends CrudRepository<Content, Integer> {
+	
+	public Optional<Content> currentlyInTheatersTrue();
 /*
 	private Content featuredMovie;
 	private List<Content> mostPopularShows;
 
-	public List<Content> findTop10ByBoxOfficeAndCurrentlyInTheatersTrue() {
-		return null;
-	}
+
 
 	public List<Content> getMoviesOpeningThisWeek() {
 		return null;

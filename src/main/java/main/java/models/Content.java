@@ -224,12 +224,28 @@ public class Content {
 		this.studio = studio;
 	}
 	
-	
-	
 	public List<Double> addReview(int contentID, double rating, String body, int userID) {
 		return null;
 	}
 
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj) {
+			return true;
+		}
+		if (obj == null) {
+			return false;
+		}
+		if (getClass() != obj.getClass()) {
+			return false;
+		}
+		final Content other = (Content) obj;
+		if (this.content_id != other.content_id) {
+			return false;
+		}
+		return true;
+	}
 
+	
 	
 }

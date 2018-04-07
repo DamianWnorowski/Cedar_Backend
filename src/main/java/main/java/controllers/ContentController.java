@@ -19,9 +19,8 @@ public class ContentController {
 	@Autowired
 	private ContentManager contentManager;
 	
-	@Autowired
-	private CelebrityManager celebrityManager;
-
+//	@Autowired
+//	private CelebrityManager celebrityManager;
 
     @RequestMapping("/movie")
     public Content movies(@RequestParam(value="id") int id) {
@@ -49,7 +48,7 @@ public class ContentController {
 //		content.setPoster_path("/w600_and_h900_bestv2/9NsjFw5NEBppIb7KUDQa4010jKT.jpg");
 //		content.setRuntime("87min");
 //		contentManager.save(content);
-		
+//		
        return null;
     }
 }
