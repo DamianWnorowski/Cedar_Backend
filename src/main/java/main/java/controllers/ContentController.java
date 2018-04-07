@@ -10,7 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 @CrossOrigin("http://localhost:3000")
 @RestController
-public class MovieController {
+public class ContentController {
 
 	@Autowired
 	private ContentManager contentManager;
