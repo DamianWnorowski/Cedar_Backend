@@ -1,5 +1,6 @@
 package main.java.controllers;
 
+import java.util.List;
 import java.util.Optional;
 import main.java.managers.ContentManager;
 import main.java.models.Content;
@@ -8,21 +9,17 @@ import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-@CrossOrigin("http://localhost:3000/api")
+@CrossOrigin("http://localhost:3000")
 @RestController
 public class HomeController {
 	
 	@Autowired
 	private ContentManager contentManager;
 	    
-	@RequestMapping("/topboxoffice")
-	public Optional displayBoxOffice() {
+	@RequestMapping("/api/topboxoffice")
+	public List displayBoxOffice() {
 		System.out.println("entered");
-		Content theMovie = contentManager.findById(2).get();
-		theMovie.setCurrentlyInTheaters(true);
-		contentManager.save(theMovie);
-		System.out.println("saved");
-		Optional<Content> boxOfficeList = contentManager.currentlyInTheatersTrue();
+		List<Content> boxOfficeList = contentManager.findTop10ByCurrentlyInTheatersTrueOrderByBoxOffice();
 		return boxOfficeList;
 	}
 
