@@ -1,12 +1,11 @@
 package main.java.models;
 
-import java.awt.Image;
 import java.net.URI;
+import java.time.LocalDate;
 import java.util.Date;
 import java.util.List;
 import javax.persistence.Entity;
 import javax.persistence.Id;
-import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 
@@ -17,7 +16,7 @@ public class Content {
 	private ContentType type;
 	private String title;
 	private String genre;
-	private Date date;
+	private LocalDate date;
 	private double userRating;
 	@OneToMany(targetEntity=UserReview.class, mappedBy="user_review_id")
 	private List<UserReview> userReview;
@@ -35,7 +34,7 @@ public class Content {
 	private List<TVShowSeason> seasonsList;
 	private double boxOffice;
 	private boolean currentlyInTheaters;
-	private Date nextAirDate;
+	private LocalDate nextAirDate;
 	private String poster_path;
 	@ManyToOne(targetEntity=Celebrity.class)
 	private Celebrity writer;
@@ -45,7 +44,7 @@ public class Content {
 	public Content() {
 	}
 	
-	public Content(int content_id, ContentType type, String title, String genre, Date date, double userRating, List<UserReview> userReview, double criticRating, List<CriticReview> criticReview, String description, Celebrity director, URI trailerPath, List<TVShowSeason> seasonsList, double boxOffice, boolean currentlyInTheaters, Date nextAirDate) {
+	public Content(int content_id, ContentType type, String title, String genre, LocalDate date, double userRating, List<UserReview> userReview, double criticRating, List<CriticReview> criticReview, String description, Celebrity director, URI trailerPath, List<TVShowSeason> seasonsList, double boxOffice, boolean currentlyInTheaters, LocalDate nextAirDate) {
 		this.content_id = content_id;
 		this.type = type;
 		this.title = title;
@@ -96,11 +95,11 @@ public class Content {
 		this.genre = genre;
 	}
 
-	public Date getDate() {
+	public LocalDate getDate() {
 		return date;
 	}
 
-	public void setDate(Date date) {
+	public void setDate(LocalDate date) {
 		this.date = date;
 	}
 
@@ -184,11 +183,11 @@ public class Content {
 		this.currentlyInTheaters = currentlyInTheaters;
 	}
 
-	public Date getNextAirDate() {
+	public LocalDate getNextAirDate() {
 		return nextAirDate;
 	}
 
-	public void setNextAirDate(Date nextAirDate) {
+	public void setNextAirDate(LocalDate nextAirDate) {
 		this.nextAirDate = nextAirDate;
 	}
 

@@ -1,12 +1,11 @@
 package main.java.controllers;
 
 import java.util.List;
-import java.util.Optional;
 import main.java.managers.ContentManager;
 import main.java.models.Content;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @CrossOrigin("http://localhost:3000")
@@ -16,22 +15,24 @@ public class HomeController {
 	@Autowired
 	private ContentManager contentManager;
 	    
-	@RequestMapping("/api/topboxoffice")
-	public List displayBoxOffice() {
-		System.out.println("entered");
+	@GetMapping("/api/topboxoffice")
+	public List<Content> displayBoxOffice() {
 		List<Content> boxOfficeList = contentManager.findTop10ByCurrentlyInTheatersTrueOrderByBoxOffice();
 		return boxOfficeList;
 	}
 
+	@GetMapping("/api/moviesopeningthisweek")
 	public String displayMoviesOpeningThisWeek() {
 		return null;
 	}
 
-	public String getFeaturedMovie() {
+	@GetMapping("/api/featuredmovie")
+	public Content getFeaturedMovie() {
 		return null;
 	}
 
-	public String displayComingSoonToTheaters() {
+	@GetMapping("/api/comingsoontotheaters")
+	public List<Content> displayComingSoonToTheaters() {
 		return null;
 	}
 

@@ -1,6 +1,6 @@
 package main.java.models;
 
-import java.util.Date;
+import java.time.LocalDate;
 import java.util.List;
 import javax.persistence.Entity;
 import javax.persistence.Id;
@@ -12,7 +12,7 @@ public class TVShowSeason {
 	private int season_id;
 	private String description;
 	private String title;
-	private Date date;
+	private LocalDate date;
 	@OneToMany(targetEntity=Episode.class, mappedBy="episode_id")
 	private List<Episode> episodes;
 

@@ -5,8 +5,8 @@ import main.java.models.Content;
 import org.springframework.data.repository.CrudRepository;
 
 public interface ContentManager extends CrudRepository<Content, Integer> {
-	
-		public List<Content> findTop10ByCurrentlyInTheatersTrueOrderByBoxOffice();
+		
+	public List<Content> findTop10ByCurrentlyInTheatersTrueOrderByBoxOffice();
 		
 		//public List<Content> findTop4ByCelebrityOrderByCriticRating(Celebrity c);
 		

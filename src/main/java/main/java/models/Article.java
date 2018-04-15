@@ -1,8 +1,6 @@
 package main.java.models;
 
-import java.awt.Image;
-import java.net.URI;
-import java.util.Date;
+import java.time.LocalDate;
 import java.util.List;
 import javax.persistence.Entity;
 import javax.persistence.Id;
@@ -17,7 +15,7 @@ public class Article {
 	private String body;
 	@OneToMany(targetEntity=Content.class, mappedBy="content_id")
 	private List<Content> contentList;
-	private Date postDate;
+	private LocalDate postDate;
 //	private List<Image> thumbnails;
 //	private List<URI> videos;
 
