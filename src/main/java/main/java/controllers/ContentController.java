@@ -1,7 +1,5 @@
 package main.java.controllers;
 
-import java.time.LocalDate;
-import java.time.Month;
 import main.java.managers.ContentManager;
 import main.java.models.Content;
 import org.springframework.web.bind.annotation.RequestParam;

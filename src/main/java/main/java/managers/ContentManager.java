@@ -1,5 +1,6 @@
 package main.java.managers;
 
+import java.time.LocalDate;
 import java.util.List;
 import main.java.models.Content;
 import org.springframework.data.repository.CrudRepository;
@@ -7,10 +8,13 @@ import org.springframework.data.repository.CrudRepository;
 public interface ContentManager extends CrudRepository<Content, Integer> {
 		
 	public List<Content> findTop10ByCurrentlyInTheatersTrueOrderByBoxOffice();
+	public List<Content> findTop10ByDateAfterAndDateBefore(LocalDate start, LocalDate end);
+
 		
 		//public List<Content> findTop4ByCelebrityOrderByCriticRating(Celebrity c);
 		
 		//public List<Content> findByCelebrity(Celebrity c);
+	
 
 /*
 	private Content featuredMovie;
@@ -31,10 +35,6 @@ public interface ContentManager extends CrudRepository<Content, Integer> {
 	}
 
 	public Content getFeaturedMovie() {
-		return null;
-	}
-
-	public List<Content> findByDateAfterAndDateBefore(Date start, Date end) {
 		return null;
 	}
 
