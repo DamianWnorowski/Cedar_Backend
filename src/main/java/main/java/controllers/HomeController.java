@@ -37,13 +37,15 @@ public class HomeController {
 		return moviesForThisWeek;
 	}
 
-	@GetMapping("/api/featuredmovie")
-	public Content getFeaturedMovie() {
-		return null;
-	}
-
+	
 	@GetMapping("/api/comingsoontotheaters")
 	public List<Content> displayComingSoonToTheaters() {
+		List<Content> moviesComingSoon = contentManager.findTop10ByDateAfterAndDateBefore(LocalDate.now(), LocalDate.now().plusWeeks(2)); // magic number
+		return moviesComingSoon;
+	}
+	
+	@GetMapping("/api/featuredmovie")
+	public Content getFeaturedMovie() {
 		return null;
 	}
 
