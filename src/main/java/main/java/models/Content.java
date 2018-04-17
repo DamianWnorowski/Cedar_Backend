@@ -18,10 +18,10 @@ public class Content {
 	private String genre;
 	private LocalDate date;
 	private double userRating;
-	@OneToMany(targetEntity=UserReview.class, mappedBy="user_review_id")
+	@OneToMany(targetEntity=UserReview.class, mappedBy="review_id")
 	private List<UserReview> userReview;
 	private double criticRating;
-	@OneToMany(targetEntity=CriticReview.class, mappedBy="critic_review_id")
+	@OneToMany(targetEntity=CriticReview.class, mappedBy="review_id")
 	private List<CriticReview> criticReview;
 	private String description;
 //	@ManyToMany(targetEntity=Celebrity.class, mappedBy="celeb_id")

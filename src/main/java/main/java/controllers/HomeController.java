@@ -45,7 +45,8 @@ public class HomeController {
 
 	@GetMapping("/api/comingsoontotheaters")
 	public List<Content> displayComingSoonToTheaters() {
-		List<Content> moviesComingSoon = contentManager.findTop10ByDateAfterAndDateBefore(LocalDate.now(), LocalDate.now().plusWeeks(propertiesManager.getProperty("numWeeksForComingSoon")));
+		LocalDate endDate = LocalDate.now().plusWeeks(propertiesManager.getProperty("numWeeksForComingSoon"));
+		List<Content> moviesComingSoon = contentManager.findTop10ByDateAfterAndDateBefore(LocalDate.now(), endDate);
 		return moviesComingSoon;
 	}
 	
