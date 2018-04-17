@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
+import properties.PropertiesManager;
 
 @CrossOrigin("http://localhost:3000")
 @RestController
@@ -16,7 +17,12 @@ public class HomeController {
 	
 	@Autowired
 	private ContentManager contentManager;
-	    
+	private final PropertiesManager propertiesManager;
+
+	public HomeController() {
+		this.propertiesManager = PropertiesManager.getManager();
+	}
+	
 	@GetMapping("/api/topboxoffice")
 	public List<Content> displayBoxOffice() {
 		List<Content> boxOfficeList = contentManager.findTop10ByCurrentlyInTheatersTrueOrderByBoxOffice();
@@ -28,19 +34,18 @@ public class HomeController {
 		DayOfWeek currentDayOfWeek = LocalDate.now().getDayOfWeek();
 		int currentDayOfWeekValue = currentDayOfWeek.getValue();
 		if (currentDayOfWeek == DayOfWeek.SUNDAY) // Sunday is the first day of the week
-			currentDayOfWeekValue = 0; // magic number to change
+			currentDayOfWeekValue = propertiesManager.getProperty("firstDayOfWeekIndex");
 		int daysToSubtract = currentDayOfWeekValue + 1; // the 1 is to account for zero-indexing of days
-		int daysToAdd = 7 - currentDayOfWeekValue; // 7 is magic number to change
+		int daysToAdd = propertiesManager.getProperty("numDaysInWeek") - currentDayOfWeekValue;
 		LocalDate lastDayOfLastWeek = LocalDate.now().minusDays(daysToSubtract);
 		LocalDate firstDayOfNextWeek = LocalDate.now().plusDays(daysToAdd);
 		List<Content> moviesForThisWeek = contentManager.findTop10ByDateAfterAndDateBefore(lastDayOfLastWeek, firstDayOfNextWeek);
 		return moviesForThisWeek;
 	}
 
-	
 	@GetMapping("/api/comingsoontotheaters")
 	public List<Content> displayComingSoonToTheaters() {
-		List<Content> moviesComingSoon = contentManager.findTop10ByDateAfterAndDateBefore(LocalDate.now(), LocalDate.now().plusWeeks(2)); // magic number
+		List<Content> moviesComingSoon = contentManager.findTop10ByDateAfterAndDateBefore(LocalDate.now(), LocalDate.now().plusWeeks(propertiesManager.getProperty("numWeeksForComingSoon")));
 		return moviesComingSoon;
 	}
 	
