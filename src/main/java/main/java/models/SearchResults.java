@@ -2,11 +2,11 @@ package main.java.models;
 
 import main.java.managers.CelebrityManager;
 import java.util.List;
-import main.java.managers.ContentManager;
+import main.java.managers.MovieManager;
 
 public class SearchResults {
 
-	private transient ContentManager cm;
+	private transient MovieManager cm;
 	private transient CelebrityManager celebManager;
 	private List<Content> movieResults;
 	private List<Celebrity> celebrityResults;

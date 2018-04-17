@@ -1,19 +1,20 @@
 package main.java.models;
 
-import java.net.URI;
 import java.time.LocalDate;
-import java.util.Date;
 import java.util.List;
 import javax.persistence.Entity;
 import javax.persistence.Id;
+import javax.persistence.Inheritance;
+import javax.persistence.InheritanceType;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 
 @Entity
-public class Content {
+@Inheritance(strategy = InheritanceType.TABLE_PER_CLASS)
+public abstract class Content {
 	@Id
 	private int content_id;
-	private ContentType type;
+//	private ContentType type;
 	private String title;
 	private String genre;
 	private LocalDate date;
@@ -29,12 +30,9 @@ public class Content {
 	// private List<Image> snapshots; unsure of how we'll do mapping
 	@ManyToOne(targetEntity=Celebrity.class)
 	private Celebrity director;
-	private URI trailerPath;
-	@OneToMany(targetEntity=TVShowSeason.class, mappedBy="season_id")
-	private List<TVShowSeason> seasonsList;
-	private double boxOffice;
-	private boolean currentlyInTheaters;
-	private LocalDate nextAirDate;
+	private String trailerPath;
+//	@OneToMany(targetEntity=TVShowSeason.class, mappedBy="season_id")
+//	private List<TVShowSeason> seasonsList;
 	private String poster_path;
 	@ManyToOne(targetEntity=Celebrity.class)
 	private Celebrity writer;
@@ -43,10 +41,9 @@ public class Content {
 
 	public Content() {
 	}
-	
-	public Content(int content_id, ContentType type, String title, String genre, LocalDate date, double userRating, List<UserReview> userReview, double criticRating, List<CriticReview> criticReview, String description, Celebrity director, URI trailerPath, List<TVShowSeason> seasonsList, double boxOffice, boolean currentlyInTheaters, LocalDate nextAirDate) {
+
+	public Content(int content_id, String title, String genre, LocalDate date, double userRating, List<UserReview> userReview, double criticRating, List<CriticReview> criticReview, String description, Celebrity director, String trailerPath, String poster_path, Celebrity writer, String runtime, String studio) {
 		this.content_id = content_id;
-		this.type = type;
 		this.title = title;
 		this.genre = genre;
 		this.date = date;
@@ -57,11 +54,13 @@ public class Content {
 		this.description = description;
 		this.director = director;
 		this.trailerPath = trailerPath;
-		this.seasonsList = seasonsList;
-		this.boxOffice = boxOffice;
-		this.currentlyInTheaters = currentlyInTheaters;
-		this.nextAirDate = nextAirDate;
+		this.poster_path = poster_path;
+		this.writer = writer;
+		this.runtime = runtime;
+		this.studio = studio;
 	}
+	
+	
 
 	public int getContent_id() {
 		return content_id;
@@ -69,14 +68,6 @@ public class Content {
 
 	public void setContent_id(int content_id) {
 		this.content_id = content_id;
-	}
-
-	public ContentType getType() {
-		return type;
-	}
-
-	public void setType(ContentType type) {
-		this.type = type;
 	}
 
 	public String getTitle() {
@@ -151,44 +142,12 @@ public class Content {
 		this.director = director;
 	}
 
-	public URI getTrailerPath() {
+	public String getTrailerPath() {
 		return trailerPath;
 	}
 
-	public void setTrailerPath(URI trailerPath) {
+	public void setTrailerPath(String trailerPath) {
 		this.trailerPath = trailerPath;
-	}
-
-	public List<TVShowSeason> getSeasonsList() {
-		return seasonsList;
-	}
-
-	public void setSeasonsList(List<TVShowSeason> seasonsList) {
-		this.seasonsList = seasonsList;
-	}
-
-	public double getBoxOffice() {
-		return boxOffice;
-	}
-
-	public void setBoxOffice(double boxOffice) {
-		this.boxOffice = boxOffice;
-	}
-
-	public boolean isCurrentlyInTheaters() {
-		return currentlyInTheaters;
-	}
-
-	public void setCurrentlyInTheaters(boolean currentlyInTheaters) {
-		this.currentlyInTheaters = currentlyInTheaters;
-	}
-
-	public LocalDate getNextAirDate() {
-		return nextAirDate;
-	}
-
-	public void setNextAirDate(LocalDate nextAirDate) {
-		this.nextAirDate = nextAirDate;
 	}
 
 	public String getPoster_path() {
@@ -226,25 +185,5 @@ public class Content {
 	public List<Double> addReview(int contentID, double rating, String body, int userID) {
 		return null;
 	}
-
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj) {
-			return true;
-		}
-		if (obj == null) {
-			return false;
-		}
-		if (getClass() != obj.getClass()) {
-			return false;
-		}
-		final Content other = (Content) obj;
-		if (this.content_id != other.content_id) {
-			return false;
-		}
-		return true;
-	}
-
-	
 	
 }

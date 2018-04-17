@@ -2,15 +2,14 @@ package main.java.managers;
 
 import java.time.LocalDate;
 import java.util.List;
-import main.java.models.Content;
+import main.java.models.Movie;
 import org.springframework.data.repository.CrudRepository;
 
-public interface ContentManager extends CrudRepository<Content, Integer> {
+public interface MovieManager extends CrudRepository<Movie, Integer> {
 		
-	public List<Content> findTop10ByCurrentlyInTheatersTrueOrderByBoxOffice();
-	public List<Content> findTop10ByDateAfterAndDateBefore(LocalDate start, LocalDate end);
+	public List<Movie> findTop10ByCurrentlyInTheatersTrueOrderByBoxOffice();
+	public List<Movie> findTop10ByDateAfterAndDateBefore(LocalDate start, LocalDate end);
 
-		
 		//public List<Content> findTop4ByCelebrityOrderByCriticRating(Celebrity c);
 		
 		//public List<Content> findByCelebrity(Celebrity c);
