@@ -33,8 +33,6 @@ public abstract class Content {
 	@ManyToOne(targetEntity=Celebrity.class)
 	private Celebrity director;
 	private String trailerPath;
-//	@OneToMany(targetEntity=TVShowSeason.class, mappedBy="season_id")
-//	private List<TVShowSeason> seasonsList;
 	private String poster_path;
 	@ManyToOne(targetEntity=Celebrity.class)
 	private Celebrity writer;
@@ -175,6 +173,40 @@ public abstract class Content {
 	public void setStudio(String studio) {
 		this.studio = studio;
 	}
+
+	public int getId() {
+		return id;
+	}
+
+	public void setId(int id) {
+		this.id = id;
+	}
+
+	public Set<Genre> getGenres() {
+		return genres;
+	}
+
+	public void setGenres(Set<Genre> genres) {
+		this.genres = genres;
+	}
+
+	public List<UserReview> getUserReviews() {
+		return userReviews;
+	}
+
+	public void setUserReviews(List<UserReview> userReviews) {
+		this.userReviews = userReviews;
+	}
+
+	public List<CriticReview> getCriticReviews() {
+		return criticReviews;
+	}
+
+	public void setCriticReviews(List<CriticReview> criticReviews) {
+		this.criticReviews = criticReviews;
+	}
+	
+	
 	
 	public void addReview(Review review) {
 		if (review instanceof CriticReview) 

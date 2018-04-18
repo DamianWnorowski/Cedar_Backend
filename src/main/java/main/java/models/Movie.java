@@ -19,6 +19,24 @@ public class Movie extends Content {
 		this.boxOffice = boxOffice;
 		this.currentlyInTheaters = currentlyInTheaters;
 	}
+
+	public double getBoxOffice() {
+		return boxOffice;
+	}
+
+	public void setBoxOffice(double boxOffice) {
+		this.boxOffice = boxOffice;
+	}
+
+	public boolean isCurrentlyInTheaters() {
+		return currentlyInTheaters;
+	}
+
+	public void setCurrentlyInTheaters(boolean currentlyInTheaters) {
+		this.currentlyInTheaters = currentlyInTheaters;
+	}
+	
+	
 	
 	
 }

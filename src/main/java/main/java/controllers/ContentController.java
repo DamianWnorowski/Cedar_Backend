@@ -7,7 +7,6 @@ import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import main.java.managers.MovieManager;
-import main.java.models.Content;
 import main.java.models.CriticReview;
 import main.java.models.Movie;
 import main.java.models.Review;
