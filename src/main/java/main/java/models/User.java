@@ -2,16 +2,19 @@ package main.java.models;
 
 import java.util.List;
 import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.OneToMany;
 
 @Entity
 public class User {
 	@Id
+        @GeneratedValue(strategy = GenerationType.AUTO)
 	private int id;
 	private UserRole role;
 	private String name;
-	private transient String password;
+	private String password;
 	private String email;
 	@OneToMany(targetEntity=Content.class, mappedBy="content_id")
 	private List<Content> movieWatchlist;
