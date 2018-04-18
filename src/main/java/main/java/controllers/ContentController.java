@@ -37,8 +37,9 @@ public class ContentController {
        return null;
     }
 	
-	@PostMapping("/api/postrating")
+	@PostMapping(path = "/api/ratecontent", consumes = "application/x-www-form-urlencoded")
 	public Integer rateContent(@RequestBody ReviewForm form) {
+		System.out.println("Entered rate content");
 		User postingUser = new User(1, UserRole.USER);
 		Movie onlySpongebobForNow = movieManager.findById(2).get();
 		Review reviewToPost;
@@ -52,6 +53,7 @@ public class ContentController {
 		onlySpongebobForNow.addReview(reviewToPost);
 		int status = onlySpongebobForNow.calculateRatings();
 		Movie editedMovie = movieManager.save(onlySpongebobForNow);
+		System.out.println("probably saved");
 		if (editedMovie == null)
 			return -1;
 		return status;

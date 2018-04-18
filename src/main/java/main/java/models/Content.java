@@ -60,8 +60,6 @@ public abstract class Content {
 		this.studio = studio;
 	}
 	
-	
-
 	public int getContent_id() {
 		return id;
 	}
@@ -205,8 +203,6 @@ public abstract class Content {
 	public void setCriticReviews(List<CriticReview> criticReviews) {
 		this.criticReviews = criticReviews;
 	}
-	
-	
 	
 	public void addReview(Review review) {
 		if (review instanceof CriticReview) 
