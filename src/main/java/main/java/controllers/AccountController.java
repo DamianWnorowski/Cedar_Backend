@@ -50,18 +50,18 @@ public class AccountController {
 	}
         
         @PostMapping("/login")
-	public int login(@RequestBody LoginForm lf, HttpServletRequest req) {
+	public User login(@RequestBody LoginForm lf, HttpServletRequest req) {
             System.out.println("logging in with: " + lf.getEmail() + " and pw: " + lf.getPassword());
             if(req == null){
                 System.out.println("Req is null");
             }
             if(securityService.login(lf.getEmail(), lf.getPassword(), req)){
                 System.out.println("We logged in boys");
-                return 1;
+                return um.findByEmail(lf.getEmail());
             }
             System.out.println("not logged in");
             // TODO: Return types
-            return 0;
+            return null;
 	}
 
 //	public String encryptPw(String pw) {
