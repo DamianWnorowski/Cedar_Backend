@@ -2,6 +2,8 @@ package main.java.models;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Set;
+import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Inheritance;
@@ -14,16 +16,16 @@ import javax.persistence.OneToMany;
 public abstract class Content {
 	@Id
 	private int id;
-//	private ContentType type;
 	private String title;
-	private String genre;
+	@ElementCollection
+	private Set<Genre> genres;
 	private LocalDate date;
 	private double userRating;
 	@OneToMany(targetEntity=UserReview.class, mappedBy="review_id")
-	private List<UserReview> userReview;
+	private List<UserReview> userReviews;
 	private double criticRating;
 	@OneToMany(targetEntity=CriticReview.class, mappedBy="review_id")
-	private List<CriticReview> criticReview;
+	private List<CriticReview> criticReviews;
 	private String description;
 //	@ManyToMany(targetEntity=Celebrity.class, mappedBy="celeb_id")
 //	private List<Celebrity> celebrities;
@@ -42,15 +44,15 @@ public abstract class Content {
 	public Content() {
 	}
 
-	public Content(int id, String title, String genre, LocalDate date, double userRating, List<UserReview> userReview, double criticRating, List<CriticReview> criticReview, String description, Celebrity director, String trailerPath, String poster_path, Celebrity writer, String runtime, String studio) {
+	public Content(int id, String title, Set genres, LocalDate date, double userRating, List<UserReview> userReviews, double criticRating, List<CriticReview> criticReviews, String description, Celebrity director, String trailerPath, String poster_path, Celebrity writer, String runtime, String studio) {
 		this.id = id;
 		this.title = title;
-		this.genre = genre;
+		this.genres = genres;
 		this.date = date;
 		this.userRating = userRating;
-		this.userReview = userReview;
+		this.userReviews = userReviews;
 		this.criticRating = criticRating;
-		this.criticReview = criticReview;
+		this.criticReviews = criticReviews;
 		this.description = description;
 		this.director = director;
 		this.trailerPath = trailerPath;
@@ -78,14 +80,6 @@ public abstract class Content {
 		this.title = title;
 	}
 
-	public String getGenre() {
-		return genre;
-	}
-
-	public void setGenre(String genre) {
-		this.genre = genre;
-	}
-
 	public LocalDate getDate() {
 		return date;
 	}
@@ -103,11 +97,11 @@ public abstract class Content {
 	}
 
 	public List<UserReview> getUserReview() {
-		return userReview;
+		return userReviews;
 	}
 
-	public void setUserReview(List<UserReview> userReview) {
-		this.userReview = userReview;
+	public void setUserReview(List<UserReview> userReviews) {
+		this.userReviews = userReviews;
 	}
 
 	public double getCriticRating() {
@@ -119,11 +113,11 @@ public abstract class Content {
 	}
 
 	public List<CriticReview> getCriticReview() {
-		return criticReview;
+		return criticReviews;
 	}
 
-	public void setCriticReview(List<CriticReview> criticReview) {
-		this.criticReview = criticReview;
+	public void setCriticReview(List<CriticReview> criticReviews) {
+		this.criticReviews = criticReviews;
 	}
 
 	public String getDescription() {
@@ -182,8 +176,14 @@ public abstract class Content {
 		this.studio = studio;
 	}
 	
-	public List<Double> addReview(int contentID, double rating, String body, int userID) {
-		return null;
+	public void addReview(Review review) {
+		if (review instanceof CriticReview) 
+			criticReviews.add((CriticReview)review);
+		else
+			userReviews.add((UserReview)review);
 	}
 	
+	public int calculateRatings() {
+		return 0;
+	}
 }
