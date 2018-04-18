@@ -37,11 +37,11 @@ public class ContentController {
        return null;
     }
 	
-	@PostMapping(path = "/api/ratecontent", consumes = "application/x-www-form-urlencoded")
+	@PostMapping("/api/ratecontent")
 	public Integer rateContent(@RequestBody ReviewForm form) {
-		System.out.println("Entered rate content");
+		System.out.println("\n\nEntered rate content\n\n" + form.getBody());
 		User postingUser = new User(1, UserRole.USER);
-		Movie onlySpongebobForNow = movieManager.findById(2).get();
+		Movie onlySpongebobForNow = movieManager.findById(13).get();
 		Review reviewToPost;
 		if (postingUser.getRole() == UserRole.CRITIC) { // review id is hardcoded to 1 for now
 			reviewToPost = new CriticReview(null, 1, onlySpongebobForNow, postingUser, form.getRating(), LocalDate.now(), form.getBody());

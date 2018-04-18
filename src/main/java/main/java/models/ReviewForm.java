@@ -7,7 +7,6 @@ public class ReviewForm {
 	@NotNull
 	private Double rating;
 	private String body;
-	private int content_id;
 
 	public Double getRating() {
 		return rating;
