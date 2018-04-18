@@ -18,6 +18,9 @@ public class User {
 	@OneToMany(targetEntity=TVShowSeason.class, mappedBy="season_id")
 	private List<TVShowSeason> televisionWatchlist;
 
+	public User() {
+	}
+	
 	public User(int id, UserRole role) {
 		this.id = id;
 		this.role = role;

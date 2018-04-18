@@ -16,6 +16,7 @@ import main.java.models.UserReview;
 import main.java.models.UserRole;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import main.java.managers.ReviewManager;
 
 @CrossOrigin("http://localhost:3000")
 @RestController
@@ -23,6 +24,8 @@ public class ContentController {
 
 	@Autowired
 	private MovieManager movieManager;
+	@Autowired
+	ReviewManager criticReviewManager;
 	
     @GetMapping("/movie")
     public Movie getMovieInfo(@RequestParam(value="id") int id) {
@@ -40,15 +43,17 @@ public class ContentController {
 	@PostMapping("/api/ratecontent")
 	public Integer rateContent(@RequestBody ReviewForm form) {
 		System.out.println("\n\nEntered rate content\n\n" + form.getBody());
-		User postingUser = new User(1, UserRole.USER);
+		User postingUser = new User(7, UserRole.USER);
 		Movie onlySpongebobForNow = movieManager.findById(13).get();
 		Review reviewToPost;
 		if (postingUser.getRole() == UserRole.CRITIC) { // review id is hardcoded to 1 for now
 			reviewToPost = new CriticReview(null, 1, onlySpongebobForNow, postingUser, form.getRating(), LocalDate.now(), form.getBody());
+			
 		}
 		else {
 			reviewToPost = new UserReview(1, onlySpongebobForNow, postingUser, form.getRating(), LocalDate.now(), form.getBody());
 		}
+		criticReviewManager.save(reviewToPost);
 		
 		onlySpongebobForNow.addReview(reviewToPost);
 		int status = onlySpongebobForNow.calculateRatings();

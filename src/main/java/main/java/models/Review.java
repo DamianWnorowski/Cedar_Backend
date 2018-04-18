@@ -21,6 +21,9 @@ public abstract class Review {
 	private LocalDate date;
 	private String body;
 
+	public Review() {
+	}
+	
 	public Review(int review_id, Content content, User author, Double rating, LocalDate date, String body) {
 		this.review_id = review_id;
 		this.content = content;
