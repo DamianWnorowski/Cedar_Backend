@@ -1,6 +1,6 @@
 package main.java.models;
 
-import java.util.Date;
+import java.time.LocalDate;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Inheritance;
@@ -12,12 +12,24 @@ import javax.persistence.OneToOne;
 public abstract class Review {
 
 	@Id
-	protected int review_id;
-	protected int contentId;
+	private int review_id;
 	@OneToOne
-	protected User author;
-	protected Double rating;
-	protected Date date;
-	protected String body;
+	private Content content;
+	@OneToOne
+	private User author;
+	private Double rating;
+	private LocalDate date;
+	private String body;
+
+	public Review(int review_id, Content content, User author, Double rating, LocalDate date, String body) {
+		this.review_id = review_id;
+		this.content = content;
+		this.author = author;
+		this.rating = rating;
+		this.date = date;
+		this.body = body;
+	}
+	
+	
 
 }

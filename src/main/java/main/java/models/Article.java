@@ -13,7 +13,7 @@ public class Article {
 	private String description;
 	private String author;
 	private String body;
-	@OneToMany(targetEntity=Content.class, mappedBy="content_id")
+	@OneToMany(targetEntity=Content.class, mappedBy="id")
 	private List<Content> contentList;
 	private LocalDate postDate;
 //	private List<Image> thumbnails;

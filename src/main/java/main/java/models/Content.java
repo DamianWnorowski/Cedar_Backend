@@ -13,7 +13,7 @@ import javax.persistence.OneToMany;
 @Inheritance(strategy = InheritanceType.TABLE_PER_CLASS)
 public abstract class Content {
 	@Id
-	private int content_id;
+	private int id;
 //	private ContentType type;
 	private String title;
 	private String genre;
@@ -42,8 +42,8 @@ public abstract class Content {
 	public Content() {
 	}
 
-	public Content(int content_id, String title, String genre, LocalDate date, double userRating, List<UserReview> userReview, double criticRating, List<CriticReview> criticReview, String description, Celebrity director, String trailerPath, String poster_path, Celebrity writer, String runtime, String studio) {
-		this.content_id = content_id;
+	public Content(int id, String title, String genre, LocalDate date, double userRating, List<UserReview> userReview, double criticRating, List<CriticReview> criticReview, String description, Celebrity director, String trailerPath, String poster_path, Celebrity writer, String runtime, String studio) {
+		this.id = id;
 		this.title = title;
 		this.genre = genre;
 		this.date = date;
@@ -63,11 +63,11 @@ public abstract class Content {
 	
 
 	public int getContent_id() {
-		return content_id;
+		return id;
 	}
 
-	public void setContent_id(int content_id) {
-		this.content_id = content_id;
+	public void setContent_id(int id) {
+		this.id = id;
 	}
 
 	public String getTitle() {

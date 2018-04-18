@@ -13,7 +13,7 @@ public class User {
 	private String name;
 	private transient String password;
 	private String email;
-	@OneToMany(targetEntity=Content.class, mappedBy="content_id")
+	@OneToMany(targetEntity=Content.class, mappedBy="id")
 	private List<Content> movieWatchlist;
 	@OneToMany(targetEntity=TVShowSeason.class, mappedBy="season_id")
 	private List<TVShowSeason> televisionWatchlist;
