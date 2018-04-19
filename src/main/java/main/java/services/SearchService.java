@@ -1,23 +1,24 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
-package main.java.managers;
-
+package main.java.services;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import main.java.managers.MovieManager;
 import main.java.models.Movie;
 import org.springframework.beans.factory.annotation.Autowired;
 
-
 public class SearchService {
+	private static SearchService instance;
+	
 	@Autowired
 	private MovieManager movieManager;
+	
+	private SearchService() {
+		instance = this;
+	}
+	
 	public Set searchMovies(String query){
 		Set<Movie> movies = new HashSet();
 		ArrayList<String> tokens = tokenizeQuery(query);
@@ -34,5 +35,11 @@ public class SearchService {
 		ArrayList<String> tokens = new ArrayList();
 		tokens.addAll(Arrays.asList(query.split(" ")));
 		return tokens;
+	}
+	
+	public static SearchService getService() {
+		if (instance == null)
+			instance = new SearchService();
+		return instance;
 	}
 }
