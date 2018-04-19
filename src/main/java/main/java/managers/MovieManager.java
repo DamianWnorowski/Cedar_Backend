@@ -2,6 +2,7 @@ package main.java.managers;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Set;
 import main.java.models.Movie;
 import org.springframework.data.repository.CrudRepository;
 
@@ -9,7 +10,7 @@ public interface MovieManager extends CrudRepository<Movie, Integer> {
 		
 	public List<Movie> findTop10ByCurrentlyInTheatersTrueOrderByBoxOffice();
 	public List<Movie> findTop10ByDateAfterAndDateBefore(LocalDate start, LocalDate end);
-
+	public List<Movie> findByTitleContainingIgnoreCase(String token);
 		//public List<Content> findTop4ByCelebrityOrderByCriticRating(Celebrity c);
 		
 		//public List<Content> findByCelebrity(Celebrity c);
