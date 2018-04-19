@@ -27,7 +27,6 @@ public class GeneralController {
 			e.printStackTrace();
     		System.out.println("search failed");
     	}
-
        return null;
     }
 	

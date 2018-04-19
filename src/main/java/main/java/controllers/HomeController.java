@@ -26,7 +26,8 @@ public class HomeController {
 	
 	@GetMapping("/api/topboxoffice")
 	public List<Movie> displayBoxOffice() {
-		List<Movie> boxOfficeList = movieManager.findTop10ByCurrentlyInTheatersTrueOrderByBoxOffice();
+		List<Movie> boxOfficeList
+			= movieManager.findTop10ByCurrentlyInTheatersTrueOrderByBoxOffice();
 		return boxOfficeList;
 	}
 
@@ -34,20 +35,25 @@ public class HomeController {
 	public List<Movie> displayMoviesOpeningThisWeek() {
 		DayOfWeek currentDayOfWeek = LocalDate.now().getDayOfWeek();
 		int currentDayOfWeekValue = currentDayOfWeek.getValue();
-		if (currentDayOfWeek == DayOfWeek.SUNDAY) // Sunday is the first day of the week
+		if (currentDayOfWeek == DayOfWeek.SUNDAY) {
 			currentDayOfWeekValue = propertiesManager.getProperty("firstDayOfWeekIndex");
-		int daysToSubtract = currentDayOfWeekValue + 1; // the 1 is to account for zero-indexing of days
+		}
+		/* The +1 is to account for zero-indexing of days */
+		int daysToSubtract = currentDayOfWeekValue + 1;
 		int daysToAdd = propertiesManager.getProperty("numDaysInWeek") - currentDayOfWeekValue;
 		LocalDate lastDayOfLastWeek = LocalDate.now().minusDays(daysToSubtract);
 		LocalDate firstDayOfNextWeek = LocalDate.now().plusDays(daysToAdd);
-		List<Movie> moviesForThisWeek = movieManager.findTop10ByDateAfterAndDateBefore(lastDayOfLastWeek, firstDayOfNextWeek);
+		List<Movie> moviesForThisWeek
+			= movieManager.findTop10ByDateAfterAndDateBefore(lastDayOfLastWeek, firstDayOfNextWeek);
 		return moviesForThisWeek;
 	}
 
 	@GetMapping("/api/comingsoontotheaters")
 	public List<Movie> displayComingSoonToTheaters() {
-		LocalDate endDate = LocalDate.now().plusWeeks(propertiesManager.getProperty("numWeeksForComingSoon"));
-		List<Movie> moviesComingSoon = movieManager.findTop10ByDateAfterAndDateBefore(LocalDate.now(), endDate);
+		LocalDate endDate
+			= LocalDate.now().plusWeeks(propertiesManager.getProperty("numWeeksForComingSoon"));
+		List<Movie> moviesComingSoon
+			= movieManager.findTop10ByDateAfterAndDateBefore(LocalDate.now(), endDate);
 		return moviesComingSoon;
 	}
 	

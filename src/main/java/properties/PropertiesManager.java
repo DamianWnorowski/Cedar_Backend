@@ -13,9 +13,9 @@ public class PropertiesManager {
 	private HashMap<String, Integer> propertiesMap;
 
 	private PropertiesManager() {
-		String slash = File.separator;
-		String propertiesFileLocation = System.getProperty("user.dir") + slash +
-			"src" + slash + "main" + slash + "resources" + slash + "constants.cfg";
+		String propertiesFileLocation = System.getProperty("user.dir")
+			+ "/src/main/resources/constants.cfg";
+		propertiesFileLocation = propertiesFileLocation.replaceAll("/", File.separator);
 		File propertiesFile = new File(propertiesFileLocation);
 		propertiesMap = new HashMap();
 		try {
@@ -36,8 +36,9 @@ public class PropertiesManager {
 	}
 	
 	public static PropertiesManager getManager() {
-		if (instance == null)
+		if (instance == null) {
 			instance = new PropertiesManager();
+		}
 		return instance;
 	}
 	

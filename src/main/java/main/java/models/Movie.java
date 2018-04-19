@@ -14,8 +14,13 @@ public class Movie extends Content {
 	public Movie() {
 	}
 
-	public Movie(double boxOffice, boolean currentlyInTheaters, int content_id, String title, Set<Genre> genres, LocalDate date, double userRating, List<UserReview> userReviews, double criticRating, List<CriticReview> criticReviews, String description, Celebrity director, String trailerPath, String poster_path, Celebrity writer, String runtime, String studio) {
-		super(content_id, title, genres, date, userRating, userReviews, criticRating, criticReviews, description, director, trailerPath, poster_path, writer, runtime, studio);
+	public Movie(double boxOffice, boolean currentlyInTheaters, int content_id,
+			String title, Set<Genre> genres, LocalDate date, double userRating,
+			List<UserReview> userReviews, double criticRating, List<CriticReview> criticReviews,
+			String description, Celebrity director, String trailerPath, String poster_path,
+			Celebrity writer, String runtime, String studio) {
+		super(content_id, title, genres, date, userRating, userReviews, criticRating,
+			criticReviews, description, director, trailerPath, poster_path, writer, runtime, studio);
 		this.boxOffice = boxOffice;
 		this.currentlyInTheaters = currentlyInTheaters;
 	}
@@ -35,8 +40,5 @@ public class Movie extends Content {
 	public void setCurrentlyInTheaters(boolean currentlyInTheaters) {
 		this.currentlyInTheaters = currentlyInTheaters;
 	}
-	
-	
-	
-	
+
 }

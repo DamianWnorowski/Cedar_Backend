@@ -16,7 +16,8 @@ public class Article {
 	@OneToMany(targetEntity=Content.class, mappedBy="id")
 	private List<Content> contentList;
 	private LocalDate postDate;
-//	private List<Image> thumbnails;
-//	private List<URI> videos;
-
+	/*
+	private List<Image> thumbnails;
+	private List<URI> videos;
+	*/
 }

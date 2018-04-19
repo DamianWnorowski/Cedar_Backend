@@ -1,9 +1,7 @@
 package main.java.models;
 
-import java.util.List;
 import javax.persistence.Entity;
 import javax.persistence.Id;
-import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 
 @Entity
@@ -17,9 +15,12 @@ public class Celebrity {
 	private Content highestRated;
 	@ManyToOne(targetEntity=Content.class)
 	private Content lowestRated;
-//	@ManyToMany(targetEntity=Content.class, mappedBy="content_id") I'm unsure how to do this
-//	private List<Content> filmography;
 
+	/*
+	@ManyToMany(targetEntity=Content.class, mappedBy="content_id") I'm unsure how to do this
+	private List<Content> filmography;
+	*/
+	
 	public int getCeleb_id() {
 		return celeb_id;
 	}

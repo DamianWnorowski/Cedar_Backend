@@ -24,7 +24,6 @@ public class CelebrityController {
     	catch (Exception e) {
     		System.out.println("can't get celebrity");
     	}
-
        return null;
     }
 	

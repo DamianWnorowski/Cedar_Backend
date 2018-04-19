@@ -14,7 +14,7 @@ public class AccountService {
 		return 0;
 	}
 
-	public String encryptPw(String pw) {
+	public String encryptPassword(String password) {
 		return null;
 	}
 

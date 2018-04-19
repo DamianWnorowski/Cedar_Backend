@@ -33,7 +33,5 @@ public abstract class Review {
 		this.date = date;
 		this.body = body;
 	}
-	
-	
 
 }

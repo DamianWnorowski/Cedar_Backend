@@ -27,9 +27,11 @@ public abstract class Content {
 	@OneToMany(targetEntity=CriticReview.class, mappedBy="review_id")
 	private List<CriticReview> criticReviews;
 	private String description;
-//	@ManyToMany(targetEntity=Celebrity.class, mappedBy="celeb_id")
-//	private List<Celebrity> celebrities;
-	// private List<Image> snapshots; unsure of how we'll do mapping
+	/*
+	@ManyToMany(targetEntity=Celebrity.class, mappedBy="celeb_id")
+	private List<Celebrity> celebrities;
+	private List<Image> snapshots;
+	*/
 	@ManyToOne(targetEntity=Celebrity.class)
 	private Celebrity director;
 	private String trailerPath;

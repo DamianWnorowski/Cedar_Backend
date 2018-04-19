@@ -6,6 +6,8 @@ import org.springframework.data.repository.CrudRepository;
 
 public interface ArticleManager extends CrudRepository<Article, Integer> {
 
-//	public List<Article> findTop10ArticlesOrderByPostDate(); // Is this descending or ascending? date doesn't have desc
-// not working
+	/*	public List<Article> findTop10ArticlesOrderByPostDate();
+	Is this descending or ascending? date doesn't have desc
+	 not working
+	*/
 }

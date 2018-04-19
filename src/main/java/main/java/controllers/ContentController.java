@@ -36,32 +36,30 @@ public class ContentController {
     	catch (Exception e) {
     		System.out.println("can't get movie");
     	}
-
        return null;
     }
 	
 	@PostMapping("/api/ratecontent")
 	public Integer rateContent(@RequestBody ReviewForm form) {
-		System.out.println("\n\nEntered rate content\n\n" + form.getBody());
 		User postingUser = new User(10, UserRole.USER);
 		Movie movieToRate = movieManager.findById(form.getContent_id()).get();
 		Review reviewToPost;
+		
 		if (postingUser.getRole() == UserRole.CRITIC) {
-			reviewToPost = new CriticReview(null, movieToRate, postingUser, form.getRating(), LocalDate.now(), form.getBody());
-			
+			reviewToPost = new CriticReview(null, movieToRate, postingUser,
+				form.getRating(), LocalDate.now(), form.getBody());
 		}
 		else {
-			reviewToPost = new UserReview(movieToRate, postingUser, form.getRating(), LocalDate.now(), form.getBody());
+			reviewToPost = new UserReview(movieToRate, postingUser,
+				form.getRating(), LocalDate.now(), form.getBody());
 		}
 		reviewManager.save(reviewToPost);
-		
 		movieToRate.addReview(reviewToPost);
 		int status = movieToRate.calculateRatings();
 		Movie editedMovie = movieManager.save(movieToRate);
-		System.out.println("probably saved");
-		if (editedMovie == null)
+		if (editedMovie == null) {
 			return -1;
+		}
 		return status;
 	}
-
 }

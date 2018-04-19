@@ -89,7 +89,5 @@ public class User {
 	public void setTelevisionWatchlist(List<TVShowSeason> televisionWatchlist) {
 		this.televisionWatchlist = televisionWatchlist;
 	}
-	
-	
 
 }
