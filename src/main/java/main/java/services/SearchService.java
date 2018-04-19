@@ -12,10 +12,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 public class SearchService {
 	private static SearchService instance;
 	
-	@Autowired
+//	@Autowired
 	private MovieManager movieManager;
 	
-	private SearchService() {
+	private SearchService(MovieManager movieManager) {
+		this.movieManager = movieManager;
 		instance = this;
 	}
 	
@@ -37,9 +38,9 @@ public class SearchService {
 		return tokens;
 	}
 	
-	public static SearchService getService() {
+	public static SearchService getService(MovieManager movieManager) {
 		if (instance == null)
-			instance = new SearchService();
+			instance = new SearchService(movieManager);
 		return instance;
 	}
 }

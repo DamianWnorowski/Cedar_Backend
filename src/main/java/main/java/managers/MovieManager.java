@@ -2,7 +2,6 @@ package main.java.managers;
 
 import java.time.LocalDate;
 import java.util.List;
-import java.util.Set;
 import main.java.models.Movie;
 import org.springframework.data.repository.CrudRepository;
 
