@@ -17,10 +17,10 @@ public class GeneralController {
 	private MovieManager movieManager;
 	
 	@GetMapping("/api/search")
-    public Set search(@RequestParam(value="query") String query) {
+    public Set search(@RequestParam(value="search") String search) {
         try {
 			SearchService searchService = SearchService.getService(movieManager);
-        	Set<Movie> movies = searchService.searchMovies(query);
+        	Set<Movie> movies = searchService.searchMovies(search);
         	return movies;
     	}
     	catch (Exception e) {
