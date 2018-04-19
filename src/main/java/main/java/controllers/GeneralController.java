@@ -17,7 +17,7 @@ public class GeneralController {
 	private SearchService searchService;
 	
     @GetMapping("/search")
-    public Set getMovieInfo(@RequestParam(value="query") String query) {
+    public Set search(@RequestParam(value="query") String query) {
         try {
         	Set<Movie> movies = searchService.searchMovies(query);
         	return movies;
