@@ -2,6 +2,8 @@ package main.java.models;
 
 import java.time.LocalDate;
 import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Inheritance;
 import javax.persistence.InheritanceType;
@@ -11,21 +13,20 @@ import javax.persistence.OneToOne;
 @Inheritance(strategy = InheritanceType.TABLE_PER_CLASS)
 public abstract class Review {
 
-	@Id
+	@Id @GeneratedValue(strategy=GenerationType.AUTO)
 	private int review_id;
 	@OneToOne
 	private Content content;
 	@OneToOne
 	private User author;
-	private Double rating;
+	private double rating;
 	private LocalDate date;
 	private String body;
 
 	public Review() {
 	}
 	
-	public Review(int review_id, Content content, User author, Double rating, LocalDate date, String body) {
-		this.review_id = review_id;
+	public Review(Content content, User author, double rating, LocalDate date, String body) {
 		this.content = content;
 		this.author = author;
 		this.rating = rating;

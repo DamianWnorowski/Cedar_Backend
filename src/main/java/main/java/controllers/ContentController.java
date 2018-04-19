@@ -25,7 +25,7 @@ public class ContentController {
 	@Autowired
 	private MovieManager movieManager;
 	@Autowired
-	ReviewManager criticReviewManager;
+	ReviewManager reviewManager;
 	
     @GetMapping("/movie")
     public Movie getMovieInfo(@RequestParam(value="id") int id) {
@@ -43,21 +43,21 @@ public class ContentController {
 	@PostMapping("/api/ratecontent")
 	public Integer rateContent(@RequestBody ReviewForm form) {
 		System.out.println("\n\nEntered rate content\n\n" + form.getBody());
-		User postingUser = new User(7, UserRole.USER);
-		Movie onlySpongebobForNow = movieManager.findById(13).get();
+		User postingUser = new User(10, UserRole.USER);
+		Movie movieToRate = movieManager.findById(form.getContent_id()).get();
 		Review reviewToPost;
-		if (postingUser.getRole() == UserRole.CRITIC) { // review id is hardcoded to 1 for now
-			reviewToPost = new CriticReview(null, 1, onlySpongebobForNow, postingUser, form.getRating(), LocalDate.now(), form.getBody());
+		if (postingUser.getRole() == UserRole.CRITIC) {
+			reviewToPost = new CriticReview(null, movieToRate, postingUser, form.getRating(), LocalDate.now(), form.getBody());
 			
 		}
 		else {
-			reviewToPost = new UserReview(1, onlySpongebobForNow, postingUser, form.getRating(), LocalDate.now(), form.getBody());
+			reviewToPost = new UserReview(movieToRate, postingUser, form.getRating(), LocalDate.now(), form.getBody());
 		}
-		criticReviewManager.save(reviewToPost);
+		reviewManager.save(reviewToPost);
 		
-		onlySpongebobForNow.addReview(reviewToPost);
-		int status = onlySpongebobForNow.calculateRatings();
-		Movie editedMovie = movieManager.save(onlySpongebobForNow);
+		movieToRate.addReview(reviewToPost);
+		int status = movieToRate.calculateRatings();
+		Movie editedMovie = movieManager.save(movieToRate);
 		System.out.println("probably saved");
 		if (editedMovie == null)
 			return -1;

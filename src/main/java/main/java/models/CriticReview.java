@@ -12,8 +12,8 @@ public class CriticReview extends Review {
 	public CriticReview() {
 	}
 
-	public CriticReview(URI sourceUrl, int review_id, Content content, User author, Double rating, LocalDate date, String body) {
-		super(review_id, content, author, rating, date, body);
+	public CriticReview(URI sourceUrl, Content content, User author, double rating, LocalDate date, String body) {
+		super(content, author, rating, date, body);
 		this.sourceUrl = sourceUrl;
 	}
 	
