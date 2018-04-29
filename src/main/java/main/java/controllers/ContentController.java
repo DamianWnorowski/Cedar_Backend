@@ -1,6 +1,7 @@
 package main.java.controllers;
 
 import java.time.LocalDate;
+import java.util.List;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -61,5 +62,10 @@ public class ContentController {
 			return -1;
 		}
 		return status;
+	}
+	
+	@GetMapping("/api/highestratedmovies")
+	public List<Movie> displayHighestRatedMovies() {
+		return movieManager.findTop10ByOrderByCriticRatingDesc();
 	}
 }
