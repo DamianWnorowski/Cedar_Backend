@@ -21,7 +21,7 @@ public class HomeController {
 	private final PropertiesManager propertiesManager;
 
 	public HomeController() {
-		this.propertiesManager = PropertiesManager.getManager();
+            this.propertiesManager = PropertiesManager.getManager();
 	}
 	
 	@GetMapping("/api/topboxoffice")

@@ -15,7 +15,7 @@ public class PropertiesManager {
 	private PropertiesManager() {
 		String propertiesFileLocation = System.getProperty("user.dir")
 			+ "/src/main/resources/constants.cfg";
-		propertiesFileLocation = propertiesFileLocation.replaceAll("/", File.separator);
+		propertiesFileLocation = propertiesFileLocation.replaceAll("//", File.separator);
 		File propertiesFile = new File(propertiesFileLocation);
 		propertiesMap = new HashMap();
 		try {
