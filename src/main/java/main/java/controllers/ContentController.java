@@ -19,6 +19,9 @@ import main.java.models.UserRole;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import main.java.managers.ReviewManager;
+import main.java.managers.UserManager;
+import main.java.models.Movie;
+import org.springframework.security.core.context.SecurityContextHolder;
 
 
 @CrossOrigin("http://localhost:3000")
@@ -26,9 +29,12 @@ import main.java.managers.ReviewManager;
 public class ContentController {
 
 	@Autowired
-	private MovieManager movieManager;
+	MovieManager movieManager;
 	@Autowired
 	ReviewManager reviewManager;
+	@Autowired
+	UserManager userManager;
+
 	
     @GetMapping("/movie")
     public Movie getMovieInfo(@RequestParam(value="id") int id, HttpServletRequest req) {
@@ -45,7 +51,8 @@ public class ContentController {
 	
 	@PostMapping("/api/ratecontent")
 	public Integer rateContent(@RequestBody ReviewForm form) {
-		User postingUser = new User(10, UserRole.ROLE_USER);
+		String email = SecurityContextHolder.getContext().getAuthentication().getName();
+		User postingUser = userManager.findByEmail(email);
 		Movie movieToRate = movieManager.findById(form.getContent_id()).get();
 		Review reviewToPost;
 		
