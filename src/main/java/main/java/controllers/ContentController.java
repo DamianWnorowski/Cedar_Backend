@@ -2,6 +2,7 @@ package main.java.controllers;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.NoSuchElementException;
 import javax.servlet.http.HttpServletRequest;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -10,7 +11,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import main.java.managers.MovieManager;
 import main.java.models.CriticReview;
-import main.java.models.Movie;
 import main.java.models.Review;
 import main.java.models.ReviewForm;
 import main.java.models.User;
@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import main.java.managers.ReviewManager;
 import main.java.managers.UserManager;
+import main.java.models.ErrorCode;
 import main.java.models.Movie;
 import org.springframework.security.core.context.SecurityContextHolder;
 
@@ -52,6 +53,9 @@ public class ContentController {
 	@PostMapping("/api/ratecontent")
 	public Integer rateContent(@RequestBody ReviewForm form) {
 		String email = SecurityContextHolder.getContext().getAuthentication().getName();
+		if (email == null) {
+			return -1;
+		}
 		User postingUser = userManager.findByEmail(email);
 		Movie movieToRate = movieManager.findById(form.getContent_id()).get();
 		Review reviewToPost;
@@ -72,6 +76,31 @@ public class ContentController {
 			return -1;
 		}
 		return status;
+	}
+	
+	@GetMapping("/api/deletereview")
+	public ErrorCode deleteReview(@RequestParam(value="id") int id) {
+		String email = SecurityContextHolder.getContext().getAuthentication().getName();
+		System.out.println(id);
+		if (email.equals("anonymousUser")) {
+			return ErrorCode.NOTLOGGEDIN;
+		}
+		User currentUser = userManager.findByEmail(email);
+		Review reviewToDelete = null;
+		try {
+			reviewToDelete = reviewManager.findById(id).get();
+		}
+		catch (NoSuchElementException e) {
+			System.out.println("failed");
+			return ErrorCode.DOESNOTEXIST;
+		}
+	
+		if (currentUser.getRole() != UserRole.ROLE_ADMIN && 
+			!reviewToDelete.getAuthor().equals(currentUser)) {
+			return ErrorCode.INVALIDPERMISSIONS;
+		}
+		reviewManager.delete(reviewToDelete);
+		return ErrorCode.SUCCESS;
 	}
 	
 	@GetMapping("/api/highestratedmovies")
