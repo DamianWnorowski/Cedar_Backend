@@ -216,4 +216,5 @@ public abstract class Content {
 	public ErrorCode calculateRatings() {
 		return ErrorCode.SUCCESS;
 	}
+	
 }
