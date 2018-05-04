@@ -67,6 +67,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .permitAll()
                 .and()
                 .httpBasic().and()
+                .logout().and()
                 .headers().frameOptions().sameOrigin().cacheControl().and()
                 .httpStrictTransportSecurity().disable().and()
                 .addFilterBefore(new JwtTokenFilter(jwtTokenProvider),
@@ -99,22 +100,4 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         source.registerCorsConfiguration("/**", configuration);
         return source;
     }
-
-//    @Autowired
-//    public void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
-//        auth
-//                .jdbcAuthentication()
-//                .dataSource(dataSource)
-//                .usersByUsernameQuery(getUsernameQueryString())
-//                .authoritiesByUsernameQuery(getAuthoritiesQueryString())
-//                .passwordEncoder(bCryptPasswordEncoder());
-//    }
-//
-//    public String getUsernameQueryString() {
-//        return "select email, password, enabled from users where email=?";
-//    }
-//
-//    public String getAuthoritiesQueryString() {
-//        return "select users.email as email, user_roles.roles as roles from users, user_roles where users.id = user_roles.user_id AND users.email=?";
-//    }
 }

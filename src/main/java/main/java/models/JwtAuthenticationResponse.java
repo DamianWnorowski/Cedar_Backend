@@ -4,12 +4,12 @@ import java.util.List;
 
 public class JwtAuthenticationResponse {
     private String userToken;
-    private String userEmail;
+    private String userName;
     private List<Content> userBlacklist;
 
-    public JwtAuthenticationResponse(String token, String email, List<Content> blacklist){
+    public JwtAuthenticationResponse(String token, String name, List<Content> blacklist){
         this.userToken = token;
-        this.userEmail = email;
+        this.userName = name;
         this.userBlacklist = blacklist;
     }
     
@@ -17,8 +17,8 @@ public class JwtAuthenticationResponse {
         return userToken;
     }
 
-    public String getUserEmail() {
-        return userEmail;
+    public String getUserName() {
+        return userName;
     }
 
     public List<Content> getUserBlacklist() {
