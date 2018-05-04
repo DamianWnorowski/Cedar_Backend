@@ -82,6 +82,32 @@ public class ContentController {
 		return status;
 	}
 	
+	
+	@PostMapping("/api/editreview")
+	public ErrorCode editReview(@RequestParam(value="id") int id, @RequestBody ReviewForm form) {
+		String email = SecurityContextHolder.getContext().getAuthentication().getName();
+		
+		if (email.equals("anonymousUser")) {
+			return ErrorCode.NOTLOGGEDIN;
+		}
+		User currentUser = userManager.findByEmail(email);
+		Review reviewToEdit;
+		try {
+			reviewToEdit = reviewManager.findById(id).get();
+		}
+		catch (NoSuchElementException e) {
+			System.out.println("failed");
+			return ErrorCode.DOESNOTEXIST;
+		}
+	
+		if (!currentUser.hasRole(UserRole.ROLE_ADMIN) && 
+			!reviewToEdit.getAuthor().equals(currentUser)) {
+			return ErrorCode.INVALIDPERMISSIONS;
+		}
+		reviewManager.save(reviewToEdit);
+		return ErrorCode.SUCCESS;
+	}
+	
 	@GetMapping("/api/deletereview")
 	public ErrorCode deleteReview(@RequestParam(value="id") int id) {
 		String email = SecurityContextHolder.getContext().getAuthentication().getName();

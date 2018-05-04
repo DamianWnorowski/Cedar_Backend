@@ -3,10 +3,13 @@ package main.java.security;
 import main.java.services.JwtTokenProviderService;
 import main.java.filters.JwtTokenFilter;
 import java.util.Arrays;
+import java.util.Properties;
 import javax.sql.DataSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.context.annotation.Bean;
+import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.mail.javamail.JavaMailSenderImpl;
 
 import org.springframework.security.authentication.AuthenticationManager;
 
@@ -67,7 +70,6 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .permitAll()
                 .and()
                 .httpBasic().and()
-                .logout().and()
                 .headers().frameOptions().sameOrigin().cacheControl().and()
                 .httpStrictTransportSecurity().disable().and()
                 .addFilterBefore(new JwtTokenFilter(jwtTokenProvider),

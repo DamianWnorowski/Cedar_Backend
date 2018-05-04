@@ -40,9 +40,7 @@ public class User {
 	private List<Review> reviews;
 
     public User() {
-        roles = new ArrayList();
-        following = new ArrayList();
-        blacklist = new ArrayList();
+
     }
 
     public User(int id) {
@@ -173,7 +171,7 @@ public class User {
 	public void setReviews(List<Review> reviews) {
 		this.reviews = reviews;
 	}
-
+	
     @Override
     public boolean equals(Object obj) {
         if (this == obj) {
