@@ -51,10 +51,10 @@ public class ContentController {
     }
 	
 	@PostMapping("/api/ratecontent")
-	public Integer rateContent(@RequestBody ReviewForm form) {
+	public ErrorCode rateContent(@RequestBody ReviewForm form) {
 		String email = SecurityContextHolder.getContext().getAuthentication().getName();
-		if (email == null) {
-			return -1;
+		if (email.equals("anonymousUser")) {
+			return ErrorCode.NOTLOGGEDIN;
 		}
 		User postingUser = userManager.findByEmail(email);
 		Movie movieToRate = movieManager.findById(form.getContent_id()).get();
@@ -70,10 +70,10 @@ public class ContentController {
 		}
 		reviewManager.save(reviewToPost);
 		movieToRate.addReview(reviewToPost);
-		int status = movieToRate.calculateRatings();
+		ErrorCode status = movieToRate.calculateRatings();
 		Movie editedMovie = movieManager.save(movieToRate);
 		if (editedMovie == null) {
-			return -1;
+			return ErrorCode.DATABASEERROR;
 		}
 		return status;
 	}
@@ -95,7 +95,7 @@ public class ContentController {
 			return ErrorCode.DOESNOTEXIST;
 		}
 	
-		if (currentUser.hasRole(UserRole.ROLE_ADMIN) && 
+		if (!currentUser.hasRole(UserRole.ROLE_ADMIN) && 
 			!reviewToDelete.getAuthor().equals(currentUser)) {
 			return ErrorCode.INVALIDPERMISSIONS;
 		}
@@ -107,4 +107,72 @@ public class ContentController {
 	public List<Movie> displayHighestRatedMovies() {
 		return movieManager.findTop10ByOrderByCriticRatingDesc();
 	}
+	
+	@GetMapping("/api/latestcriticreviews")
+	public List<CriticReview> displayLatestCriticReviews() {
+		return reviewManager.findTop10ByDateBeforeOrderByDateDesc(LocalDate.now().plusDays(1));
+	}
+	
+	@PostMapping("/api/deletemovie")
+    public ErrorCode deleteMovie(@RequestParam(value="id") int id) {
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+		if (email.equals("anonymousUser")) {
+			return ErrorCode.NOTLOGGEDIN;
+		}
+		User currentUser = userManager.findByEmail(email);
+		Movie movieToDelete;
+		try {
+			movieToDelete = movieManager.findById(id).get();
+		}
+		catch (NoSuchElementException e) {
+			return ErrorCode.DOESNOTEXIST;
+		}
+		
+		if (!currentUser.hasRole(UserRole.ROLE_ADMIN)){
+			return ErrorCode.INVALIDPERMISSIONS;
+		}
+		
+		movieManager.delete(movieToDelete);
+        return ErrorCode.SUCCESS;
+    }
+	
+	@PostMapping("/api/addmovie")
+    public ErrorCode addMovie(@RequestBody Movie movie) {
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+		Movie temp = movieManager.findById(movie.getId()).get();
+        if (temp != null) {
+            return ErrorCode.DATABASEERROR;
+        }
+		if (email.equals("anonymousUser")) {
+			return ErrorCode.NOTLOGGEDIN;
+		}
+		User currentUser = userManager.findByEmail(email);
+		
+		if (!currentUser.hasRole(UserRole.ROLE_ADMIN)){
+			return ErrorCode.INVALIDPERMISSIONS;
+		}
+		
+		movieManager.save(movie);
+        return ErrorCode.SUCCESS;
+    }
+	
+	@PostMapping("/api/editmovie")
+    public ErrorCode editmovie(@RequestBody Movie movie) {
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+		Movie temp = movieManager.findById(movie.getId()).get();
+        if (temp == null) {
+            return ErrorCode.DATABASEERROR;
+        }
+		if (email.equals("anonymousUser")) {
+			return ErrorCode.NOTLOGGEDIN;
+		}
+		User currentUser = userManager.findByEmail(email);
+		
+		if (!currentUser.hasRole(UserRole.ROLE_ADMIN)){
+			return ErrorCode.INVALIDPERMISSIONS;
+		}
+		
+		movieManager.save(movie);
+        return ErrorCode.SUCCESS;
+    }
 }

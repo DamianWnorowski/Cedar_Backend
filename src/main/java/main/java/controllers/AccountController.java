@@ -1,8 +1,11 @@
 package main.java.controllers;
 
+import java.util.List;
+import java.util.NoSuchElementException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import main.java.managers.UserManager;
+import main.java.models.ErrorCode;
 import main.java.models.JwtAuthenticationResponse;
 import main.java.models.LoginForm;
 import main.java.models.RegistrationForm;
@@ -15,10 +18,12 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @CrossOrigin("http://localhost:3000")
@@ -92,6 +97,78 @@ public class AccountController {
 
     public int validateUser(User u, LoginForm lf) {
         return 0;
+    }
+	
+	@PostMapping("/api/deleteaccount")
+    public ErrorCode deleteAccount(@RequestParam(value="id") int id) {
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+		if (email.equals("anonymousUser")) {
+			return ErrorCode.NOTLOGGEDIN;
+		}
+		User currentUser = um.findByEmail(email);
+		User userToDelete;
+		try {
+			userToDelete = um.findById(id).get();
+		}
+		catch (NoSuchElementException e) {
+			return ErrorCode.DOESNOTEXIST;
+		}
+		
+		if (currentUser.getId() != userToDelete.getId() && !currentUser.hasRole(UserRole.ROLE_ADMIN)){
+			return ErrorCode.INVALIDPERMISSIONS;
+		}
+		
+		um.delete(userToDelete);
+        return ErrorCode.SUCCESS;
+    }
+	
+	@PostMapping("/api/followuser")
+    public ErrorCode followUser(@RequestParam(value="id") int id) {
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+		if (email.equals("anonymousUser")) {
+			return ErrorCode.NOTLOGGEDIN;
+		}
+		User currentUser = um.findByEmail(email);
+		User userToFollow;
+		try {
+			userToFollow = um.findById(id).get();
+		}
+		catch (NoSuchElementException e) {
+			return ErrorCode.DOESNOTEXIST;
+		}
+		
+		List<User> usersFollowed = currentUser.getFollowing();
+		usersFollowed.add(userToFollow);
+		currentUser.setFollowing(usersFollowed);
+		
+		um.save(currentUser);
+        return ErrorCode.SUCCESS;
+    }
+	
+	@PostMapping("/api/unfollowuser")
+    public ErrorCode unfollowUser(@RequestParam(value="id") int id) {
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+		if (email.equals("anonymousUser")) {
+			return ErrorCode.NOTLOGGEDIN;
+		}
+		User currentUser = um.findByEmail(email);
+		User userToRemove;
+		try {
+			userToRemove = um.findById(id).get();
+		}
+		catch (NoSuchElementException e) {
+			return ErrorCode.DOESNOTEXIST;
+		}
+		
+		List<User> usersFollowed = currentUser.getFollowing();
+		
+		if(!usersFollowed.contains(userToRemove)){
+			return ErrorCode.DOESNOTEXIST;
+		}
+		usersFollowed.remove(userToRemove);
+		currentUser.setFollowing(usersFollowed);
+		um.save(currentUser);
+        return ErrorCode.SUCCESS;
     }
 
 }
