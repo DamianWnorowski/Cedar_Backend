@@ -114,7 +114,7 @@ public class AccountController {
 			return ErrorCode.DOESNOTEXIST;
 		}
 		
-		if (currentUser.getId() != userToDelete.getId() && currentUser.hasRole(UserRole.ROLE_ADMIN)){
+		if (currentUser.getId() != userToDelete.getId() && !currentUser.hasRole(UserRole.ROLE_ADMIN)){
 			return ErrorCode.INVALIDPERMISSIONS;
 		}
 		
