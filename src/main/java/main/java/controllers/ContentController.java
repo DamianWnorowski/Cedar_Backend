@@ -51,10 +51,10 @@ public class ContentController {
     }
 	
 	@PostMapping("/api/ratecontent")
-	public Integer rateContent(@RequestBody ReviewForm form) {
+	public ErrorCode rateContent(@RequestBody ReviewForm form) {
 		String email = SecurityContextHolder.getContext().getAuthentication().getName();
-		if (email == null) {
-			return -1;
+		if (email.equals("anonymousUser")) {
+			return ErrorCode.NOTLOGGEDIN;
 		}
 		User postingUser = userManager.findByEmail(email);
 		Movie movieToRate = movieManager.findById(form.getContent_id()).get();
@@ -70,10 +70,10 @@ public class ContentController {
 		}
 		reviewManager.save(reviewToPost);
 		movieToRate.addReview(reviewToPost);
-		int status = movieToRate.calculateRatings();
+		ErrorCode status = movieToRate.calculateRatings();
 		Movie editedMovie = movieManager.save(movieToRate);
 		if (editedMovie == null) {
-			return -1;
+			return ErrorCode.DATABASESAVEFAILURE;
 		}
 		return status;
 	}
@@ -81,7 +81,6 @@ public class ContentController {
 	@GetMapping("/api/deletereview")
 	public ErrorCode deleteReview(@RequestParam(value="id") int id) {
 		String email = SecurityContextHolder.getContext().getAuthentication().getName();
-		System.out.println(id);
 		if (email.equals("anonymousUser")) {
 			return ErrorCode.NOTLOGGEDIN;
 		}
@@ -91,7 +90,6 @@ public class ContentController {
 			reviewToDelete = reviewManager.findById(id).get();
 		}
 		catch (NoSuchElementException e) {
-			System.out.println("failed");
 			return ErrorCode.DOESNOTEXIST;
 		}
 	
