@@ -105,4 +105,9 @@ public class ContentController {
 	public List<Movie> displayHighestRatedMovies() {
 		return movieManager.findTop10ByOrderByCriticRatingDesc();
 	}
+	
+	@GetMapping("/api/latestcriticreviews")
+	public List<UserReview> displayLatestCriticReviews() {
+		return reviewManager.findTop10ByDateBefore(LocalDate.now().plusDays(1));
+	}
 }
