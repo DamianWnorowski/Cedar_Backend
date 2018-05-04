@@ -148,4 +148,24 @@ public class ContentController {
 		movieManager.save(movie);
         return ErrorCode.SUCCESS;
     }
+	
+	@PostMapping("/api/editmovie")
+    public ErrorCode editmovie(@RequestBody Movie movie) {
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+		Movie temp = movieManager.findById(movie.getId()).get();
+        if (temp == null) {
+            return ErrorCode.DATABASESAVEFAILURE;
+        }
+		if (email.equals("anonymousUser")) {
+			return ErrorCode.NOTLOGGEDIN;
+		}
+		User currentUser = userManager.findByEmail(email);
+		
+		if (currentUser.getRole() != UserRole.ROLE_ADMIN){
+			return ErrorCode.INVALIDPERMISSIONS;
+		}
+		
+		movieManager.save(movie);
+        return ErrorCode.SUCCESS;
+    }
 }
