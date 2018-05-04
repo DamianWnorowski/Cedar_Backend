@@ -77,7 +77,7 @@ public class AccountController {
             System.out.println("logging in with: " + lf.getEmail() + " and pw: " + lf.getPassword());
             if (bCryptPasswordEncoder.matches(lf.getPassword(), u.getPassword())) {
                 jwt = jwtTokenProvider.generateToken(u.getEmail());
-                resp = new JwtAuthenticationResponse(jwt, u.getEmail(), u.getBlackList());
+                resp = new JwtAuthenticationResponse(jwt, u.getName(), u.getBlackList());
                 return resp;
             }
         }
