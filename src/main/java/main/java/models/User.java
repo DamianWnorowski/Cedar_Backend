@@ -139,6 +139,8 @@ public class User {
         this.televisionWatchlist = televisionWatchlist;
     }
 
+    
+    
     @Override
     public boolean equals(Object obj) {
         if (this == obj) {
