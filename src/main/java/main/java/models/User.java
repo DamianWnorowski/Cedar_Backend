@@ -82,13 +82,21 @@ public class User {
         this.following = following;
     }
 
-    public int addToWatchlist(int contentID) {
-        return 0;
+    public ErrorCode addToMovieWatchlist(Movie movie) {
+		if (movieWatchlist.contains(movie)) {
+			return ErrorCode.ALREADYINLIST;
+		}
+		movieWatchlist.add(movie);
+        return ErrorCode.SUCCESS;
     }
 
-    public int addToBlacklist(int contentID) {
-        return 0;
-    }
+    public ErrorCode addToMovieBlacklist(Content content) {
+		if (blacklist.contains(content)) {
+			return ErrorCode.ALREADYINLIST;
+		}
+		blacklist.add(content);
+		return ErrorCode.SUCCESS;
+	}
 
     public List<Content> getBlackList() {
         return blacklist;

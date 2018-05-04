@@ -211,4 +211,32 @@ public class ContentController {
 		}
 		return videoPart;
 	}
+	
+	@PostMapping("/api/addtolist")
+	public ErrorCode addToList(@RequestParam(value="id") int id, @RequestParam(value="wantToSee") boolean wantToSee) {
+		String email = SecurityContextHolder.getContext().getAuthentication().getName();
+		if (email.equals("anonymousUser")) {
+			return ErrorCode.NOTLOGGEDIN;
+		}
+		User currentUser = userManager.findByEmail(email);
+		Movie theMovie = null;
+		try {
+			theMovie = movieManager.findById(id).get();
+		}
+		catch (NoSuchElementException e) {
+			return ErrorCode.DOESNOTEXIST;
+		}
+		if (wantToSee) {
+			currentUser.addToMovieWatchlist(theMovie);
+		}
+		else {
+			currentUser.addToMovieBlacklist(theMovie);
+		}
+
+		if (userManager.save(currentUser) == null) {
+			return ErrorCode.DATABASEERROR;
+		}
+		return ErrorCode.SUCCESS;
+	}
+	
 }
