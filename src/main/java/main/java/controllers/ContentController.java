@@ -105,4 +105,47 @@ public class ContentController {
 	public List<Movie> displayHighestRatedMovies() {
 		return movieManager.findTop10ByOrderByCriticRatingDesc();
 	}
+	
+	@PostMapping("/api/deletemovie")
+    public ErrorCode deleteMovie(@RequestParam(value="id") int id) {
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+		if (email.equals("anonymousUser")) {
+			return ErrorCode.NOTLOGGEDIN;
+		}
+		User currentUser = userManager.findByEmail(email);
+		Movie movieToDelete;
+		try {
+			movieToDelete = movieManager.findById(id).get();
+		}
+		catch (NoSuchElementException e) {
+			return ErrorCode.DOESNOTEXIST;
+		}
+		
+		if (currentUser.getRole() != UserRole.ROLE_ADMIN){
+			return ErrorCode.INVALIDPERMISSIONS;
+		}
+		
+		movieManager.delete(movieToDelete);
+        return ErrorCode.SUCCESS;
+    }
+	
+	@PostMapping("/api/addmovie")
+    public ErrorCode addMovie(@RequestBody Movie movie) {
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+		Movie temp = movieManager.findById(movie.getId()).get();
+        if (temp != null) {
+            return ErrorCode.DATABASESAVEFAILURE;
+        }
+		if (email.equals("anonymousUser")) {
+			return ErrorCode.NOTLOGGEDIN;
+		}
+		User currentUser = userManager.findByEmail(email);
+		
+		if (currentUser.getRole() != UserRole.ROLE_ADMIN){
+			return ErrorCode.INVALIDPERMISSIONS;
+		}
+		
+		movieManager.save(movie);
+        return ErrorCode.SUCCESS;
+    }
 }
