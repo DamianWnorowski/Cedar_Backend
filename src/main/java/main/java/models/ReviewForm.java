@@ -5,15 +5,15 @@ import javax.validation.constraints.NotNull;
 public class ReviewForm {
 	
 	@NotNull
-	private Double rating;
+	private Integer rating;
 	private String body;
 	private Integer content_id;
 
-	public Double getRating() {
+	public Integer getRating() {
 		return rating;
 	}
 
-	public void setRating(Double rating) {
+	public void setRating(Integer rating) {
 		this.rating = rating;
 	}
 

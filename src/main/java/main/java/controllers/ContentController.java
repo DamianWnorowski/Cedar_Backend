@@ -2,7 +2,7 @@ package main.java.controllers;
 
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.io.IOException;
+import java.io.OutputStream;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -26,6 +26,7 @@ import main.java.managers.UserManager;
 import main.java.models.ErrorCode;
 import main.java.models.Movie;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBody;
 
 
 @CrossOrigin("http://localhost:3000")
@@ -178,39 +179,76 @@ public class ContentController {
 		movieManager.save(movie);
         return ErrorCode.SUCCESS;
     }
+	
 	@GetMapping("/api/playtrailer")
-	public byte[] playTrailer(@RequestParam(value="id") int id, @RequestParam(value="nextByte") int nextByte) {
-		String trailerPath = "";
-		try {
+    public StreamingResponseBody playTrailer(@RequestParam(value = "id") int id) {
+        String trailerPath = "";
+        try {
             trailerPath = movieManager.findById(id).get().getTrailerPath();
             if (trailerPath.equals("")) {
-				return null;
-			}
-        }
-    	catch (Exception e) {
+                return null;
+            }
+        } catch (Exception e) {
             System.out.println("can't get movie");
-    	}		
-		String trailerLocation = System.getProperty("user.dir") + "/trailers" + trailerPath;
-		FileInputStream inputStream;
-		try {
-			inputStream = new FileInputStream(trailerLocation);
-		}
-		catch (FileNotFoundException f) {
-			return null;
-		}
-		byte[] videoPart = new byte[8388608]; // 8 MB
-		try {
-			long numBytesSkipped = inputStream.skip(nextByte);
-			if (numBytesSkipped == -1) {
-				return null;
-			}
-			inputStream.read(videoPart);
-		}
-		catch (IOException e) {
-			return videoPart;
-		}
-		return videoPart;
-	}
+        }
+        String trailerLocation = System.getProperty("user.dir") + "/trailers" + trailerPath;
+        FileInputStream inputStream;
+        try {
+            inputStream = new FileInputStream(trailerLocation);
+        } catch (FileNotFoundException f) {
+            return null;
+        }
+ 
+        int bufsize = 8388608;
+        byte[] buffer = new byte[bufsize];
+       
+        return (OutputStream out) -> {
+            int i;
+            try {
+                while ((i = inputStream.read(buffer))!=-1) {
+                    out.write(buffer);
+                    out.flush();
+                }
+            } catch(Exception e)  {
+               
+            }
+        };
+ 
+    }
+	
+//	@GetMapping("/api/playtrailer")
+//	public byte[] playTrailer(@RequestParam(value="id") int id, @RequestParam(value="nextByte") int nextByte) {
+//		String trailerPath = "";
+//		try {
+//            trailerPath = movieManager.findById(id).get().getTrailerPath();
+//            if (trailerPath.equals("")) {
+//				return null;
+//			}
+//        }
+//    	catch (Exception e) {
+//            System.out.println("can't get movie");
+//    	}		
+//		String trailerLocation = System.getProperty("user.dir") + "/trailers" + trailerPath;
+//		FileInputStream inputStream;
+//		try {
+//			inputStream = new FileInputStream(trailerLocation);
+//		}
+//		catch (FileNotFoundException f) {
+//			return null;
+//		}
+//		byte[] videoPart = new byte[8388608]; // 8 MB
+//		try {
+//			long numBytesSkipped = inputStream.skip(nextByte);
+//			if (numBytesSkipped == -1) {
+//				return null;
+//			}
+//			inputStream.read(videoPart);
+//		}
+//		catch (IOException e) {
+//			return videoPart;
+//		}
+//		return videoPart;
+//	}
 	
 	@PostMapping("/api/addtolist")
 	public ErrorCode addToList(@RequestParam(value="id") int id, @RequestParam(value="wantToSee") boolean wantToSee) {

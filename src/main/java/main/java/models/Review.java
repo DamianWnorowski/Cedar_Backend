@@ -19,14 +19,14 @@ public abstract class Review {
 	private Content content;
 	@OneToOne
 	private User author;
-	private double rating;
+	private int rating;
 	private LocalDate date;
 	private String body;
 
 	public Review() {
 	}
 	
-	public Review(Content content, User author, double rating, LocalDate date, String body) {
+	public Review(Content content, User author, int rating, LocalDate date, String body) {
 		this.content = content;
 		this.author = author;
 		this.rating = rating;
@@ -58,11 +58,11 @@ public abstract class Review {
 		this.author = author;
 	}
 
-	public double getRating() {
+	public int getRating() {
 		return rating;
 	}
 
-	public void setRating(double rating) {
+	public void setRating(int rating) {
 		this.rating = rating;
 	}
 

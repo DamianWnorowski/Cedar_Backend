@@ -1,13 +1,13 @@
 package main.java.models;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.util.ArrayList;
 import java.util.List;
-import javax.persistence.CollectionTable;
 import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
-import javax.persistence.JoinColumn;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
@@ -19,6 +19,7 @@ public class User {
     @GeneratedValue
     private int id;
     private String name;
+	@JsonIgnore
     private String password;
     private String email;
 
@@ -31,10 +32,12 @@ public class User {
     private List<TVShowSeason> televisionWatchlist;
     @ElementCollection
     private List<Content> blacklist;
-    @ElementCollection
+    @ElementCollection(fetch = FetchType.EAGER)
     private List<String> roles;
     @ElementCollection
     private List<User> following;
+	@OneToMany(targetEntity=UserReview.class, mappedBy="review_id")
+	private List<Review> reviews;
 
     public User() {
         roles = new ArrayList();
@@ -97,6 +100,11 @@ public class User {
 		blacklist.add(content);
 		return ErrorCode.SUCCESS;
 	}
+	
+	public ErrorCode addReview(Review review) {
+		reviews.add(review);
+		return ErrorCode.SUCCESS;
+	}
 
     public List<Content> getBlackList() {
         return blacklist;
@@ -149,6 +157,22 @@ public class User {
     public void setTelevisionWatchlist(List<TVShowSeason> televisionWatchlist) {
         this.televisionWatchlist = televisionWatchlist;
     }
+
+	public List<Content> getBlacklist() {
+		return blacklist;
+	}
+
+	public void setBlacklist(List<Content> blacklist) {
+		this.blacklist = blacklist;
+	}
+
+	public List<Review> getReviews() {
+		return reviews;
+	}
+
+	public void setReviews(List<Review> reviews) {
+		this.reviews = reviews;
+	}
 
     @Override
     public boolean equals(Object obj) {

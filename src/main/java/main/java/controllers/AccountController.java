@@ -4,11 +4,13 @@ import java.util.List;
 import java.util.NoSuchElementException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import main.java.managers.ReviewManager;
 import main.java.managers.UserManager;
 import main.java.models.ErrorCode;
 import main.java.models.JwtAuthenticationResponse;
 import main.java.models.LoginForm;
 import main.java.models.RegistrationForm;
+import main.java.models.Review;
 import main.java.models.User;
 import main.java.models.UserRole;
 import main.java.services.JwtTokenProviderService;
@@ -16,8 +18,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -42,6 +42,9 @@ public class AccountController {
 
     @Autowired
     private JwtTokenProviderService jwtTokenProvider;
+	
+	@Autowired
+	private ReviewManager reviewManager;
 
     @PostMapping("/register")
     public ResponseEntity register(@RequestBody RegistrationForm rf) {
@@ -173,15 +176,27 @@ public class AccountController {
     }
 
 	@GetMapping("/api/profile")
-	public User getUserInfo(@RequestParam(value="id") int id, HttpServletRequest req){
+	public User getUserInfo(@RequestParam(value="id") int id){
 		try {
             User user = um.findById(id).get();
             return user;
         }
     	catch (Exception e) {
-            System.out.println("can't get movie");
+            System.out.println("can't get profile");
     	}
 
        return null;
+	}
+	
+	@GetMapping("/api/getusersreviews")
+	public List<Review> getReviews(@RequestParam(value="id") int id) {
+		User author;
+		try {
+            author = um.findById(id).get();
+        }
+		catch (Exception e) {
+            return null;
+    	}
+		return reviewManager.findByAuthor(author);
 	}
 }

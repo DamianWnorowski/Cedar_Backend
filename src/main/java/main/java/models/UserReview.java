@@ -9,7 +9,7 @@ public class UserReview extends Review {
 	public UserReview() {
 	}
 	
-	public UserReview(Content content, User author, Double rating, LocalDate date, String body) {
+	public UserReview(Content content, User author, int rating, LocalDate date, String body) {
 		super(content, author, rating, date, body);
 	}
 	
