@@ -1,6 +1,7 @@
 package main.java.controllers;
 
 import java.util.NoSuchElementException;
+import java.util.Set;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import main.java.managers.UserManager;
@@ -107,4 +108,54 @@ public class AccountController {
 		um.delete(userToDelete);
         return ErrorCode.SUCCESS;
     }
+	
+//	@PostMapping("/api/followuser")
+//    public ErrorCode followUser(@RequestParam(value="id") int id) {
+//        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+//		if (email.equals("anonymousUser")) {
+//			return ErrorCode.NOTLOGGEDIN;
+//		}
+//		User currentUser = um.findByEmail(email);
+//		User userToFollow;
+//		try {
+//			userToFollow = um.findById(id).get();
+//		}
+//		catch (NoSuchElementException e) {
+//			return ErrorCode.DOESNOTEXIST;
+//		}
+//		
+//		Set<User> usersFollowed = currentUser.getFollowers();
+//		usersFollowed.add(userToFollow);
+//		currentUser.setFollowers(usersFollowed);
+//		
+//		um.save(currentUser);
+//        return ErrorCode.SUCCESS;
+//    }
+//	
+//	@PostMapping("/api/unfollowuser")
+//    public ErrorCode followUser(@RequestParam(value="id") int id) {
+//        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+//		if (email.equals("anonymousUser")) {
+//			return ErrorCode.NOTLOGGEDIN;
+//		}
+//		User currentUser = um.findByEmail(email);
+//		User userToRemove;
+//		try {
+//			userToRemove = um.findById(id).get();
+//		}
+//		catch (NoSuchElementException e) {
+//			return ErrorCode.DOESNOTEXIST;
+//		}
+//		
+//		Set<User> usersFollowed = currentUser.getFollowers();
+//		
+//		if(!usersFollowed.contains(userToRemove)){
+//			return ErrorCode.DATABASESAVEFAILURE;
+//		}
+//		usersFollowed.remove(userToRemove);
+//		currentUser.setFollowers(usersFollowed);
+//		um.save(currentUser);
+//        return ErrorCode.SUCCESS;
+//    }
+	
 }
