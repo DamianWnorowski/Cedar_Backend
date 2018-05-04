@@ -204,6 +204,7 @@ public class ContentController {
 		movieManager.save(movie);
         return ErrorCode.SUCCESS;
     }
+	
 	@GetMapping("/api/playtrailer")
 	public byte[] playTrailer(@RequestParam(value="id") int id, @RequestParam(value="nextByte") int nextByte) {
 		String trailerPath = "";
