@@ -21,6 +21,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -171,4 +172,16 @@ public class AccountController {
         return ErrorCode.SUCCESS;
     }
 
+	@GetMapping("/api/profile")
+	public User getUserInfo(@RequestParam(value="id") int id, HttpServletRequest req){
+		try {
+            User user = um.findById(id).get();
+            return user;
+        }
+    	catch (Exception e) {
+            System.out.println("can't get movie");
+    	}
+
+       return null;
+	}
 }
