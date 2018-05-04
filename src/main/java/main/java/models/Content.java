@@ -213,7 +213,7 @@ public abstract class Content {
 			userReviews.add((UserReview)review);
 	}
 	
-	public int calculateRatings() {
-		return 0;
+	public ErrorCode calculateRatings() {
+		return ErrorCode.SUCCESS;
 	}
 }

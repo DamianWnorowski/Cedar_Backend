@@ -51,10 +51,10 @@ public class ContentController {
     }
 	
 	@PostMapping("/api/ratecontent")
-	public Integer rateContent(@RequestBody ReviewForm form) {
+	public ErrorCode rateContent(@RequestBody ReviewForm form) {
 		String email = SecurityContextHolder.getContext().getAuthentication().getName();
-		if (email == null) {
-			return -1;
+		if (email.equals("anonymousUser")) {
+			return ErrorCode.NOTLOGGEDIN;
 		}
 		User postingUser = userManager.findByEmail(email);
 		Movie movieToRate = movieManager.findById(form.getContent_id()).get();
@@ -70,10 +70,10 @@ public class ContentController {
 		}
 		reviewManager.save(reviewToPost);
 		movieToRate.addReview(reviewToPost);
-		int status = movieToRate.calculateRatings();
+		ErrorCode status = movieToRate.calculateRatings();
 		Movie editedMovie = movieManager.save(movieToRate);
 		if (editedMovie == null) {
-			return -1;
+			return ErrorCode.DATABASEERROR;
 		}
 		return status;
 	}
@@ -109,7 +109,7 @@ public class ContentController {
 	}
 	
 	@GetMapping("/api/latestcriticreviews")
-	public List<UserReview> displayLatestCriticReviews() {
-		return reviewManager.findTop10ByDateBefore(LocalDate.now().plusDays(1));
+	public List<CriticReview> displayLatestCriticReviews() {
+		return reviewManager.findTop10ByDateBeforeOrderByDateDesc(LocalDate.now().plusDays(1));
 	}
 }

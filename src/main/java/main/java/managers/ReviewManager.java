@@ -2,10 +2,10 @@ package main.java.managers;
 
 import java.time.LocalDate;
 import java.util.List;
+import main.java.models.CriticReview;
 import main.java.models.Review;
-import main.java.models.UserReview;
 import org.springframework.data.repository.CrudRepository;
 
 public interface ReviewManager extends CrudRepository<Review, Integer> {
-	public List<UserReview> findTop10ByDateBefore(LocalDate date);
+	public List<CriticReview> findTop10ByDateBeforeOrderByDateDesc(LocalDate date);
 }
