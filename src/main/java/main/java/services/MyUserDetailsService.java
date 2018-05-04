@@ -1,5 +1,5 @@
 
-package main.java.security;
+package main.java.services;
 
 import java.util.Arrays;
 import main.java.managers.UserManager;

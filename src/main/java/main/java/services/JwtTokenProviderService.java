@@ -1,4 +1,4 @@
-package main.java.security;
+package main.java.services;
 
 import java.util.Base64;
 import java.util.Date;
@@ -15,7 +15,7 @@ import io.jsonwebtoken.SignatureAlgorithm;
 
 
 @Component
-public class JwtTokenProvider {
+public class JwtTokenProviderService {
   
   private String secretKey = "SuperSecretKey";
 

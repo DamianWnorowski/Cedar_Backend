@@ -1,4 +1,4 @@
-package main.java.security;
+package main.java.models;
 
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.userdetails.User;

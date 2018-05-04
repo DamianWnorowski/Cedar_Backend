@@ -7,7 +7,7 @@ import main.java.models.LoginForm;
 import main.java.models.RegistrationForm;
 import main.java.models.User;
 import main.java.models.UserRole;
-import main.java.security.JwtTokenProvider;
+import main.java.services.JwtTokenProviderService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -34,7 +34,7 @@ public class AccountController {
     private AuthenticationManager authenticationManager;
     
     @Autowired
-    private JwtTokenProvider jwtTokenProvider;
+    private JwtTokenProviderService jwtTokenProvider;
     
 
     @PostMapping("/register")

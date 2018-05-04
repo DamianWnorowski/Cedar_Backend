@@ -1,5 +1,7 @@
 package main.java.security;
 
+import main.java.services.JwtTokenProviderService;
+import filters.JwtTokenFilter;
 import java.util.Arrays;
 import java.util.concurrent.TimeUnit;
 import javax.sql.DataSource;
@@ -37,7 +39,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     private DataSource dataSource;
 
     @Autowired
-    private JwtTokenProvider jwtTokenProvider;
+    private JwtTokenProviderService jwtTokenProvider;
     
     @Bean
     @Override
