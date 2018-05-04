@@ -51,16 +51,16 @@ public class ContentController {
     }
 	
 	@PostMapping("/api/ratecontent")
-	public ErrorCode rateContent(@RequestBody ReviewForm form) {
+	public Integer rateContent(@RequestBody ReviewForm form) {
 		String email = SecurityContextHolder.getContext().getAuthentication().getName();
-		if (email.equals("anonymousUser")) {
-			return ErrorCode.NOTLOGGEDIN;
+		if (email == null) {
+			return -1;
 		}
 		User postingUser = userManager.findByEmail(email);
 		Movie movieToRate = movieManager.findById(form.getContent_id()).get();
 		Review reviewToPost;
 		
-		if (postingUser.getRole() == UserRole.ROLE_CRITIC) {
+		if (postingUser.hasRole(UserRole.ROLE_CRITIC)) {
 			reviewToPost = new CriticReview(null, movieToRate, postingUser,
 				form.getRating(), LocalDate.now(), form.getBody());
 		}
@@ -70,10 +70,10 @@ public class ContentController {
 		}
 		reviewManager.save(reviewToPost);
 		movieToRate.addReview(reviewToPost);
-		ErrorCode status = movieToRate.calculateRatings();
+		int status = movieToRate.calculateRatings();
 		Movie editedMovie = movieManager.save(movieToRate);
 		if (editedMovie == null) {
-			return ErrorCode.DATABASESAVEFAILURE;
+			return -1;
 		}
 		return status;
 	}
@@ -81,6 +81,7 @@ public class ContentController {
 	@GetMapping("/api/deletereview")
 	public ErrorCode deleteReview(@RequestParam(value="id") int id) {
 		String email = SecurityContextHolder.getContext().getAuthentication().getName();
+		System.out.println(id);
 		if (email.equals("anonymousUser")) {
 			return ErrorCode.NOTLOGGEDIN;
 		}
@@ -90,10 +91,11 @@ public class ContentController {
 			reviewToDelete = reviewManager.findById(id).get();
 		}
 		catch (NoSuchElementException e) {
+			System.out.println("failed");
 			return ErrorCode.DOESNOTEXIST;
 		}
 	
-		if (currentUser.getRole() != UserRole.ROLE_ADMIN && 
+		if (currentUser.hasRole(UserRole.ROLE_ADMIN) && 
 			!reviewToDelete.getAuthor().equals(currentUser)) {
 			return ErrorCode.INVALIDPERMISSIONS;
 		}
@@ -105,67 +107,4 @@ public class ContentController {
 	public List<Movie> displayHighestRatedMovies() {
 		return movieManager.findTop10ByOrderByCriticRatingDesc();
 	}
-	
-	@PostMapping("/api/deletemovie")
-    public ErrorCode deleteMovie(@RequestParam(value="id") int id) {
-        String email = SecurityContextHolder.getContext().getAuthentication().getName();
-		if (email.equals("anonymousUser")) {
-			return ErrorCode.NOTLOGGEDIN;
-		}
-		User currentUser = userManager.findByEmail(email);
-		Movie movieToDelete;
-		try {
-			movieToDelete = movieManager.findById(id).get();
-		}
-		catch (NoSuchElementException e) {
-			return ErrorCode.DOESNOTEXIST;
-		}
-		
-		if (currentUser.getRole() != UserRole.ROLE_ADMIN){
-			return ErrorCode.INVALIDPERMISSIONS;
-		}
-		
-		movieManager.delete(movieToDelete);
-        return ErrorCode.SUCCESS;
-    }
-	
-	@PostMapping("/api/addmovie")
-    public ErrorCode addMovie(@RequestBody Movie movie) {
-        String email = SecurityContextHolder.getContext().getAuthentication().getName();
-		Movie temp = movieManager.findById(movie.getId()).get();
-        if (temp != null) {
-            return ErrorCode.DATABASESAVEFAILURE;
-        }
-		if (email.equals("anonymousUser")) {
-			return ErrorCode.NOTLOGGEDIN;
-		}
-		User currentUser = userManager.findByEmail(email);
-		
-		if (currentUser.getRole() != UserRole.ROLE_ADMIN){
-			return ErrorCode.INVALIDPERMISSIONS;
-		}
-		
-		movieManager.save(movie);
-        return ErrorCode.SUCCESS;
-    }
-	
-	@PostMapping("/api/editmovie")
-    public ErrorCode editmovie(@RequestBody Movie movie) {
-        String email = SecurityContextHolder.getContext().getAuthentication().getName();
-		Movie temp = movieManager.findById(movie.getId()).get();
-        if (temp == null) {
-            return ErrorCode.DATABASESAVEFAILURE;
-        }
-		if (email.equals("anonymousUser")) {
-			return ErrorCode.NOTLOGGEDIN;
-		}
-		User currentUser = userManager.findByEmail(email);
-		
-		if (currentUser.getRole() != UserRole.ROLE_ADMIN){
-			return ErrorCode.INVALIDPERMISSIONS;
-		}
-		
-		movieManager.save(movie);
-        return ErrorCode.SUCCESS;
-    }
 }

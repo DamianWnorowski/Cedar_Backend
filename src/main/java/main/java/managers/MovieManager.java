@@ -11,6 +11,7 @@ public interface MovieManager extends CrudRepository<Movie, Integer> {
 	public List<Movie> findTop10ByDateAfterAndDateBefore(LocalDate start, LocalDate end);
 	public List<Movie> findByTitleContainingIgnoreCase(String token);
 	public List<Movie> findTop10ByOrderByCriticRatingDesc();
+	
 	/*
 	public List<Content> findTop4ByCelebrityOrderByCriticRating(Celebrity c);
 	public List<Content> findByCelebrity(Celebrity c);

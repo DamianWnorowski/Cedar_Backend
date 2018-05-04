@@ -1,9 +1,8 @@
 package main.java.security;
 
 import main.java.services.JwtTokenProviderService;
-import filters.JwtTokenFilter;
+import main.java.filters.JwtTokenFilter;
 import java.util.Arrays;
-import java.util.concurrent.TimeUnit;
 import javax.sql.DataSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
@@ -22,14 +21,10 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.firewall.StrictHttpFirewall;
-import org.springframework.security.web.util.matcher.AndRequestMatcher;
-import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
-
 
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
-
 
 @EnableWebSecurity(debug = false)
 @EnableAutoConfiguration
@@ -40,7 +35,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Autowired
     private JwtTokenProviderService jwtTokenProvider;
-    
+
     @Bean
     @Override
     public UserDetailsService userDetailsService() {
@@ -65,19 +60,18 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .csrf().disable()
                 .cors().and()
                 .authorizeRequests()
-                    .antMatchers("/profile")
-                    .hasRole("USER").and()
+                .antMatchers("/profile")
+                .hasRole("USER").and()
                 .authorizeRequests()
-                    .anyRequest()
-                    .permitAll()
-                    .and()
+                .anyRequest()
+                .permitAll()
+                .and()
                 .httpBasic().and()
                 .headers().frameOptions().sameOrigin().cacheControl().and()
                 .httpStrictTransportSecurity().disable().and()
                 .addFilterBefore(new JwtTokenFilter(jwtTokenProvider),
-                       UsernamePasswordAuthenticationFilter.class);
+                        UsernamePasswordAuthenticationFilter.class);
     }
-
 
     @Bean
     public StrictHttpFirewall httpFirewall() {
@@ -95,7 +89,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     @Bean
     CorsConfigurationSource corsConfigurationSource() {
         final CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(Arrays.asList("http://localhost:3000"));
+        configuration.setAllowedOrigins(Arrays.asList("http://localhost:3000", "http://localhost:8080"));
         configuration.setAllowedMethods(Arrays.asList("HEAD", "OPTIONS",
                 "GET", "POST", "PUT", "DELETE", "PATCH"));
         configuration.setAllowCredentials(true);
@@ -106,21 +100,21 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         return source;
     }
 
-    @Autowired
-    public void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
-        auth
-                .jdbcAuthentication()
-                .dataSource(dataSource)
-                .usersByUsernameQuery(getUsernameQueryString())
-                .authoritiesByUsernameQuery(getAuthoritiesQueryString())
-                .passwordEncoder(bCryptPasswordEncoder());
-    }
-
-    public String getUsernameQueryString() {
-        return "select email, password, enabled from users where email=?";
-    }
-
-    public String getAuthoritiesQueryString() {
-        return "select email, authority from authorities where email=?";
-    }
+//    @Autowired
+//    public void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
+//        auth
+//                .jdbcAuthentication()
+//                .dataSource(dataSource)
+//                .usersByUsernameQuery(getUsernameQueryString())
+//                .authoritiesByUsernameQuery(getAuthoritiesQueryString())
+//                .passwordEncoder(bCryptPasswordEncoder());
+//    }
+//
+//    public String getUsernameQueryString() {
+//        return "select email, password, enabled from users where email=?";
+//    }
+//
+//    public String getAuthoritiesQueryString() {
+//        return "select users.email as email, user_roles.roles as roles from users, user_roles where users.id = user_roles.user_id AND users.email=?";
+//    }
 }
