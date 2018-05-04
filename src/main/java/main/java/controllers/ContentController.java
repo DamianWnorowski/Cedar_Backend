@@ -1,5 +1,8 @@
 package main.java.controllers;
 
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -76,6 +79,32 @@ public class ContentController {
 			return ErrorCode.DATABASEERROR;
 		}
 		return status;
+	}
+	
+	
+	@PostMapping("/api/editreview")
+	public ErrorCode editReview(@RequestParam(value="id") int id, @RequestBody ReviewForm form) {
+		String email = SecurityContextHolder.getContext().getAuthentication().getName();
+		
+		if (email.equals("anonymousUser")) {
+			return ErrorCode.NOTLOGGEDIN;
+		}
+		User currentUser = userManager.findByEmail(email);
+		Review reviewToEdit;
+		try {
+			reviewToEdit = reviewManager.findById(id).get();
+		}
+		catch (NoSuchElementException e) {
+			System.out.println("failed");
+			return ErrorCode.DOESNOTEXIST;
+		}
+	
+		if (!currentUser.hasRole(UserRole.ROLE_ADMIN) && 
+			!reviewToEdit.getAuthor().equals(currentUser)) {
+			return ErrorCode.INVALIDPERMISSIONS;
+		}
+		reviewManager.save(reviewToEdit);
+		return ErrorCode.SUCCESS;
 	}
 	
 	@GetMapping("/api/deletereview")
@@ -175,4 +204,65 @@ public class ContentController {
 		movieManager.save(movie);
         return ErrorCode.SUCCESS;
     }
+	@GetMapping("/api/playtrailer")
+	public byte[] playTrailer(@RequestParam(value="id") int id, @RequestParam(value="nextByte") int nextByte) {
+		String trailerPath = "";
+		try {
+            trailerPath = movieManager.findById(id).get().getTrailerPath();
+            if (trailerPath.equals("")) {
+				return null;
+			}
+        }
+    	catch (Exception e) {
+            System.out.println("can't get movie");
+    	}		
+		String trailerLocation = System.getProperty("user.dir") + "/trailers" + trailerPath;
+		FileInputStream inputStream;
+		try {
+			inputStream = new FileInputStream(trailerLocation);
+		}
+		catch (FileNotFoundException f) {
+			return null;
+		}
+		byte[] videoPart = new byte[8388608]; // 8 MB
+		try {
+			long numBytesSkipped = inputStream.skip(nextByte);
+			if (numBytesSkipped == -1) {
+				return null;
+			}
+			inputStream.read(videoPart);
+		}
+		catch (IOException e) {
+			return videoPart;
+		}
+		return videoPart;
+	}
+	
+	@PostMapping("/api/addtolist")
+	public ErrorCode addToList(@RequestParam(value="id") int id, @RequestParam(value="wantToSee") boolean wantToSee) {
+		String email = SecurityContextHolder.getContext().getAuthentication().getName();
+		if (email.equals("anonymousUser")) {
+			return ErrorCode.NOTLOGGEDIN;
+		}
+		User currentUser = userManager.findByEmail(email);
+		Movie theMovie = null;
+		try {
+			theMovie = movieManager.findById(id).get();
+		}
+		catch (NoSuchElementException e) {
+			return ErrorCode.DOESNOTEXIST;
+		}
+		if (wantToSee) {
+			currentUser.addToMovieWatchlist(theMovie);
+		}
+		else {
+			currentUser.addToMovieBlacklist(theMovie);
+		}
+
+		if (userManager.save(currentUser) == null) {
+			return ErrorCode.DATABASEERROR;
+		}
+		return ErrorCode.SUCCESS;
+	}
+	
 }
