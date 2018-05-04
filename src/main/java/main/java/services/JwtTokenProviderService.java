@@ -29,7 +29,7 @@ public class JwtTokenProviderService {
     secretKey = Base64.getEncoder().encodeToString(secretKey.getBytes());
   }
 
-  public String generateToken(Authentication authentication) {
+    public String generateToken(Authentication authentication) {
 
         UserDetails userPrincipal = (UserDetails) authentication.getPrincipal();
 
@@ -38,6 +38,17 @@ public class JwtTokenProviderService {
 
         return Jwts.builder()
                 .setSubject(userPrincipal.getUsername())
+                .setIssuedAt(new Date())
+                .setExpiration(expiryDate)
+                .signWith(SignatureAlgorithm.HS512, secretKey)
+                .compact();
+    }
+    public String generateToken(String email) {
+        Date now = new Date();
+        Date expiryDate = new Date(now.getTime() + validityInMilliseconds);
+
+        return Jwts.builder()
+                .setSubject(email)
                 .setIssuedAt(new Date())
                 .setExpiration(expiryDate)
                 .signWith(SignatureAlgorithm.HS512, secretKey)

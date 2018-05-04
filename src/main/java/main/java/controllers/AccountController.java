@@ -1,10 +1,9 @@
 package main.java.controllers;
 
-import java.util.NoSuchElementException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import main.java.managers.UserManager;
-import main.java.models.ErrorCode;
+import main.java.models.JwtAuthenticationResponse;
 import main.java.models.LoginForm;
 import main.java.models.RegistrationForm;
 import main.java.models.User;
@@ -16,12 +15,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @CrossOrigin("http://localhost:3000")
@@ -36,10 +33,9 @@ public class AccountController {
 
     @Autowired
     private AuthenticationManager authenticationManager;
-    
+
     @Autowired
     private JwtTokenProviderService jwtTokenProvider;
-    
 
     @PostMapping("/register")
     public ResponseEntity register(@RequestBody RegistrationForm rf) {
@@ -55,7 +51,9 @@ public class AccountController {
         user.setName(rf.getFirstName() + " " + rf.getLastName());
         user.setEmail(rf.getEmail());
         user.setPassword(pw);
-        user.setRole(UserRole.ROLE_USER);
+        user.getRoles().add(UserRole.ROLE_USER.name());
+        user.setVisible(true);
+        user.setVerified(false);
         System.out.println("Saving user with email: " + user.getEmail() + " and pw: " + user.getPassword());
         user = um.save(user);
         System.out.println("UserID for the user to be registered: " + user.getId());
@@ -63,18 +61,29 @@ public class AccountController {
     }
 
     @PostMapping("/login")
-    public String login(@RequestBody LoginForm lf, HttpServletRequest req, HttpServletResponse res) {
-        System.out.println("logging in with: " + lf.getEmail() + " and pw: " + lf.getPassword());
-        
-        Authentication authentication = authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(
-                        lf.getEmail(),
-                        lf.getPassword()
-                )
-        );
-        
-        String jwt = jwtTokenProvider.generateToken(authentication);
-        return jwt;
+    public JwtAuthenticationResponse login(@RequestBody LoginForm lf, HttpServletRequest req, HttpServletResponse res) {
+        String jwt;
+        JwtAuthenticationResponse resp;
+        User u;
+
+//        Authentication authentication = authenticationManager.authenticate(
+//                new UsernamePasswordAuthenticationToken(
+//                        lf.getEmail(),
+//                        lf.getPassword()
+//                )
+//        );
+        u = um.findByEmail(lf.getEmail());
+        if (u != null) {
+            System.out.println("logging in with: " + lf.getEmail() + " and pw: " + lf.getPassword());
+            if (bCryptPasswordEncoder.matches(lf.getPassword(), u.getPassword())) {
+                jwt = jwtTokenProvider.generateToken(u.getEmail());
+                resp = new JwtAuthenticationResponse(jwt, u.getEmail(), u.getBlackList());
+                return resp;
+            }
+        }
+        System.out.println("Such user does not exist");
+        return null;
+
     }
 
     public String encryptPassword(String password) {
@@ -84,27 +93,5 @@ public class AccountController {
     public int validateUser(User u, LoginForm lf) {
         return 0;
     }
-	
-	@PostMapping("/api/deleteaccount")
-    public ErrorCode deleteAccount(@RequestParam(value="id") int id) {
-        String email = SecurityContextHolder.getContext().getAuthentication().getName();
-		if (email.equals("anonymousUser")) {
-			return ErrorCode.NOTLOGGEDIN;
-		}
-		User currentUser = um.findByEmail(email);
-		User userToDelete;
-		try {
-			userToDelete = um.findById(id).get();
-		}
-		catch (NoSuchElementException e) {
-			return ErrorCode.DOESNOTEXIST;
-		}
-		
-		if (currentUser.getId() != userToDelete.getId() && currentUser.getRole() != UserRole.ROLE_ADMIN){
-			return ErrorCode.INVALIDPERMISSIONS;
-		}
-		
-		um.delete(userToDelete);
-        return ErrorCode.SUCCESS;
-    }
+
 }

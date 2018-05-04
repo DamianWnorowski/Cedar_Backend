@@ -1,4 +1,4 @@
-package filters;
+package main.java.filters;
 
 import java.io.IOException;
 import javax.servlet.FilterChain;
