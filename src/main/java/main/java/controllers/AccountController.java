@@ -21,6 +21,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -89,6 +90,19 @@ public class AccountController {
         System.out.println("Such user does not exist");
         return null;
 
+    }
+    @GetMapping("/userlogout")
+    public ResponseEntity logout(HttpServletRequest req) {
+        System.out.println("logging out...");
+        Authentication auth;
+        auth = SecurityContextHolder.getContext().getAuthentication();
+        if(auth.getName().equals("anonymousUser")){
+            return ResponseEntity.ok(HttpStatus.FORBIDDEN);
+        } else {
+            SecurityContextHolder.clearContext();
+            return ResponseEntity.ok(HttpStatus.OK);
+
+        }
     }
 
     public String encryptPassword(String password) {

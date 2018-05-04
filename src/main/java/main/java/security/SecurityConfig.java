@@ -67,7 +67,6 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .permitAll()
                 .and()
                 .httpBasic().and()
-                .logout().and()
                 .headers().frameOptions().sameOrigin().cacheControl().and()
                 .httpStrictTransportSecurity().disable().and()
                 .addFilterBefore(new JwtTokenFilter(jwtTokenProvider),

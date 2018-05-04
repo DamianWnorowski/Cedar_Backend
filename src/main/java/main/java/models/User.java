@@ -2,12 +2,11 @@ package main.java.models;
 
 import java.util.ArrayList;
 import java.util.List;
-import javax.persistence.CollectionTable;
 import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
-import javax.persistence.JoinColumn;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
@@ -30,16 +29,14 @@ public class User {
     @OneToMany(targetEntity = TVShowSeason.class, mappedBy = "season_id")
     private List<TVShowSeason> televisionWatchlist;
     @ElementCollection
-    private List<Content> blacklist;
+    private List<Content> blacklist = new ArrayList();
+    @ElementCollection(fetch = FetchType.EAGER)
+    private List<String> roles = new ArrayList();
     @ElementCollection
-    private List<String> roles;
-    @ElementCollection
-    private List<User> following;
+    private List<User> following = new ArrayList();
 
     public User() {
-        roles = new ArrayList();
-        following = new ArrayList();
-        blacklist = new ArrayList();
+
     }
 
     public User(int id) {
