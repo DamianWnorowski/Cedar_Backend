@@ -107,9 +107,4 @@ public class ContentController {
 	public List<Movie> displayHighestRatedMovies() {
 		return movieManager.findTop10ByOrderByCriticRatingDesc();
 	}
-	
-	@GetMapping("/api/displayTopBoxOffice")
-	public List<Movie> displayTopBoxOffice() {
-		return movieManager.findTop10ByOrderByBoxOfficeDesc();
-	}
 }
