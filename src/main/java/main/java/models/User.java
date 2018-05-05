@@ -1,7 +1,6 @@
 package main.java.models;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import java.util.ArrayList;
 import java.util.List;
 import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
@@ -21,21 +20,28 @@ public class User {
     private String name;
 	@JsonIgnore
     private String password;
+	@JsonIgnore
     private String email;
-
+	@JsonIgnore
     private boolean verified;
     private boolean visible;
-
-    @OneToMany(targetEntity = Content.class, mappedBy = "id")
+	@JsonIgnore
+	@ElementCollection
+    //@OneToMany(targetEntity = Content.class, mappedBy = "id")
     private List<Content> movieWatchlist;
-    @OneToMany(targetEntity = TVShowSeason.class, mappedBy = "season_id")
+	@JsonIgnore
+	@ElementCollection
+    //@OneToMany(targetEntity = TVShowSeason.class, mappedBy = "season_id")
     private List<TVShowSeason> televisionWatchlist;
-    @ElementCollection
+	@JsonIgnore
+	@ElementCollection
     private List<Content> blacklist;
     @ElementCollection(fetch = FetchType.EAGER)
     private List<String> roles;
     @ElementCollection
+	@JsonIgnore
     private List<User> following;
+	@JsonIgnore
 	@OneToMany(targetEntity=UserReview.class, mappedBy="review_id")
 	private List<Review> reviews;
 
@@ -103,10 +109,6 @@ public class User {
 		reviews.add(review);
 		return ErrorCode.SUCCESS;
 	}
-
-    public List<Content> getBlackList() {
-        return blacklist;
-    }
 
     public int getId() {
         return id;

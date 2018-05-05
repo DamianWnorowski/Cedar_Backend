@@ -276,7 +276,7 @@ public class ContentController {
 //		return videoPart;
 //	}
 	
-	@PostMapping("/api/addtolist")
+	@GetMapping("/api/addtolist")
 	public ErrorCode addToList(@RequestParam(value="id") int id, @RequestParam(value="wantToSee") boolean wantToSee) {
 		String email = SecurityContextHolder.getContext().getAuthentication().getName();
 		if (email.equals("anonymousUser")) {

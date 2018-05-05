@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.NoSuchElementException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import main.java.dto.UserDTO;
 import main.java.managers.ReviewManager;
 import main.java.managers.UserManager;
 import main.java.models.ErrorCode;
@@ -102,7 +103,7 @@ public class AccountController {
                 // checking if user verified their email
                 if (u.isVerified()) {
                     jwt = jwtTokenProvider.generateToken(u.getEmail());
-                    resp = new JwtAuthenticationResponse(jwt, u.getName(), u.getBlackList(), null);
+                    resp = new JwtAuthenticationResponse(jwt, u.getName(), u.getBlacklist(), null);
                     return resp;
                 } else {
                     return new JwtAuthenticationResponse(null, null, null,
@@ -218,10 +219,11 @@ public class AccountController {
     }
 
 	@GetMapping("/api/profile")
-	public User getUserInfo(@RequestParam(value="id") int id){
+	public UserDTO getUserInfo(@RequestParam(value="id") int id){
 		try {
             User user = um.findById(id).get();
-            return user;
+			UserDTO dto = new UserDTO(user);
+            return dto;
         }
     	catch (Exception e) {
             System.out.println("can't get profile");
