@@ -25,6 +25,8 @@ import main.java.managers.TVManager;
 import main.java.managers.UserManager;
 import main.java.models.ErrorCode;
 import main.java.models.Movie;
+import main.java.models.ReviewReport;
+import main.java.models.ReviewReportForm;
 import main.java.models.TVShow;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBody;
@@ -357,6 +359,31 @@ public class ContentController {
 		}
 
 		if (userManager.save(currentUser) == null) {
+			return ErrorCode.DATABASEERROR;
+		}
+		return ErrorCode.SUCCESS;
+	}
+	
+	@PostMapping("/api/reportreview")
+	public ErrorCode reportReview(@RequestBody ReviewReportForm form) {
+		String email = SecurityContextHolder.getContext().getAuthentication().getName();
+		if (email.equals("anonymousUser")) {
+			return ErrorCode.NOTLOGGEDIN;
+		}
+		User reportingUser = userManager.findByEmail(email);
+		Review reviewReporting = null;
+		try {
+			 reviewReporting = reviewManager.findById(form.getReviewId()).get();
+		}
+		catch (NoSuchElementException e) {
+			return ErrorCode.DOESNOTEXIST;
+		}
+		
+		ReviewReport report = new ReviewReport(LocalDate.now(), reviewReporting, reportingUser, form.getDescription());
+		Movie theMovie = (Movie)reviewReporting.getContent();
+		reviewReporting.addReport(report);
+		Movie editedMovie = movieManager.save(theMovie);
+		if (editedMovie == null) {
 			return ErrorCode.DATABASEERROR;
 		}
 		return ErrorCode.SUCCESS;

@@ -1,12 +1,15 @@
 package main.java.models;
 
 import java.time.LocalDate;
+import java.util.List;
+import java.util.ArrayList;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Inheritance;
 import javax.persistence.InheritanceType;
+import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 
 @Entity
@@ -22,11 +25,15 @@ public abstract class Review {
 	private int rating;
 	private LocalDate date;
 	private String body;
+	@OneToMany(targetEntity=ReviewReport.class, mappedBy="report_id")
+	private List<ReviewReport> reports;
 
 	public Review() {
+		reports = new ArrayList<>();
 	}
 	
 	public Review(Content content, User author, int rating, LocalDate date, String body) {
+		reports = new ArrayList<>();
 		this.content = content;
 		this.author = author;
 		this.rating = rating;
@@ -81,5 +88,19 @@ public abstract class Review {
 	public void setBody(String body) {
 		this.body = body;
 	}
+
+	public List<ReviewReport> getReports() {
+		return reports;
+	}
+
+	public void setReports(List<ReviewReport> reports) {
+		this.reports = reports;
+	}
+	
+	public void addReport(ReviewReport r) {
+		reports.add(r);
+	}
+	
+	
 	
 }
