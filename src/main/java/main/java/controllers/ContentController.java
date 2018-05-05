@@ -21,12 +21,12 @@ import main.java.models.UserRole;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import main.java.managers.ReviewManager;
+import main.java.managers.ReviewReportManager;
 import main.java.managers.TVManager;
 import main.java.managers.UserManager;
 import main.java.models.ErrorCode;
 import main.java.models.Movie;
 import main.java.models.ReviewReport;
-import main.java.models.ReviewReportForm;
 import main.java.models.TVShow;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBody;
@@ -44,6 +44,8 @@ public class ContentController {
 	UserManager userManager;
 	@Autowired
 	TVManager tvManager;
+	@Autowired
+	ReviewReportManager reviewReportManager;
 
 	
     @GetMapping("/movie")
@@ -364,29 +366,41 @@ public class ContentController {
 		return ErrorCode.SUCCESS;
 	}
 	
-	@PostMapping("/api/reportreview")
-	public ErrorCode reportReview(@RequestBody ReviewReportForm form) {
+	@GetMapping("/api/removereport")
+	public ErrorCode removeReport(@RequestParam(value="id") int id) {
 		String email = SecurityContextHolder.getContext().getAuthentication().getName();
 		if (email.equals("anonymousUser")) {
 			return ErrorCode.NOTLOGGEDIN;
 		}
-		User reportingUser = userManager.findByEmail(email);
-		Review reviewReporting = null;
-		try {
-			 reviewReporting = reviewManager.findById(form.getReviewId()).get();
+		User user = userManager.findByEmail(email);
+		if (!user.getRoles().contains(UserRole.ROLE_ADMIN.name())) {
+			return ErrorCode.INVALIDPERMISSIONS;
 		}
-		catch (NoSuchElementException e) {
+		ReviewReport report = null;
+		try {
+			report = reviewReportManager.findById(id).get();
+			reviewReportManager.delete(report);
+		}
+		catch (NoSuchElementException | IllegalArgumentException e) {
 			return ErrorCode.DOESNOTEXIST;
 		}
 		
-		ReviewReport report = new ReviewReport(LocalDate.now(), reviewReporting, reportingUser, form.getDescription());
-		Movie theMovie = (Movie)reviewReporting.getContent();
-		reviewReporting.addReport(report);
-		Movie editedMovie = movieManager.save(theMovie);
-		if (editedMovie == null) {
-			return ErrorCode.DATABASEERROR;
-		}
 		return ErrorCode.SUCCESS;
 	}
+	
+	@GetMapping("/api/viewreports")
+	public List<ReviewReport> viewReports() {
+		String email = SecurityContextHolder.getContext().getAuthentication().getName();
+		if (email.equals("anonymousUser")) {
+			return null;
+		}
+		User user = userManager.findByEmail(email);
+		if (!user.getRoles().contains(UserRole.ROLE_ADMIN.name())) {
+			return null;
+		}
+		List<ReviewReport> reports = (List)reviewReportManager.findAll();
+		return reports;
+	}
+	
 	
 }

@@ -1,5 +1,6 @@
 package main.java.models;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.ArrayList;
@@ -18,6 +19,7 @@ public abstract class Review {
 
 	@Id @GeneratedValue(strategy=GenerationType.AUTO)
 	private int review_id;
+	@JsonIgnore
 	@OneToOne
 	private Content content;
 	@OneToOne
