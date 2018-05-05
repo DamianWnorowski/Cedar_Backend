@@ -20,6 +20,7 @@ public class UserDTO {
     private List<String> roles;	
     private List<User> following;
 	private List<Review> reviews;
+	private int profileViews;
 
 	public UserDTO(User u) {
 		this.id = u.getId();
@@ -33,6 +34,7 @@ public class UserDTO {
 		this.roles = u.getRoles();
 		this.following = u.getFollowing();
 		this.reviews = u.getReviews();
+		this.profileViews = u.getProfileViews();
 	}
 
 	public int getId() {
@@ -122,6 +124,13 @@ public class UserDTO {
 	public void setReviews(List<Review> reviews) {
 		this.reviews = reviews;
 	}
-	
+
+	public int getProfileViews() {
+		return profileViews;
+	}
+
+	public void setProfileViews(int profileViews) {
+		this.profileViews = profileViews;
+	}
 	
 }

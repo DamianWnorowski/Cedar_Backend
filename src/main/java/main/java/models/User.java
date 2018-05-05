@@ -45,6 +45,8 @@ public class User {
 	@JsonIgnore
 	@OneToMany(targetEntity=UserReview.class, mappedBy="review_id")
 	private List<Review> reviews;
+	@JsonIgnore
+	private int profileViews;
 
     public User() {
 		this.roles = new ArrayList<>();
@@ -190,6 +192,14 @@ public class User {
 	public void setReviews(List<Review> reviews) {
 		this.reviews = reviews;
 	}
+
+	public int getProfileViews() {
+		return profileViews;
+	}
+
+	public void setProfileViews(int profileViews) {
+		this.profileViews = profileViews;
+	}
 	
     @Override
     public boolean equals(Object obj) {
@@ -208,5 +218,9 @@ public class User {
         }
         return true;
     }
+	
+	public void addProfileView() {
+		profileViews++;
+	}
 
 }
