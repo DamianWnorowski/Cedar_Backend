@@ -105,6 +105,22 @@ public class User {
 		return ErrorCode.SUCCESS;
 	}
 	
+	public ErrorCode removeFromMovieWatchlist(Movie theMovie) {
+		if (!movieWatchlist.contains(theMovie)) {
+			return ErrorCode.NOTINLIST;
+		}
+		movieWatchlist.remove(theMovie);
+        return ErrorCode.SUCCESS;
+	}
+
+	public ErrorCode removeFromMovieBlacklist(Movie theMovie) {
+		if (!blacklist.contains(theMovie)) {
+			return ErrorCode.NOTINLIST;
+		}
+		blacklist.remove(theMovie);
+		return ErrorCode.SUCCESS;	
+	}
+	
 	public ErrorCode addReview(Review review) {
 		reviews.add(review);
 		return ErrorCode.SUCCESS;

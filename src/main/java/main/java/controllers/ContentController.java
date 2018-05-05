@@ -290,11 +290,46 @@ public class ContentController {
 		catch (NoSuchElementException e) {
 			return ErrorCode.DOESNOTEXIST;
 		}
+		ErrorCode successfulAddition;
 		if (wantToSee) {
-			currentUser.addToMovieWatchlist(theMovie);
+			successfulAddition = currentUser.addToMovieWatchlist(theMovie);
 		}
 		else {
-			currentUser.addToMovieBlacklist(theMovie);
+			successfulAddition = currentUser.addToMovieBlacklist(theMovie);
+		}
+		if (!successfulAddition.equals(ErrorCode.SUCCESS)) {
+			return successfulAddition;
+		}
+		if (userManager.save(currentUser) == null) {
+			return ErrorCode.DATABASEERROR;
+		}
+		return ErrorCode.SUCCESS;
+	}
+	
+	@GetMapping("/api/removefromlist")
+	public ErrorCode removeFromList(@RequestParam(value="id") int id, @RequestParam(value="wantToSee") boolean wantToSee) {
+		String email = SecurityContextHolder.getContext().getAuthentication().getName();
+		if (email.equals("anonymousUser")) {
+			return ErrorCode.NOTLOGGEDIN;
+		}
+		User currentUser = userManager.findByEmail(email);
+		Movie theMovie = null;
+		try {
+			theMovie = movieManager.findById(id).get();
+		}
+		catch (NoSuchElementException e) {
+			return ErrorCode.DOESNOTEXIST;
+		}
+		ErrorCode successfulRemoval;
+		if (wantToSee) {
+			successfulRemoval = currentUser.removeFromMovieWatchlist(theMovie);
+		}
+		else {
+			successfulRemoval = currentUser.removeFromMovieBlacklist(theMovie);
+		}
+		
+		if (!successfulRemoval.equals(ErrorCode.SUCCESS)) {
+			return successfulRemoval;
 		}
 
 		if (userManager.save(currentUser) == null) {
