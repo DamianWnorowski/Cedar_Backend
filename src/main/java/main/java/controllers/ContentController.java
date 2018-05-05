@@ -6,7 +6,6 @@ import java.io.OutputStream;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.NoSuchElementException;
-import javax.servlet.http.HttpServletRequest;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -22,9 +21,11 @@ import main.java.models.UserRole;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import main.java.managers.ReviewManager;
+import main.java.managers.TVManager;
 import main.java.managers.UserManager;
 import main.java.models.ErrorCode;
 import main.java.models.Movie;
+import main.java.models.TVShow;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBody;
 
@@ -39,16 +40,31 @@ public class ContentController {
 	ReviewManager reviewManager;
 	@Autowired
 	UserManager userManager;
+	@Autowired
+	TVManager tvManager;
 
 	
     @GetMapping("/movie")
-    public Movie getMovieInfo(@RequestParam(value="id") int id, HttpServletRequest req) {
+    public Movie getMovieInfo(@RequestParam(value="id") int id) {
         try {
             Movie theMovie = movieManager.findById(id).get();
             return theMovie;
         }
     	catch (Exception e) {
             System.out.println("can't get movie");
+    	}
+
+       return null;
+    }
+	
+	@GetMapping("/show")
+    public TVShow getTVShowInfo(@RequestParam(value="id") int id) {
+        try {
+            TVShow show = tvManager.findById(id).get();
+            return show;
+        }
+    	catch (Exception e) {
+            System.out.println("can't get show");
     	}
 
        return null;
@@ -63,6 +79,14 @@ public class ContentController {
 		User postingUser = userManager.findByEmail(email);
 		Movie movieToRate = movieManager.findById(form.getContent_id()).get();
 		Review reviewToPost;
+		
+		if (form.getRating() == 0) {
+			form.setRating(1);
+		}
+		
+		if (form.getRating() < 1 || form.getRating() > 5) {
+			return ErrorCode.INVALIDRATING;
+		}
 		
 		if (postingUser.hasRole(UserRole.ROLE_CRITIC)) {
 			reviewToPost = new CriticReview(null, movieToRate, postingUser,

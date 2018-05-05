@@ -21,5 +21,15 @@ public class TVShow extends Content{
 			description, director, trailerPath, poster_path, writer, runtime, studio);
 		this.nextAirDate = nextAirDate;
 	}
+
+	public LocalDate getNextAirDate() {
+		return nextAirDate;
+	}
+
+	public void setNextAirDate(LocalDate nextAirDate) {
+		this.nextAirDate = nextAirDate;
+	}
+	
+	
 	
 }
