@@ -6,6 +6,7 @@ import java.util.NoSuchElementException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import main.java.dto.UserDTO;
+import main.java.managers.CriticManagerImpl;
 import main.java.managers.ReviewManager;
 import main.java.managers.UserManager;
 import main.java.models.ErrorCode;
@@ -53,6 +54,9 @@ public class AccountController {
 
     @Autowired
     private EmailService emailService;
+	
+	@Autowired
+	private CriticManagerImpl criticManager;
 
     @PostMapping("/register")
     public ResponseEntity register(@RequestBody RegistrationForm rf) {
@@ -243,4 +247,11 @@ public class AccountController {
     	}
 		return reviewManager.findByAuthor(author);
 	}
+	
+	@GetMapping("/api/gettopcritics")
+	public Iterable<User> getTopCritics() {
+		List<Integer> topCriticsIds = criticManager.getTopCriticIds();
+		Iterable<User> topCritics = um.findAllById(topCriticsIds);
+		return topCritics;
+}
 }

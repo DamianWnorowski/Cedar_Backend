@@ -1,6 +1,7 @@
 package main.java.models;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import java.util.ArrayList;
 import java.util.List;
 import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
@@ -46,7 +47,7 @@ public class User {
 	private List<Review> reviews;
 
     public User() {
-
+		this.roles = new ArrayList<>();
     }
 
     public User(int id) {
