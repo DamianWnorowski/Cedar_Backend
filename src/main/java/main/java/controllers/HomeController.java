@@ -9,15 +9,15 @@ import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 import properties.PropertiesManager;
-import main.java.managers.MovieManager;
 import main.java.models.Movie;
+import main.java.managers.ContentManager;
 
 @CrossOrigin("http://localhost:3000")
 @RestController
 public class HomeController {
 	
 	@Autowired
-	private MovieManager movieManager;
+	private ContentManager movieManager;
 	private final PropertiesManager propertiesManager;
 
 	public HomeController() {

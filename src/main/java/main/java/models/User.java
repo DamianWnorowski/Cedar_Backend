@@ -3,15 +3,20 @@ package main.java.models;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 import javax.persistence.CascadeType;
 import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
+import javax.persistence.ManyToMany;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
+import javax.persistence.UniqueConstraint;
 
 @Entity
 @Table(name = "users")
@@ -28,16 +33,19 @@ public class User {
     @JsonIgnore
     private boolean verified;
     private boolean visible;
-    @JsonIgnore
-    @ElementCollection
-    //@OneToMany(targetEntity = Content.class, mappedBy = "id")
-    private List<Content> movieWatchlist;
-    @JsonIgnore
-    @ElementCollection
+	@JsonIgnore
+	@ManyToMany
+	@JoinTable(name = "users_movie_watchlist",
+	joinColumns = @JoinColumn(name = "user_id"),
+	inverseJoinColumns = @JoinColumn(name = "movie_watchlist_id"), 
+	uniqueConstraints = {@UniqueConstraint(columnNames={"user_id", "movie_watchlist_id"})})
+    private Set<Movie> movieWatchlist;
+	@JsonIgnore
+	@ElementCollection
     //@OneToMany(targetEntity = TVShowSeason.class, mappedBy = "season_id")
-    private List<TVShowSeason> televisionWatchlist;
-    @JsonIgnore
-    @ElementCollection
+    private List<TVShow> televisionWatchlist;
+	@JsonIgnore
+	@ElementCollection
     private List<Content> blacklist;
     @ElementCollection(fetch = FetchType.EAGER)
     private List<String> roles;
@@ -109,43 +117,60 @@ public class User {
         this.following = following;
     }
 
-    public ErrorCode addToMovieWatchlist(Movie movie) {
-        if (movieWatchlist.contains(movie)) {
-            return ErrorCode.ALREADYINLIST;
-        }
-        movieWatchlist.add(movie);
+    public ErrorCode addToWatchlist(Content content) {
+		if (content instanceof Movie) {
+			if (movieWatchlist.contains((Movie)content)) {
+				return ErrorCode.ALREADYINLIST;
+			}
+			movieWatchlist.add((Movie)content);
+		}
+		else if (content instanceof TVShow) {
+			if (televisionWatchlist.contains((TVShow)content)) {
+				return ErrorCode.ALREADYINLIST;
+			}
+			televisionWatchlist.add((TVShow)content);
+		}
+		return ErrorCode.SUCCESS;
+	}
+
+    public ErrorCode addToBlacklist(Content content) {
+		if (blacklist.contains(content)) {
+			return ErrorCode.ALREADYINLIST;
+		}
+		blacklist.add(content);
+		return ErrorCode.SUCCESS;
+	}
+	
+	public ErrorCode removeFromWatchlist(Content theContent) {
+		if (theContent instanceof Movie) {
+			if (!movieWatchlist.contains((Movie)theContent)) {
+				return ErrorCode.NOTINLIST;
+			}
+			movieWatchlist.remove((Movie)theContent);
+		}
+		if (theContent instanceof TVShow) {
+			if (!televisionWatchlist.contains((TVShow)theContent)) {
+				return ErrorCode.NOTINLIST;
+			}
+			televisionWatchlist.remove((TVShow)theContent);
+		}
         return ErrorCode.SUCCESS;
     }
 
-    public ErrorCode addToMovieBlacklist(Content content) {
-        if (blacklist.contains(content)) {
-            return ErrorCode.ALREADYINLIST;
-        }
-        blacklist.add(content);
-        return ErrorCode.SUCCESS;
-    }
 
-    public ErrorCode removeFromMovieWatchlist(Movie theMovie) {
-        if (!movieWatchlist.contains(theMovie)) {
-            return ErrorCode.NOTINLIST;
-        }
-        movieWatchlist.remove(theMovie);
-        return ErrorCode.SUCCESS;
-    }
-
-    public ErrorCode removeFromMovieBlacklist(Movie theMovie) {
-        if (!blacklist.contains(theMovie)) {
-            return ErrorCode.NOTINLIST;
-        }
-        blacklist.remove(theMovie);
-        return ErrorCode.SUCCESS;
-    }
-
-    public ErrorCode addReview(Review review) {
-        reviews.add(review);
-        return ErrorCode.SUCCESS;
-    }
-
+	public ErrorCode removeFromBlacklist(Content theContent) {
+		if (!blacklist.contains(theContent)) {
+			return ErrorCode.NOTINLIST;
+		}
+		blacklist.remove(theContent);
+		return ErrorCode.SUCCESS;	
+	}
+	
+	public ErrorCode addReview(Review review) {
+		reviews.add(review);
+		return ErrorCode.SUCCESS;
+	}
+	
     public int getId() {
         return id;
     }
@@ -178,19 +203,19 @@ public class User {
         this.email = email;
     }
 
-    public List<Content> getMovieWatchlist() {
-        return movieWatchlist;
-    }
+	public Set<Movie> getMovieWatchlist() {
+		return movieWatchlist;
+	}
 
-    public void setMovieWatchlist(List<Content> movieWatchlist) {
-        this.movieWatchlist = movieWatchlist;
-    }
+	public void setMovieWatchlist(Set<Movie> movieWatchlist) {
+		this.movieWatchlist = movieWatchlist;
+	}
 
-    public List<TVShowSeason> getTelevisionWatchlist() {
+    public List<TVShow> getTelevisionWatchlist() {
         return televisionWatchlist;
     }
 
-    public void setTelevisionWatchlist(List<TVShowSeason> televisionWatchlist) {
+    public void setTelevisionWatchlist(List<TVShow> televisionWatchlist) {
         this.televisionWatchlist = televisionWatchlist;
     }
 

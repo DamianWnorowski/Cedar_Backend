@@ -2,9 +2,11 @@
 package main.java.dto;
 
 import java.util.List;
+import java.util.Set;
 import main.java.models.Content;
+import main.java.models.Movie;
 import main.java.models.Review;
-import main.java.models.TVShowSeason;
+import main.java.models.TVShow;
 import main.java.models.User;
 
 public class UserDTO {
@@ -14,8 +16,8 @@ public class UserDTO {
     private String email;
     private boolean verified;
     private boolean visible;
-    private List<Content> movieWatchlist;
-	private List<TVShowSeason> televisionWatchlist;
+    private Set<Movie> movieWatchlist;
+	private List<TVShow> televisionWatchlist;
 	private List<Content> blacklist;
     private List<String> roles;	
     private List<User> following;
@@ -77,19 +79,19 @@ public class UserDTO {
 		this.visible = visible;
 	}
 
-	public List<Content> getMovieWatchlist() {
+	public Set<Movie> getMovieWatchlist() {
 		return movieWatchlist;
 	}
 
-	public void setMovieWatchlist(List<Content> movieWatchlist) {
+	public void setMovieWatchlist(Set<Movie> movieWatchlist) {
 		this.movieWatchlist = movieWatchlist;
 	}
 
-	public List<TVShowSeason> getTelevisionWatchlist() {
+	public List<TVShow> getTelevisionWatchlist() {
 		return televisionWatchlist;
 	}
 
-	public void setTelevisionWatchlist(List<TVShowSeason> televisionWatchlist) {
+	public void setTelevisionWatchlist(List<TVShow> televisionWatchlist) {
 		this.televisionWatchlist = televisionWatchlist;
 	}
 
