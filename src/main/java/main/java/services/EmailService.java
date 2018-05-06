@@ -29,7 +29,7 @@ public class EmailService {
     public String generateEmailBody(String name, int id, String token){
         String body = "Hello " + name + ",\n\n";
         body += "Please click the following link to activate your account:\n";
-        body += "http://localhost:3000/verify/" + id + "/" + token ;
+        body += "http://localhost:8080/verify/" + id + "/" + token ;
         body += "\nThank you for using our service!\nTeam Cedar";
         
         return body;

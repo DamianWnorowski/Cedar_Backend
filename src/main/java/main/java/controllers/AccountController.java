@@ -60,7 +60,6 @@ public class AccountController {
 
     @PostMapping("/register")
     public ResponseEntity register(@RequestBody RegistrationForm rf) {
-        // TODO: Return type maybe String?
         User user = um.findByEmail(rf.getEmail());
         if (user != null) {
             System.out.println("ERROR: USER ALREADY EXISTS WITH EMAIL: " + user.getEmail());
@@ -92,15 +91,7 @@ public class AccountController {
     public JwtAuthenticationResponse login(@RequestBody LoginForm lf, HttpServletRequest req, HttpServletResponse res) {
         String jwt;
         JwtAuthenticationResponse resp;
-        User u;
-
-//        Authentication authentication = authenticationManager.authenticate(
-//                new UsernamePasswordAuthenticationToken(
-//                        lf.getEmail(),
-//                        lf.getPassword()
-//                )
-//        );
-        u = um.findByEmail(lf.getEmail());
+        User u = um.findByEmail(lf.getEmail());
         if (u != null) {
             System.out.println("logging in with: " + lf.getEmail() + " and pw: " + lf.getPassword());
             if (bCryptPasswordEncoder.matches(lf.getPassword(), u.getPassword())) {
@@ -137,12 +128,17 @@ public class AccountController {
     @GetMapping("/verify/{id}/{token}")
     public ResponseEntity verifyEmail(@PathVariable int id, @PathVariable String token, HttpServletResponse res) throws IOException{
         User u = um.findById(id).get();
+        System.out.println("Trying to veryfiy user email: " + u.getEmail() +
+                "\nWith token: " + token);
         if(bCryptPasswordEncoder.matches(u.getEmail(), token)){
             u.setVerified(true);
             um.save(u);
+            res.sendRedirect("http://localhost:3000/verified");
+            return ResponseEntity.ok(HttpStatus.OK);
         }
-        res.sendRedirect("http://localhost:3000/verified");
-        return ResponseEntity.ok(HttpStatus.OK);
+        res.sendRedirect("http://localhost:3000/404");
+        return ResponseEntity.ok(HttpStatus.NOT_FOUND);
+        
     }
 
     public String encryptPassword(String password) {
