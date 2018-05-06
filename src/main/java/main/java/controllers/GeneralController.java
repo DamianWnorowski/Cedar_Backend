@@ -5,6 +5,7 @@ import java.util.Map;
 import java.util.Set;
 import main.java.managers.CelebrityManager;
 import main.java.managers.MovieManager;
+import main.java.managers.TVManager;
 import main.java.models.Celebrity;
 import main.java.services.SearchService;
 import main.java.models.Movie;
@@ -23,17 +24,20 @@ public class GeneralController {
 	@Autowired
 	private CelebrityManager celebrityManager;
 	
+	@Autowired 
+	private TVManager tvManager;
 	@GetMapping("/api/search")
-    public Map search(@RequestParam(value="search") String search) {
+    
+	public Map search(@RequestParam(value="search") String search) {
         try {
-			SearchService searchService = SearchService.getService(movieManager, celebrityManager);
+			SearchService searchService = SearchService.getService(movieManager, celebrityManager, tvManager);
         	Map<String, Set> results = new HashMap();
 			Set<Movie> movies = searchService.searchMovies(search);
 			Set<Celebrity> celebrities = searchService.searchCelebrities(search);
-//			Set<TVShow> shows = searchService.searchTVShows(search);
+			Set<TVShow> shows = searchService.searchTVShows(search);
 			results.put("movies", movies);
 			results.put("celebrities", celebrities);
-//			results.put("tvshows", shows);
+			results.put("tvshows", shows);
         	return results;
     	}
     	catch (Exception e) {
