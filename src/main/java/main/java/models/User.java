@@ -44,17 +44,19 @@ public class User {
     @ElementCollection
     @JsonIgnore
     private List<User> following;
+
     @JsonIgnore
-    @OneToMany(targetEntity = UserReview.class, mappedBy = "review_id")
+    @OneToMany(targetEntity = Review.class, mappedBy = "review_id")
     private List<Review> reviews;
     @JsonIgnore
     private int profileViews;
-    
-    @OneToOne(targetEntity=PwResetToken.class,
+
+    @OneToOne(targetEntity = PwResetToken.class,
             fetch = FetchType.LAZY,
-            cascade =  CascadeType.ALL)
+            cascade = CascadeType.ALL)
     private PwResetToken pwResetToken;
-    
+
+
     public User() {
         this.roles = new ArrayList<>();
     }
@@ -70,9 +72,7 @@ public class User {
     public void setPwResetToken(PwResetToken pwResetToken) {
         this.pwResetToken = pwResetToken;
     }
-    
-    
-    
+
     public boolean hasRole(UserRole role) {
         return roles.contains(role.name());
     }

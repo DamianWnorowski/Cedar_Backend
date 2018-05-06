@@ -6,6 +6,7 @@ import java.util.NoSuchElementException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import main.java.dto.PasswordResetForm;
+import main.java.dto.ImportantReviewsDTO;
 import main.java.dto.UserDTO;
 import main.java.managers.CriticManagerImpl;
 import main.java.managers.ReviewManager;
@@ -300,19 +301,22 @@ public class AccountController {
     public UserDTO getUserInfo(@RequestParam(value = "id") int id) {
         try {
             User user = um.findById(id).get();
+
+            System.out.println(user.getReviews());
             user.addProfileView();
             um.save(user);
             UserDTO dto = new UserDTO(user);
             return dto;
         } catch (Exception e) {
             System.out.println("can't get profile");
+
         }
 
         return null;
     }
 
     @GetMapping("/api/getusersreviews")
-    public List<Review> getReviews(@RequestParam(value = "id") int id) {
+    public List<Review> getUsersReviews(@RequestParam(value = "id") int id) {
         User author;
         try {
             author = um.findById(id).get();
@@ -322,10 +326,25 @@ public class AccountController {
         return reviewManager.findByAuthor(author);
     }
 
+    @GetMapping("/api/getusersimportantreviews")
+    public ImportantReviewsDTO getUsersImportantReviews(@RequestParam(value = "id") int id) {
+        User author;
+        try {
+            author = um.findById(id).get();
+        } catch (Exception e) {
+            return null;
+        }
+        Review latest = reviewManager.findTop1ByAuthorOrderByDateDesc(author);
+        Review best = reviewManager.findTop1ByAuthorOrderByRatingDesc(author);
+        Review worst = reviewManager.findTop1ByAuthorOrderByRatingAsc(author);
+        return new ImportantReviewsDTO(latest, best, worst);
+    }
+
     @GetMapping("/api/gettopcritics")
     public Iterable<User> getTopCritics() {
         List<Integer> topCriticsIds = criticManager.getTopCriticIds();
         Iterable<User> topCritics = um.findAllById(topCriticsIds);
         return topCritics;
     }
+
 }
