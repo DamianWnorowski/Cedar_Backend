@@ -7,18 +7,22 @@ import java.util.List;
 import java.util.Set;
 import main.java.managers.CelebrityManager;
 import main.java.managers.MovieManager;
+import main.java.managers.TVManager;
 import main.java.models.Celebrity;
 import main.java.models.Movie;
+import main.java.models.TVShow;
 
 public class SearchService {
 	private static SearchService instance;
 	
 	private MovieManager movieManager;
 	private CelebrityManager celebrityManager;
+	private TVManager tvManager;
 	
-	private SearchService(MovieManager movieManager, CelebrityManager celebrityManager) {
+	private SearchService(MovieManager movieManager, CelebrityManager celebrityManager, TVManager tvManager) {
 		this.movieManager = movieManager;
 		this.celebrityManager = celebrityManager;
+		this.tvManager = tvManager;
 		instance = this;
 	}
 	
@@ -46,17 +50,17 @@ public class SearchService {
 		return celebrities;
 	}
 	
-//	public Set searchTVShows(String query) {
-//		Set<Movie> shows = new HashSet();
-//		ArrayList<String> tokens = tokenizeQuery(query);
-//		for(String token : tokens) {
-//			List<Movie> show_results = tvshowManager.findByTitleContainingIgnoreCase(token);
-//			if(show_results != null){
-//				shows.addAll(show_results);
-//			}
-//		}
-//		return shows;
-//	}
+	public Set searchTVShows(String query) {
+		Set<TVShow> shows = new HashSet();
+		ArrayList<String> tokens = tokenizeQuery(query);
+		for(String token : tokens) {
+			List<TVShow> show_results = tvManager.findByTitleContainingIgnoreCase(token);
+			if(show_results != null){
+				shows.addAll(show_results);
+			}
+		}
+		return shows;
+	}
 	
 	
 	
@@ -67,9 +71,9 @@ public class SearchService {
 		return tokens;
 	}
 	
-	public static SearchService getService(MovieManager movieManager, CelebrityManager celebrityManager) {
+	public static SearchService getService(MovieManager movieManager, CelebrityManager celebrityManager, TVManager tvManager) {
 		if (instance == null) {
-			instance = new SearchService(movieManager, celebrityManager);
+			instance = new SearchService(movieManager, celebrityManager, tvManager);
 		}
 		return instance;
 	}
