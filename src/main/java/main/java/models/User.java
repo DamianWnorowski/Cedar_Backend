@@ -43,7 +43,7 @@ public class User {
 	@JsonIgnore
     private List<User> following;
 	@JsonIgnore
-	@OneToMany(targetEntity=UserReview.class, mappedBy="review_id")
+	@OneToMany(targetEntity=Review.class, mappedBy="review_id")
 	private List<Review> reviews;
 	@JsonIgnore
 	private int profileViews;

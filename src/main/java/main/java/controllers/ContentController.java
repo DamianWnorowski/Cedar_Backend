@@ -4,6 +4,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.OutputStream;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.NoSuchElementException;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -24,6 +25,7 @@ import main.java.managers.ReviewManager;
 import main.java.managers.ReviewReportManager;
 import main.java.managers.TVManager;
 import main.java.managers.UserManager;
+import main.java.models.Content;
 import main.java.models.ErrorCode;
 import main.java.models.Movie;
 import main.java.models.ReviewReport;
@@ -94,11 +96,11 @@ public class ContentController {
 		
 		if (postingUser.hasRole(UserRole.ROLE_CRITIC)) {
 			reviewToPost = new CriticReview(null, movieToRate, postingUser,
-				form.getRating(), LocalDate.now(), form.getBody());
+				form.getRating(), LocalDateTime.now(), form.getBody());
 		}
 		else {
 			reviewToPost = new UserReview(movieToRate, postingUser,
-				form.getRating(), LocalDate.now(), form.getBody());
+				form.getRating(), LocalDateTime.now(), form.getBody());
 		}
 		reviewManager.save(reviewToPost);
 		movieToRate.addReview(reviewToPost);
@@ -168,7 +170,7 @@ public class ContentController {
 	
 	@GetMapping("/api/latestcriticreviews")
 	public List<CriticReview> displayLatestCriticReviews() {
-		return reviewManager.findTop10ByDateBeforeOrderByDateDesc(LocalDate.now().plusDays(1));
+		return reviewManager.findTop10ByDateBeforeOrderByDateDesc(LocalDateTime.now().plusDays(1));
 	}
 	
 	@PostMapping("/api/deletemovie")
@@ -407,5 +409,21 @@ public class ContentController {
 		return tvManager.findTop10ByNextAirDate(LocalDate.now());
 	}
 	
-	
+	@GetMapping("/api/getcontentreviews")
+	public List<Review> getContentReviews(@RequestParam(value="id") int id) {
+		Content c;
+		try {
+			c = movieManager.findById(id).get();
+		}
+		catch (Exception e) {
+			try {
+				c = tvManager.findById(id).get();
+			}
+			catch (Exception e2) {
+				return null;
+			}
+		}
+		return reviewManager.findByContent(c);
+	}
+		
 }

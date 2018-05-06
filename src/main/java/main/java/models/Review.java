@@ -1,7 +1,7 @@
 package main.java.models;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.ArrayList;
 import javax.persistence.Entity;
@@ -10,8 +10,8 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Inheritance;
 import javax.persistence.InheritanceType;
+import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
-import javax.persistence.OneToOne;
 
 @Entity
 @Inheritance(strategy = InheritanceType.TABLE_PER_CLASS)
@@ -20,13 +20,14 @@ public abstract class Review {
 	@Id @GeneratedValue(strategy=GenerationType.AUTO)
 	private int review_id;
 	@JsonIgnore
-	@OneToOne
+	@ManyToOne(targetEntity=Content.class)
 	private Content content;
-	@OneToOne
+	@ManyToOne(targetEntity=User.class)
 	private User author;
 	private int rating;
-	private LocalDate date;
+	private LocalDateTime date;
 	private String body;
+	@JsonIgnore
 	@OneToMany(targetEntity=ReviewReport.class, mappedBy="report_id")
 	private List<ReviewReport> reports;
 
@@ -34,7 +35,7 @@ public abstract class Review {
 		reports = new ArrayList<>();
 	}
 	
-	public Review(Content content, User author, int rating, LocalDate date, String body) {
+	public Review(Content content, User author, int rating, LocalDateTime date, String body) {
 		reports = new ArrayList<>();
 		this.content = content;
 		this.author = author;
@@ -75,11 +76,11 @@ public abstract class Review {
 		this.rating = rating;
 	}
 
-	public LocalDate getDate() {
+	public LocalDateTime getDate() {
 		return date;
 	}
 
-	public void setDate(LocalDate date) {
+	public void setDate(LocalDateTime date) {
 		this.date = date;
 	}
 
