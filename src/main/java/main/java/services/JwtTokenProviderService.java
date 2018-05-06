@@ -20,6 +20,7 @@ public class JwtTokenProviderService {
   private String secretKey = "SuperSecretKey";
 
   private long validityInMilliseconds = 3600000; // 1hour
+  private int resetPasswordMilliseconds = 3600000; // / 4; // 15 mins
 
   @Autowired
   private MyUserDetailsService myUserDetails;
@@ -29,23 +30,21 @@ public class JwtTokenProviderService {
     secretKey = Base64.getEncoder().encodeToString(secretKey.getBytes());
   }
 
-    public String generateToken(Authentication authentication) {
-
-        UserDetails userPrincipal = (UserDetails) authentication.getPrincipal();
-
+    public String generateToken(String email) {
         Date now = new Date();
         Date expiryDate = new Date(now.getTime() + validityInMilliseconds);
 
         return Jwts.builder()
-                .setSubject(userPrincipal.getUsername())
+                .setSubject(email)
                 .setIssuedAt(new Date())
                 .setExpiration(expiryDate)
                 .signWith(SignatureAlgorithm.HS512, secretKey)
                 .compact();
     }
-    public String generateToken(String email) {
+    
+    public String generatePasswordResetToken(String email) {
         Date now = new Date();
-        Date expiryDate = new Date(now.getTime() + validityInMilliseconds);
+        Date expiryDate = new Date(now.getTime() + resetPasswordMilliseconds);
 
         return Jwts.builder()
                 .setSubject(email)

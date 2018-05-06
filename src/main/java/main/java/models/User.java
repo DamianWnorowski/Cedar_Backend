@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
+import javax.persistence.CascadeType;
 import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -13,6 +14,7 @@ import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.persistence.OneToMany;
+import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
 
@@ -24,11 +26,11 @@ public class User {
     @GeneratedValue
     private int id;
     private String name;
-	@JsonIgnore
+    @JsonIgnore
     private String password;
-	@JsonIgnore
+    @JsonIgnore
     private String email;
-	@JsonIgnore
+    @JsonIgnore
     private boolean verified;
     private boolean visible;
 	@JsonIgnore
@@ -48,20 +50,35 @@ public class User {
     @ElementCollection(fetch = FetchType.EAGER)
     private List<String> roles;
     @ElementCollection
-	@JsonIgnore
+    @JsonIgnore
     private List<User> following;
-	@JsonIgnore
-	@OneToMany(targetEntity=Review.class, mappedBy="review_id")
-	private List<Review> reviews;
-	@JsonIgnore
-	private int profileViews;
+
+    @JsonIgnore
+    @OneToMany(targetEntity = Review.class, mappedBy = "review_id")
+    private List<Review> reviews;
+    @JsonIgnore
+    private int profileViews;
+
+    @OneToOne(targetEntity = PwResetToken.class,
+            fetch = FetchType.LAZY,
+            cascade = CascadeType.ALL)
+    private PwResetToken pwResetToken;
+
 
     public User() {
-		this.roles = new ArrayList<>();
+        this.roles = new ArrayList<>();
     }
 
     public User(int id) {
         this.id = id;
+    }
+
+    public PwResetToken getPwResetToken() {
+        return pwResetToken;
+    }
+
+    public void setPwResetToken(PwResetToken pwResetToken) {
+        this.pwResetToken = pwResetToken;
     }
 
     public boolean hasRole(UserRole role) {
@@ -113,8 +130,8 @@ public class User {
 			}
 			televisionWatchlist.add((TVShow)content);
 		}
-        return ErrorCode.SUCCESS;
-    }
+		return ErrorCode.SUCCESS;
+	}
 
     public ErrorCode addToBlacklist(Content content) {
 		if (blacklist.contains(content)) {
@@ -138,7 +155,8 @@ public class User {
 			televisionWatchlist.remove((TVShow)theContent);
 		}
         return ErrorCode.SUCCESS;
-	}
+    }
+
 
 	public ErrorCode removeFromBlacklist(Content theContent) {
 		if (!blacklist.contains(theContent)) {
@@ -152,7 +170,7 @@ public class User {
 		reviews.add(review);
 		return ErrorCode.SUCCESS;
 	}
-
+	
     public int getId() {
         return id;
     }
@@ -201,30 +219,30 @@ public class User {
         this.televisionWatchlist = televisionWatchlist;
     }
 
-	public List<Content> getBlacklist() {
-		return blacklist;
-	}
+    public List<Content> getBlacklist() {
+        return blacklist;
+    }
 
-	public void setBlacklist(List<Content> blacklist) {
-		this.blacklist = blacklist;
-	}
+    public void setBlacklist(List<Content> blacklist) {
+        this.blacklist = blacklist;
+    }
 
-	public List<Review> getReviews() {
-		return reviews;
-	}
+    public List<Review> getReviews() {
+        return reviews;
+    }
 
-	public void setReviews(List<Review> reviews) {
-		this.reviews = reviews;
-	}
+    public void setReviews(List<Review> reviews) {
+        this.reviews = reviews;
+    }
 
-	public int getProfileViews() {
-		return profileViews;
-	}
+    public int getProfileViews() {
+        return profileViews;
+    }
 
-	public void setProfileViews(int profileViews) {
-		this.profileViews = profileViews;
-	}
-	
+    public void setProfileViews(int profileViews) {
+        this.profileViews = profileViews;
+    }
+
     @Override
     public boolean equals(Object obj) {
         if (this == obj) {
@@ -242,9 +260,9 @@ public class User {
         }
         return true;
     }
-	
-	public void addProfileView() {
-		profileViews++;
-	}
+
+    public void addProfileView() {
+        profileViews++;
+    }
 
 }
