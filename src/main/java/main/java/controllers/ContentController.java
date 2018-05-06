@@ -12,7 +12,6 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
-import main.java.managers.MovieManager;
 import main.java.models.CriticReview;
 import main.java.models.Review;
 import main.java.models.ReviewForm;
@@ -32,6 +31,7 @@ import main.java.models.ReviewReport;
 import main.java.models.TVShow;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBody;
+import main.java.managers.ContentManager;
 
 
 @CrossOrigin("http://localhost:3000")
@@ -39,7 +39,7 @@ import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBo
 public class ContentController {
 
 	@Autowired
-	MovieManager movieManager;
+	ContentManager contentManager;
 	@Autowired
 	ReviewManager reviewManager;
 	@Autowired
@@ -53,7 +53,7 @@ public class ContentController {
     @GetMapping("/movie")
     public Movie getMovieInfo(@RequestParam(value="id") int id) {
         try {
-            Movie theMovie = movieManager.findById(id).get();
+            Movie theMovie = (Movie)contentManager.findById(id).get();
             return theMovie;
         }
     	catch (Exception e) {
@@ -66,7 +66,7 @@ public class ContentController {
 	@GetMapping("/show")
     public TVShow getTVShowInfo(@RequestParam(value="id") int id) {
         try {
-            TVShow show = tvManager.findById(id).get();
+            TVShow show = (TVShow)tvManager.findById(id).get();
             return show;
         }
     	catch (Exception e) {
@@ -83,7 +83,7 @@ public class ContentController {
 			return ErrorCode.NOTLOGGEDIN;
 		}
 		User postingUser = userManager.findByEmail(email);
-		Movie movieToRate = movieManager.findById(form.getContent_id()).get();
+		Content contentToRate = contentManager.findById(form.getContent_id()).get();
 		Review reviewToPost;
 		
 		if (form.getRating() == 0) {
@@ -95,18 +95,18 @@ public class ContentController {
 		}
 		
 		if (postingUser.hasRole(UserRole.ROLE_CRITIC)) {
-			reviewToPost = new CriticReview(null, movieToRate, postingUser,
+			reviewToPost = new CriticReview(null, contentToRate, postingUser,
 				form.getRating(), LocalDateTime.now(), form.getBody());
 		}
 		else {
-			reviewToPost = new UserReview(movieToRate, postingUser,
+			reviewToPost = new UserReview(contentToRate, postingUser,
 				form.getRating(), LocalDateTime.now(), form.getBody());
 		}
 		reviewManager.save(reviewToPost);
-		movieToRate.addReview(reviewToPost);
-		ErrorCode status = movieToRate.calculateRatings();
-		Movie editedMovie = movieManager.save(movieToRate);
-		if (editedMovie == null) {
+		contentToRate.addReview(reviewToPost);
+		ErrorCode status = contentToRate.calculateRatings();
+		Content editedContent = contentManager.save(contentToRate);
+		if (editedContent == null) {
 			return ErrorCode.DATABASEERROR;
 		}
 		return status;
@@ -165,7 +165,7 @@ public class ContentController {
 	
 	@GetMapping("/api/highestratedmovies")
 	public List<Movie> displayHighestRatedMovies() {
-		return movieManager.findTop10ByOrderByCriticRatingDesc();
+		return contentManager.findTop10ByOrderByCriticRatingDesc();
 	}
 	
 	@GetMapping("/api/latestcriticreviews")
@@ -173,16 +173,16 @@ public class ContentController {
 		return reviewManager.findTop10ByDateBeforeOrderByDateDesc(LocalDateTime.now().plusDays(1));
 	}
 	
-	@PostMapping("/api/deletemovie")
-    public ErrorCode deleteMovie(@RequestParam(value="id") int id) {
+	@GetMapping("/api/deletecontent")
+    public ErrorCode deleteContent(@RequestParam(value="id") int id) {
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
 		if (email.equals("anonymousUser")) {
 			return ErrorCode.NOTLOGGEDIN;
 		}
 		User currentUser = userManager.findByEmail(email);
-		Movie movieToDelete;
+		Content contentToDelete;
 		try {
-			movieToDelete = movieManager.findById(id).get();
+			contentToDelete = contentManager.findById(id).get();
 		}
 		catch (NoSuchElementException e) {
 			return ErrorCode.DOESNOTEXIST;
@@ -192,14 +192,14 @@ public class ContentController {
 			return ErrorCode.INVALIDPERMISSIONS;
 		}
 		
-		movieManager.delete(movieToDelete);
+		contentManager.delete(contentToDelete);
         return ErrorCode.SUCCESS;
     }
 	
 	@PostMapping("/api/addmovie")
     public ErrorCode addMovie(@RequestBody Movie movie) {
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
-		Movie temp = movieManager.findById(movie.getId()).get();
+		Movie temp = (Movie)contentManager.findById(movie.getId()).get();
         if (temp != null) {
             return ErrorCode.DATABASEERROR;
         }
@@ -212,14 +212,14 @@ public class ContentController {
 			return ErrorCode.INVALIDPERMISSIONS;
 		}
 		
-		movieManager.save(movie);
+		contentManager.save(movie);
         return ErrorCode.SUCCESS;
     }
 	
 	@PostMapping("/api/editmovie")
     public ErrorCode editMovie(@RequestBody Movie movie) {
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
-		Movie temp = movieManager.findById(movie.getId()).get();
+		Movie temp = (Movie)contentManager.findById(movie.getId()).get();
         if (temp == null) {
             return ErrorCode.DATABASEERROR;
         }
@@ -232,7 +232,7 @@ public class ContentController {
 			return ErrorCode.INVALIDPERMISSIONS;
 		}
 		
-		movieManager.save(movie);
+		contentManager.save(movie);
         return ErrorCode.SUCCESS;
     }
 	
@@ -240,7 +240,7 @@ public class ContentController {
     public StreamingResponseBody playTrailer(@RequestParam(value = "id") int id) {
         String trailerPath = "";
         try {
-            trailerPath = movieManager.findById(id).get().getTrailerPath();
+            trailerPath = contentManager.findById(id).get().getTrailerPath();
             if (trailerPath.equals("")) {
                 return null;
             }
@@ -276,7 +276,7 @@ public class ContentController {
 //	public byte[] playTrailer(@RequestParam(value="id") int id, @RequestParam(value="nextByte") int nextByte) {
 //		String trailerPath = "";
 //		try {
-//            trailerPath = movieManager.findById(id).get().getTrailerPath();
+//            trailerPath = contentManager.findById(id).get().getTrailerPath();
 //            if (trailerPath.equals("")) {
 //				return null;
 //			}
@@ -313,19 +313,19 @@ public class ContentController {
 			return ErrorCode.NOTLOGGEDIN;
 		}
 		User currentUser = userManager.findByEmail(email);
-		Movie theMovie = null;
+		Content theContent = null;
 		try {
-			theMovie = movieManager.findById(id).get();
+			theContent = contentManager.findById(id).get();
 		}
 		catch (NoSuchElementException e) {
 			return ErrorCode.DOESNOTEXIST;
 		}
 		ErrorCode successfulAddition;
 		if (wantToSee) {
-			successfulAddition = currentUser.addToMovieWatchlist(theMovie);
+			successfulAddition = currentUser.addToWatchlist(theContent);
 		}
 		else {
-			successfulAddition = currentUser.addToMovieBlacklist(theMovie);
+			successfulAddition = currentUser.addToBlacklist(theContent);
 		}
 		if (!successfulAddition.equals(ErrorCode.SUCCESS)) {
 			return successfulAddition;
@@ -345,17 +345,17 @@ public class ContentController {
 		User currentUser = userManager.findByEmail(email);
 		Movie theMovie = null;
 		try {
-			theMovie = movieManager.findById(id).get();
+			theMovie = (Movie)contentManager.findById(id).get();
 		}
 		catch (NoSuchElementException e) {
 			return ErrorCode.DOESNOTEXIST;
 		}
 		ErrorCode successfulRemoval;
 		if (wantToSee) {
-			successfulRemoval = currentUser.removeFromMovieWatchlist(theMovie);
+			successfulRemoval = currentUser.removeFromWatchlist(theMovie);
 		}
 		else {
-			successfulRemoval = currentUser.removeFromMovieBlacklist(theMovie);
+			successfulRemoval = currentUser.removeFromBlacklist(theMovie);
 		}
 		
 		if (!successfulRemoval.equals(ErrorCode.SUCCESS)) {
@@ -406,14 +406,14 @@ public class ContentController {
 	
 	@GetMapping("/api/newtvtonight")
 	public List<TVShow> getNewTVTonight() {
-		return tvManager.findTop10ByNextAirDate(LocalDate.now());
+		return contentManager.findTop10ByNextAirDate(LocalDate.now());
 	}
 	
 	@GetMapping("/api/getcontentreviews")
 	public List<Review> getContentReviews(@RequestParam(value="id") int id) {
 		Content c;
 		try {
-			c = movieManager.findById(id).get();
+			c = contentManager.findById(id).get();
 		}
 		catch (Exception e) {
 			try {

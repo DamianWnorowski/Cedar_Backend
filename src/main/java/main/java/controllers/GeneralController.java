@@ -4,7 +4,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 import main.java.managers.CelebrityManager;
-import main.java.managers.MovieManager;
 import main.java.managers.TVManager;
 import main.java.models.Celebrity;
 import main.java.services.SearchService;
@@ -15,12 +14,13 @@ import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import main.java.managers.ContentManager;
 
 @CrossOrigin("http://localhost:3000")
 @RestController
 public class GeneralController {
     @Autowired
-	private MovieManager movieManager;
+	private ContentManager movieManager;
 	@Autowired
 	private CelebrityManager celebrityManager;
 	

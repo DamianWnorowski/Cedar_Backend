@@ -227,7 +227,6 @@ public class AccountController {
 	public UserDTO getUserInfo(@RequestParam(value="id") int id){
 		try {
             User user = um.findById(id).get();
-			System.out.println(user.getReviews());
 			user.addProfileView();
 			um.save(user);
 			UserDTO dto = new UserDTO(user);

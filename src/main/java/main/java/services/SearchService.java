@@ -6,20 +6,20 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import main.java.managers.CelebrityManager;
-import main.java.managers.MovieManager;
 import main.java.managers.TVManager;
 import main.java.models.Celebrity;
 import main.java.models.Movie;
 import main.java.models.TVShow;
+import main.java.managers.ContentManager;
 
 public class SearchService {
 	private static SearchService instance;
 	
-	private MovieManager movieManager;
+	private ContentManager movieManager;
 	private CelebrityManager celebrityManager;
 	private TVManager tvManager;
 	
-	private SearchService(MovieManager movieManager, CelebrityManager celebrityManager, TVManager tvManager) {
+	private SearchService(ContentManager movieManager, CelebrityManager celebrityManager, TVManager tvManager) {
 		this.movieManager = movieManager;
 		this.celebrityManager = celebrityManager;
 		this.tvManager = tvManager;
@@ -71,7 +71,7 @@ public class SearchService {
 		return tokens;
 	}
 	
-	public static SearchService getService(MovieManager movieManager, CelebrityManager celebrityManager, TVManager tvManager) {
+	public static SearchService getService(ContentManager movieManager, CelebrityManager celebrityManager, TVManager tvManager) {
 		if (instance == null) {
 			instance = new SearchService(movieManager, celebrityManager, tvManager);
 		}
