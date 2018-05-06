@@ -215,7 +215,7 @@ public class ContentController {
     }
 	
 	@PostMapping("/api/editmovie")
-    public ErrorCode editmovie(@RequestBody Movie movie) {
+    public ErrorCode editMovie(@RequestBody Movie movie) {
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
 		Movie temp = movieManager.findById(movie.getId()).get();
         if (temp == null) {
@@ -400,6 +400,11 @@ public class ContentController {
 		}
 		List<ReviewReport> reports = (List)reviewReportManager.findAll();
 		return reports;
+	}
+	
+	@GetMapping("/api/newtvtonight")
+	public List<TVShow> getNewTVTonight() {
+		return tvManager.findTop10ByNextAirDate(LocalDate.now());
 	}
 	
 	
