@@ -3,12 +3,14 @@ package main.java.models;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.util.ArrayList;
 import java.util.List;
+import javax.persistence.CascadeType;
 import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.OneToMany;
+import javax.persistence.OneToOne;
 import javax.persistence.Table;
 
 @Entity
@@ -19,43 +21,58 @@ public class User {
     @GeneratedValue
     private int id;
     private String name;
-	@JsonIgnore
+    @JsonIgnore
     private String password;
-	@JsonIgnore
+    @JsonIgnore
     private String email;
-	@JsonIgnore
+    @JsonIgnore
     private boolean verified;
     private boolean visible;
-	@JsonIgnore
-	@ElementCollection
+    @JsonIgnore
+    @ElementCollection
     //@OneToMany(targetEntity = Content.class, mappedBy = "id")
     private List<Content> movieWatchlist;
-	@JsonIgnore
-	@ElementCollection
+    @JsonIgnore
+    @ElementCollection
     //@OneToMany(targetEntity = TVShowSeason.class, mappedBy = "season_id")
     private List<TVShowSeason> televisionWatchlist;
-	@JsonIgnore
-	@ElementCollection
+    @JsonIgnore
+    @ElementCollection
     private List<Content> blacklist;
     @ElementCollection(fetch = FetchType.EAGER)
     private List<String> roles;
     @ElementCollection
-	@JsonIgnore
+    @JsonIgnore
     private List<User> following;
-	@JsonIgnore
-	@OneToMany(targetEntity=UserReview.class, mappedBy="review_id")
-	private List<Review> reviews;
-	@JsonIgnore
-	private int profileViews;
-
+    @JsonIgnore
+    @OneToMany(targetEntity = UserReview.class, mappedBy = "review_id")
+    private List<Review> reviews;
+    @JsonIgnore
+    private int profileViews;
+    
+    @OneToOne(targetEntity=PwResetToken.class,
+            fetch = FetchType.LAZY,
+            cascade =  CascadeType.ALL)
+    private PwResetToken pwResetToken;
+    
     public User() {
-		this.roles = new ArrayList<>();
+        this.roles = new ArrayList<>();
     }
 
     public User(int id) {
         this.id = id;
     }
 
+    public PwResetToken getPwResetToken() {
+        return pwResetToken;
+    }
+
+    public void setPwResetToken(PwResetToken pwResetToken) {
+        this.pwResetToken = pwResetToken;
+    }
+    
+    
+    
     public boolean hasRole(UserRole role) {
         return roles.contains(role.name());
     }
@@ -93,41 +110,41 @@ public class User {
     }
 
     public ErrorCode addToMovieWatchlist(Movie movie) {
-		if (movieWatchlist.contains(movie)) {
-			return ErrorCode.ALREADYINLIST;
-		}
-		movieWatchlist.add(movie);
+        if (movieWatchlist.contains(movie)) {
+            return ErrorCode.ALREADYINLIST;
+        }
+        movieWatchlist.add(movie);
         return ErrorCode.SUCCESS;
     }
 
     public ErrorCode addToMovieBlacklist(Content content) {
-		if (blacklist.contains(content)) {
-			return ErrorCode.ALREADYINLIST;
-		}
-		blacklist.add(content);
-		return ErrorCode.SUCCESS;
-	}
-	
-	public ErrorCode removeFromMovieWatchlist(Movie theMovie) {
-		if (!movieWatchlist.contains(theMovie)) {
-			return ErrorCode.NOTINLIST;
-		}
-		movieWatchlist.remove(theMovie);
+        if (blacklist.contains(content)) {
+            return ErrorCode.ALREADYINLIST;
+        }
+        blacklist.add(content);
         return ErrorCode.SUCCESS;
-	}
+    }
 
-	public ErrorCode removeFromMovieBlacklist(Movie theMovie) {
-		if (!blacklist.contains(theMovie)) {
-			return ErrorCode.NOTINLIST;
-		}
-		blacklist.remove(theMovie);
-		return ErrorCode.SUCCESS;	
-	}
-	
-	public ErrorCode addReview(Review review) {
-		reviews.add(review);
-		return ErrorCode.SUCCESS;
-	}
+    public ErrorCode removeFromMovieWatchlist(Movie theMovie) {
+        if (!movieWatchlist.contains(theMovie)) {
+            return ErrorCode.NOTINLIST;
+        }
+        movieWatchlist.remove(theMovie);
+        return ErrorCode.SUCCESS;
+    }
+
+    public ErrorCode removeFromMovieBlacklist(Movie theMovie) {
+        if (!blacklist.contains(theMovie)) {
+            return ErrorCode.NOTINLIST;
+        }
+        blacklist.remove(theMovie);
+        return ErrorCode.SUCCESS;
+    }
+
+    public ErrorCode addReview(Review review) {
+        reviews.add(review);
+        return ErrorCode.SUCCESS;
+    }
 
     public int getId() {
         return id;
@@ -177,30 +194,30 @@ public class User {
         this.televisionWatchlist = televisionWatchlist;
     }
 
-	public List<Content> getBlacklist() {
-		return blacklist;
-	}
+    public List<Content> getBlacklist() {
+        return blacklist;
+    }
 
-	public void setBlacklist(List<Content> blacklist) {
-		this.blacklist = blacklist;
-	}
+    public void setBlacklist(List<Content> blacklist) {
+        this.blacklist = blacklist;
+    }
 
-	public List<Review> getReviews() {
-		return reviews;
-	}
+    public List<Review> getReviews() {
+        return reviews;
+    }
 
-	public void setReviews(List<Review> reviews) {
-		this.reviews = reviews;
-	}
+    public void setReviews(List<Review> reviews) {
+        this.reviews = reviews;
+    }
 
-	public int getProfileViews() {
-		return profileViews;
-	}
+    public int getProfileViews() {
+        return profileViews;
+    }
 
-	public void setProfileViews(int profileViews) {
-		this.profileViews = profileViews;
-	}
-	
+    public void setProfileViews(int profileViews) {
+        this.profileViews = profileViews;
+    }
+
     @Override
     public boolean equals(Object obj) {
         if (this == obj) {
@@ -218,9 +235,9 @@ public class User {
         }
         return true;
     }
-	
-	public void addProfileView() {
-		profileViews++;
-	}
+
+    public void addProfileView() {
+        profileViews++;
+    }
 
 }

@@ -1,4 +1,4 @@
-package main.java.models;
+package main.java.dto;
 
 public class RegistrationForm {
 

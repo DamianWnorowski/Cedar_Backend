@@ -17,7 +17,7 @@ public class EmailService {
     @Autowired
     UserManager um;
     
-    public void sendVerificationEmail(String to, String subject, String text){
+    public void sendEmail(String to, String subject, String text){
         SimpleMailMessage message = new SimpleMailMessage(); 
         message.setTo(to); 
         message.setSubject(subject); 
@@ -26,10 +26,19 @@ public class EmailService {
         System.out.println("Sending email to: " + to);
     }
     
-    public String generateEmailBody(String name, int id, String token){
+    public String generateVerificationEmailBody(String name, int id, String token){
         String body = "Hello " + name + ",\n\n";
         body += "Please click the following link to activate your account:\n";
         body += "http://localhost:8080/verify/" + id + "/" + token ;
+        body += "\nThank you for using our service!\nTeam Cedar";
+        
+        return body;
+    }
+    
+    public String generateForgotPwEmailBody(String name, int id, String token){
+        String body = "Hello " + name + ",\n\n";
+        body += "Please click the following link to reset your password:\n";
+        body += "http://localhost:8080/forgot/" + id + "/" + token ;
         body += "\nThank you for using our service!\nTeam Cedar";
         
         return body;
