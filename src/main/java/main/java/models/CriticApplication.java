@@ -58,6 +58,4 @@ public class CriticApplication {
 	public void setWebsiteURL(String websiteURL) {
 		this.websiteURL = websiteURL;
 	}
-    
-    
 }

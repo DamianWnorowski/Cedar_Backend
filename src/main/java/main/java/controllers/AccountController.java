@@ -110,6 +110,7 @@ public class AccountController {
                     resp = new JwtAuthenticationResponse(jwt, u.getName(), (List<Content>) u.getBlacklist(), null);
                     return resp;
                 } else {
+                    //throw new RuntimeException("You must verify your email address before you can login!");
                     return new JwtAuthenticationResponse(null, null, null,
                             "You must verify your email address before you can login!");
                 }
