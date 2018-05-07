@@ -15,6 +15,7 @@ import java.util.logging.Logger;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import main.java.dto.CriticApplicationForm;
+import main.java.dto.DeleteAccountForm;
 import main.java.dto.PasswordResetForm;
 import main.java.dto.ImportantReviewsDTO;
 import main.java.dto.UserDTO;
@@ -129,8 +130,7 @@ public class AccountController {
         System.out.println("UserID for the user to be registered: " + user.getId());
 
         //Sending email verification
-        String emailToken = jwtTokenProvider.generateToken(user.getEmail());
-        //String emailToken = bCryptPasswordEncoder.encode(user.getEmail());
+        String emailToken = jwtTokenProvider.generateToken(user);
         String body = emailService.generateVerificationEmailBody(user.getName(), user.getId(), emailToken);
 
         emailService.sendEmail(user.getEmail(), "Please verify your Cedar account!", body);
@@ -148,7 +148,7 @@ public class AccountController {
             if (bCryptPasswordEncoder.matches(lf.getPassword(), u.getPassword())) {
                 // checking if user verified their email
                 if (u.isVerified()) {
-                    jwt = jwtTokenProvider.generateToken(u.getEmail());
+                    jwt = jwtTokenProvider.generateToken(u);
                     List<Content> blackList = new ArrayList(u.getBlacklist());
                     resp = new JwtAuthenticationResponse(jwt, u.getName(), blackList, u.getId());
                     return resp;
@@ -328,26 +328,44 @@ public class AccountController {
     }
 
     @PostMapping("/api/deleteaccount")
-    public ErrorCode deleteAccount(@RequestParam(value = "id") int id) {
-        String email = SecurityContextHolder.getContext().getAuthentication().getName();
-        if (email.equals("anonymousUser")) {
-            return ErrorCode.NOTLOGGEDIN;
+    public ErrorCode deleteAccount(@RequestBody DeleteAccountForm daf) {
+        User userToDelete = um.findById(daf.getId()).get();
+        User currentUser = um.findByEmail(SecurityContextHolder.getContext().getAuthentication().getName());
+        
+        if(userToDelete == null || currentUser == null){
+            throw new RuntimeException("You must be logged in to delete an account");
         }
-        User currentUser = um.findByEmail(email);
-        User userToDelete;
-        try {
-            userToDelete = um.findById(id).get();
-        } catch (NoSuchElementException e) {
-            return ErrorCode.DOESNOTEXIST;
+        
+        if(!userToDelete.equals(currentUser)){
+            throw new RuntimeException("Invalid accounts");
         }
-
-        if (currentUser.getId() != userToDelete.getId() && !currentUser.hasRole(UserRole.ROLE_ADMIN)) {
-            return ErrorCode.INVALIDPERMISSIONS;
+        
+        if(!bCryptPasswordEncoder.matches(daf.getPassword(), userToDelete.getPassword())){
+            throw new RuntimeException("Invalid accounts");
         }
-
+        System.out.println("Deleting account: " + userToDelete.getEmail());
         um.delete(userToDelete);
         return ErrorCode.SUCCESS;
     }
+//        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+//        if (email.equals("anonymousUser")) {
+//            return ErrorCode.NOTLOGGEDIN;
+//        }
+//        User currentUser = um.findByEmail(email);
+//        User userToDelete;
+//        try {
+//            userToDelete = um.findById(id).get();
+//        } catch (NoSuchElementException e) {
+//            return ErrorCode.DOESNOTEXIST;
+//        }
+//
+//        if (currentUser.getId() != userToDelete.getId() && !currentUser.hasRole(UserRole.ROLE_ADMIN)) {
+//            return ErrorCode.INVALIDPERMISSIONS;
+//        }
+//
+//        um.delete(userToDelete);
+//        return ErrorCode.SUCCESS;
+//    }
 
     @PostMapping("/api/followuser")
     public ErrorCode followUser(@RequestParam(value = "id") int id) {
