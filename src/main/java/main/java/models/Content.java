@@ -1,5 +1,6 @@
 package main.java.models;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import main.java.dto.ErrorCode;
 import java.time.LocalDate;
 import java.util.List;
@@ -22,9 +23,11 @@ public abstract class Content {
 	private Set<Genre> genres;
 	private LocalDate date;
 	private double userRating;
+	@JsonIgnore
 	@OneToMany(targetEntity=UserReview.class, mappedBy="content")
 	private List<UserReview> userReviews;
 	private double criticRating;
+	@JsonIgnore
 	@OneToMany(targetEntity=CriticReview.class, mappedBy="content")
 	private List<CriticReview> criticReviews;
 	private String description;
