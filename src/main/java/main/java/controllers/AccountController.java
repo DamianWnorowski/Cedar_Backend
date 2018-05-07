@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import java.io.IOException;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -24,7 +25,7 @@ import main.java.dto.ErrorCode;
 import main.java.dto.JwtAuthenticationResponse;
 import main.java.dto.LoginForm;
 import main.java.dto.PasswordChangeForm;
-import main.java.dto.PwResetToken;
+import main.java.models.PwResetToken;
 import main.java.dto.RegistrationForm;
 import main.java.managers.CriticApplicationManager;
 import main.java.models.CriticApplication;
@@ -148,7 +149,8 @@ public class AccountController {
                 // checking if user verified their email
                 if (u.isVerified()) {
                     jwt = jwtTokenProvider.generateToken(u.getEmail());
-                    resp = new JwtAuthenticationResponse(jwt, u.getName(), (List<Content>) u.getBlacklist(), u.getId());
+                    List<Content> blackList = new ArrayList(u.getBlacklist());
+                    resp = new JwtAuthenticationResponse(jwt, u.getName(), blackList, u.getId());
                     return resp;
                 } else {
                     throw new RuntimeException("You must verify your email address before you can login!");
@@ -156,7 +158,7 @@ public class AccountController {
             }
         }
         System.out.println("Such user does not exist");
-        throw new RuntimeException("User does not exist");
+        throw new RuntimeException("User does not exist or password does not match!");
     }
 
     @GetMapping("/userlogout")
