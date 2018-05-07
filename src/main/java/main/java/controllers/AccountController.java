@@ -16,6 +16,7 @@ import main.java.managers.UserManager;
 import main.java.dto.ErrorCode;
 import main.java.dto.JwtAuthenticationResponse;
 import main.java.dto.LoginForm;
+import main.java.dto.PasswordChangeForm;
 import main.java.dto.PwResetToken;
 import main.java.dto.RegistrationForm;
 import main.java.managers.CriticApplicationManager;
@@ -109,15 +110,12 @@ public class AccountController {
                     resp = new JwtAuthenticationResponse(jwt, u.getName(), u.getBlacklist(), null);
                     return resp;
                 } else {
-                    //throw new RuntimeException("You must verify your email address before you can login!");
-                    return new JwtAuthenticationResponse(null, null, null,
-                            "You must verify your email address before you can login!");
+                    throw new RuntimeException("You must verify your email address before you can login!");
                 }
             }
         }
         System.out.println("Such user does not exist");
-        return null;
-
+        throw new RuntimeException("You must verify your email address before you can login!");
     }
 
     @GetMapping("/userlogout")
@@ -200,12 +198,12 @@ public class AccountController {
         System.out.println("The new token with email subject is: " + newToken);
         um.save(u);
         res.setHeader("token", newToken);
-        res.sendRedirect("http://localhost:3000/secure/changepassword/");
+        res.sendRedirect("http://localhost:3000/secure/resetpassword/");
 
     }
 
-    @PostMapping("secure/changepassword")
-    public ResponseEntity changePassword(@RequestBody PasswordResetForm prf, HttpServletResponse res) throws IOException {
+    @PostMapping("secure/resetpassword")
+    public ResponseEntity resetPassword(@RequestBody PasswordResetForm prf, HttpServletResponse res) throws IOException {
         String curUser = SecurityContextHolder.getContext().getAuthentication().getName();
         System.out.println("Its working if my token is printed: " + prf.getToken());
         String email = jwtTokenProvider.getEmail(prf.getToken());
@@ -216,6 +214,32 @@ public class AccountController {
 
         if (u == null) {
             return ResponseEntity.ok(HttpStatus.BAD_REQUEST);
+        }
+
+        String encodedPw = bCryptPasswordEncoder.encode(newPassword);
+        u.setPassword(encodedPw);
+        um.save(u);
+        // TODO: Maybe show a "password changed message before redirect?
+        res.sendRedirect("/");
+        return ResponseEntity.ok(HttpStatus.OK);
+    }
+    
+    @PostMapping("secure/changepassword")
+    public ResponseEntity changePassword(@RequestBody PasswordChangeForm pcf, HttpServletResponse res) throws IOException {
+        String curUser, oldPassword, newPassword;
+        curUser = SecurityContextHolder.getContext().getAuthentication().getName();
+        oldPassword = pcf.getOldPassword();
+        newPassword = pcf.getNewPassword();
+        System.out.println("Resetting pw for user: " + curUser
+                + "\nnew password: " + newPassword);
+        User u = um.findByEmail(curUser);
+
+        if (u == null) {
+            return ResponseEntity.ok(HttpStatus.BAD_REQUEST);
+        }
+        
+        if(!bCryptPasswordEncoder.matches(oldPassword, u.getPassword())){
+            throw new RuntimeException("Old password is invalid");
         }
 
         String encodedPw = bCryptPasswordEncoder.encode(newPassword);
