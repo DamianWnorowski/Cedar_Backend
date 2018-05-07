@@ -1,7 +1,6 @@
 package main.java.models;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import java.net.URI;
 import java.time.LocalDateTime;
 import javax.persistence.Entity;
 import javax.persistence.JoinColumn;
