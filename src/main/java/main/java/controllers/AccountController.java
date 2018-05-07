@@ -328,7 +328,7 @@ public class AccountController {
     }
 
     @PostMapping("/api/deleteaccount")
-    public ErrorCode deleteAccount(@RequestBody DeleteAccountForm daf) {
+    public ErrorCode deleteAccount(@RequestBody DeleteAccountForm daf, HttpServletResponse res) throws IOException {
         User userToDelete = um.findById(daf.getId()).get();
         User currentUser = um.findByEmail(SecurityContextHolder.getContext().getAuthentication().getName());
         
