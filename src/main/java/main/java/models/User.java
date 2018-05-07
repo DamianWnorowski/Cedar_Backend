@@ -1,5 +1,7 @@
 package main.java.models;
 
+import main.java.dto.PwResetToken;
+import main.java.dto.ErrorCode;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.util.ArrayList;
 import java.util.List;

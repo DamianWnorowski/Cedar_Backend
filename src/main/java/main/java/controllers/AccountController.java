@@ -1,22 +1,26 @@
 package main.java.controllers;
 
 import java.io.IOException;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Set;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import main.java.dto.CriticApplicationForm;
 import main.java.dto.PasswordResetForm;
 import main.java.dto.ImportantReviewsDTO;
 import main.java.dto.UserDTO;
 import main.java.managers.CriticManagerImpl;
 import main.java.managers.ReviewManager;
 import main.java.managers.UserManager;
-import main.java.models.ErrorCode;
-import main.java.models.JwtAuthenticationResponse;
+import main.java.dto.ErrorCode;
+import main.java.dto.JwtAuthenticationResponse;
 import main.java.dto.LoginForm;
-import main.java.models.PwResetToken;
+import main.java.dto.PwResetToken;
 import main.java.dto.RegistrationForm;
+import main.java.managers.CriticApplicationManager;
+import main.java.models.CriticApplication;
 import main.java.models.Content;
 import main.java.models.Review;
 import main.java.models.User;
@@ -26,7 +30,6 @@ import main.java.services.JwtTokenProviderService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -49,9 +52,6 @@ public class AccountController {
     private BCryptPasswordEncoder bCryptPasswordEncoder;
 
     @Autowired
-    private AuthenticationManager authenticationManager;
-
-    @Autowired
     private JwtTokenProviderService jwtTokenProvider;
 
     @Autowired
@@ -62,6 +62,9 @@ public class AccountController {
 
     @Autowired
     private CriticManagerImpl criticManager;
+
+    @Autowired
+    private CriticApplicationManager criticApplicationManager;
 
     @PostMapping("/register")
     public ResponseEntity register(@RequestBody RegistrationForm rf) {
@@ -197,12 +200,13 @@ public class AccountController {
         System.out.println("The new token with email subject is: " + newToken);
         um.save(u);
         res.setHeader("token", newToken);
-        res.sendRedirect("http://localhost:3000/changepassword/");
+        res.sendRedirect("http://localhost:3000/secure/changepassword/");
 
     }
 
-    @PostMapping("/changepassword")
+    @PostMapping("secure/changepassword")
     public ResponseEntity changePassword(@RequestBody PasswordResetForm prf, HttpServletResponse res) throws IOException {
+        String curUser = SecurityContextHolder.getContext().getAuthentication().getName();
         System.out.println("Its working if my token is printed: " + prf.getToken());
         String email = jwtTokenProvider.getEmail(prf.getToken());
         String newPassword = prf.getPassword();
@@ -222,12 +226,40 @@ public class AccountController {
         return ResponseEntity.ok(HttpStatus.OK);
     }
 
-    public String encryptPassword(String password) {
-        return null;
+    @GetMapping("secure/changeemail")
+    public ResponseEntity changeEmail(@RequestParam(value = "email") String email, HttpServletResponse res) throws IOException {
+        String curEmail = SecurityContextHolder.getContext().getAuthentication().getName();
+        System.out.println("Replacing " + curEmail + " with: " + email);
+
+        User u = um.findByEmail(curEmail);
+        if (u == null) {
+            return ResponseEntity.ok(HttpStatus.BAD_REQUEST);
+        }
+
+        u.setEmail(email);
+        um.save(u);
+        // TODO: Maybe show a "email changed message before redirect?
+        res.sendRedirect("/");
+        return ResponseEntity.ok(HttpStatus.OK);
     }
 
-    public int validateUser(User u, LoginForm lf) {
-        return 0;
+    @PostMapping("secure/apply")
+    public ResponseEntity criticApplication(@RequestBody CriticApplicationForm caf, HttpServletResponse res) throws IOException {
+        String curUser = SecurityContextHolder.getContext().getAuthentication().getName();
+        User u = um.findByEmail(curUser);
+        System.out.println("User: " + curUser + " is applying to become a Critic!");
+        if (u == null) {
+            return ResponseEntity.ok(HttpStatus.BAD_REQUEST);
+        }
+        CriticApplication criticApp = new CriticApplication();
+        criticApp.setDate(LocalDate.now());
+        criticApp.setUser(u);
+        criticApp.setReason(caf.getReason());
+        if (caf.getWebsiteURL() != null) {
+            criticApp.setWebsiteURL(caf.getWebsiteURL());
+        }
+        criticApplicationManager.save(criticApp);
+        return ResponseEntity.ok(HttpStatus.OK);
     }
 
     @PostMapping("/api/deleteaccount")
@@ -303,14 +335,13 @@ public class AccountController {
     public UserDTO getUserInfo(@RequestParam(value = "id") int id) {
         try {
             User user = um.findById(id).get();
-			user.addProfileView();
-			um.save(user);
-			UserDTO dto = new UserDTO(user);
+            user.addProfileView();
+            um.save(user);
+            UserDTO dto = new UserDTO(user);
             return dto;
-        }
-    	catch (Exception e) {
+        } catch (Exception e) {
             System.out.println("can't get profile");
-    	}
+        }
 
         return null;
     }
