@@ -1,6 +1,7 @@
-package main.java.dto;
+package main.java.models;
 
 import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 
 
@@ -8,6 +9,7 @@ import javax.persistence.Id;
 public class PwResetToken {
 
     @Id
+    @GeneratedValue
     private int resetToken_id;
     private String pwToken;
     private boolean used;
