@@ -1,6 +1,7 @@
-package main.java.models;
+package main.java.dto;
 
 import java.util.List;
+import main.java.models.Content;
 
 public class JwtAuthenticationResponse {
     private String userToken;

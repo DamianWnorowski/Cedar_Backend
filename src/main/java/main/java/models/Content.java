@@ -1,5 +1,6 @@
 package main.java.models;
 
+import main.java.dto.ErrorCode;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Set;

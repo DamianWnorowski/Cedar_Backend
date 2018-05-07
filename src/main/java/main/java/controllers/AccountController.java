@@ -1,21 +1,25 @@
 package main.java.controllers;
 
 import java.io.IOException;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.NoSuchElementException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import main.java.dto.CriticApplicationForm;
 import main.java.dto.PasswordResetForm;
 import main.java.dto.ImportantReviewsDTO;
 import main.java.dto.UserDTO;
 import main.java.managers.CriticManagerImpl;
 import main.java.managers.ReviewManager;
 import main.java.managers.UserManager;
-import main.java.models.ErrorCode;
-import main.java.models.JwtAuthenticationResponse;
+import main.java.dto.ErrorCode;
+import main.java.dto.JwtAuthenticationResponse;
 import main.java.dto.LoginForm;
-import main.java.models.PwResetToken;
+import main.java.dto.PwResetToken;
 import main.java.dto.RegistrationForm;
+import main.java.managers.CriticApplicationManager;
+import main.java.models.CriticApplication;
 import main.java.models.Review;
 import main.java.models.User;
 import main.java.models.UserRole;
@@ -47,9 +51,6 @@ public class AccountController {
     private BCryptPasswordEncoder bCryptPasswordEncoder;
 
     @Autowired
-    private AuthenticationManager authenticationManager;
-
-    @Autowired
     private JwtTokenProviderService jwtTokenProvider;
 
     @Autowired
@@ -60,6 +61,9 @@ public class AccountController {
 
     @Autowired
     private CriticManagerImpl criticManager;
+
+    @Autowired
+    private CriticApplicationManager criticApplicationManager;
 
     @PostMapping("/register")
     public ResponseEntity register(@RequestBody RegistrationForm rf) {
@@ -238,12 +242,23 @@ public class AccountController {
         return ResponseEntity.ok(HttpStatus.OK);
     }
 
-    public String encryptPassword(String password) {
-        return null;
-    }
-
-    public int validateUser(User u, LoginForm lf) {
-        return 0;
+    @PostMapping("secure/apply")
+    public ResponseEntity criticApplication(@RequestBody CriticApplicationForm caf, HttpServletResponse res) throws IOException {
+        String curUser = SecurityContextHolder.getContext().getAuthentication().getName();
+        User u = um.findByEmail(curUser);
+        System.out.println("User: " + curUser + " is applying to become a Critic!");
+        if (u == null) {
+            return ResponseEntity.ok(HttpStatus.BAD_REQUEST);
+        }
+        CriticApplication criticApp = new CriticApplication();
+        criticApp.setDate(LocalDate.now());
+        criticApp.setUser(u);
+        criticApp.setReason(caf.getReason());
+        if (caf.getWebsiteURL() != null) {
+            criticApp.setWebsiteURL(caf.getWebsiteURL());
+        }
+        criticApplicationManager.save(criticApp);
+        return ResponseEntity.ok(HttpStatus.OK);
     }
 
     @PostMapping("/api/deleteaccount")
