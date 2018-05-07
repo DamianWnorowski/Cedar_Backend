@@ -37,7 +37,6 @@ public class JwtTokenProviderService {
 
         return Jwts.builder()
                 .setSubject(u.getEmail())
-                .setPayload(u.getName())
                 .setIssuedAt(new Date())
                 .setExpiration(expiryDate)
                 .signWith(SignatureAlgorithm.HS512, secretKey)
