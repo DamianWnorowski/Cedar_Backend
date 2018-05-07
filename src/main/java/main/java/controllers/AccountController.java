@@ -183,7 +183,7 @@ public class AccountController {
         if (email.equals(u.getEmail())) {
             u.setVerified(true);
             um.save(u);
-            res.sendRedirect("http://localhost:3000/verified");
+            res.sendRedirect("http://localhost:3000/");
             return ResponseEntity.ok(HttpStatus.OK);
         }
         res.sendRedirect("http://localhost:3000/404");
@@ -281,7 +281,7 @@ public class AccountController {
             return ResponseEntity.ok(HttpStatus.BAD_REQUEST);
         }
 
-        if (!bCryptPasswordEncoder.matches(oldPassword, u.getPassword())) {
+        if (!bCryptPasswordEncoder.matches(oldPassword.trim(), u.getPassword().trim())) {
             throw new RuntimeException("Old password is invalid");
         }
 
@@ -412,7 +412,7 @@ public class AccountController {
 
         return null;
     }
-
+    
     @GetMapping("/api/getusersreviews")
     public List<Review> getUsersReviews(@RequestParam(value = "id") int id) {
         User author;
