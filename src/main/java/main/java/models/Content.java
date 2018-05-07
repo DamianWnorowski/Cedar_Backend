@@ -22,10 +22,10 @@ public abstract class Content {
 	private Set<Genre> genres;
 	private LocalDate date;
 	private double userRating;
-	@OneToMany(targetEntity=UserReview.class, mappedBy="review_id")
+	@OneToMany(targetEntity=UserReview.class, mappedBy="content")
 	private List<UserReview> userReviews;
 	private double criticRating;
-	@OneToMany(targetEntity=CriticReview.class, mappedBy="review_id")
+	@OneToMany(targetEntity=CriticReview.class, mappedBy="content")
 	private List<CriticReview> criticReviews;
 	private String description;
 	/*

@@ -409,21 +409,21 @@ public class ContentController {
 		return contentManager.findTop10ByNextAirDate(LocalDate.now());
 	}
 	
-	@GetMapping("/api/getcontentreviews")
-	public List<Review> getContentReviews(@RequestParam(value="id") int id) {
-		Content c;
-		try {
-			c = contentManager.findById(id).get();
-		}
-		catch (Exception e) {
-			try {
-				c = tvManager.findById(id).get();
-			}
-			catch (Exception e2) {
-				return null;
-			}
-		}
-		return reviewManager.findByContent(c);
-	}
+//	@GetMapping("/api/getcontentreviews")
+//	public List<Review> getContentReviews(@RequestParam(value="id") int id) {
+//		Content c;
+//		try {
+//			c = contentManager.findById(id).get();
+//		}
+//		catch (Exception e) {
+//			try {
+//				c = tvManager.findById(id).get();
+//			}
+//			catch (Exception e2) {
+//				return null;
+//			}
+//		}
+//		return reviewManager.findByContent(c);
+//	}
 		
 }
