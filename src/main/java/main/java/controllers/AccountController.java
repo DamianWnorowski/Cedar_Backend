@@ -289,7 +289,6 @@ public class AccountController {
         u.setPassword(encodedPw);
         um.save(u);
         // TODO: Maybe show a "password changed message before redirect?
-        res.sendRedirect("/");
         return ResponseEntity.ok(HttpStatus.OK);
     }
 
@@ -306,7 +305,6 @@ public class AccountController {
         u.setEmail(email);
         um.save(u);
         // TODO: Maybe show a "email changed message before redirect?
-        res.sendRedirect("/");
         return ResponseEntity.ok(HttpStatus.OK);
     }
 
