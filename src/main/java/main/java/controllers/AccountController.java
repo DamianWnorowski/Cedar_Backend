@@ -195,12 +195,13 @@ public class AccountController {
         System.out.println("The new token with email subject is: " + newToken);
         um.save(u);
         res.setHeader("token", newToken);
-        res.sendRedirect("http://localhost:3000/changepassword/");
+        res.sendRedirect("http://localhost:3000/secure/changepassword/");
 
     }
 
-    @PostMapping("/changepassword")
+    @PostMapping("secure/changepassword")
     public ResponseEntity changePassword(@RequestBody PasswordResetForm prf, HttpServletResponse res) throws IOException {
+        String curUser = SecurityContextHolder.getContext().getAuthentication().getName();
         System.out.println("Its working if my token is printed: " + prf.getToken());
         String email = jwtTokenProvider.getEmail(prf.getToken());
         String newPassword = prf.getPassword();
@@ -216,6 +217,23 @@ public class AccountController {
         u.setPassword(encodedPw);
         um.save(u);
         // TODO: Maybe show a "password changed message before redirect?
+        res.sendRedirect("/");
+        return ResponseEntity.ok(HttpStatus.OK);
+    }
+
+    @GetMapping("secure/changeemail")
+    public ResponseEntity changeEmail(@RequestParam(value = "email") String email, HttpServletResponse res) throws IOException {
+        String curEmail = SecurityContextHolder.getContext().getAuthentication().getName();
+        System.out.println("Replacing " + curEmail + " with: " + email);
+
+        User u = um.findByEmail(curEmail);
+        if (u == null) {
+            return ResponseEntity.ok(HttpStatus.BAD_REQUEST);
+        }
+
+        u.setEmail(email);
+        um.save(u);
+        // TODO: Maybe show a "email changed message before redirect?
         res.sendRedirect("/");
         return ResponseEntity.ok(HttpStatus.OK);
     }
@@ -301,14 +319,13 @@ public class AccountController {
     public UserDTO getUserInfo(@RequestParam(value = "id") int id) {
         try {
             User user = um.findById(id).get();
-			user.addProfileView();
-			um.save(user);
-			UserDTO dto = new UserDTO(user);
+            user.addProfileView();
+            um.save(user);
+            UserDTO dto = new UserDTO(user);
             return dto;
-        }
-    	catch (Exception e) {
+        } catch (Exception e) {
             System.out.println("can't get profile");
-    	}
+        }
 
         return null;
     }
