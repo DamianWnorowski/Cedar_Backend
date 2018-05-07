@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.Set;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import main.java.dto.CriticApplicationForm;
@@ -21,6 +22,7 @@ import main.java.dto.PwResetToken;
 import main.java.dto.RegistrationForm;
 import main.java.managers.CriticApplicationManager;
 import main.java.models.CriticApplication;
+import main.java.models.Content;
 import main.java.models.Review;
 import main.java.models.User;
 import main.java.models.UserRole;
@@ -29,7 +31,6 @@ import main.java.services.JwtTokenProviderService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -107,7 +108,7 @@ public class AccountController {
                 // checking if user verified their email
                 if (u.isVerified()) {
                     jwt = jwtTokenProvider.generateToken(u.getEmail());
-                    resp = new JwtAuthenticationResponse(jwt, u.getName(), u.getBlacklist(), null);
+                    resp = new JwtAuthenticationResponse(jwt, u.getName(), (List<Content>) u.getBlacklist(), null);
                     return resp;
                 } else {
                     throw new RuntimeException("You must verify your email address before you can login!");
@@ -322,7 +323,7 @@ public class AccountController {
             return ErrorCode.DOESNOTEXIST;
         }
 
-        List<User> usersFollowed = currentUser.getFollowing();
+        Set<User> usersFollowed = currentUser.getFollowing();
         usersFollowed.add(userToFollow);
         currentUser.setFollowing(usersFollowed);
 
@@ -344,7 +345,7 @@ public class AccountController {
             return ErrorCode.DOESNOTEXIST;
         }
 
-        List<User> usersFollowed = currentUser.getFollowing();
+        Set<User> usersFollowed = currentUser.getFollowing();
 
         if (!usersFollowed.contains(userToRemove)) {
             return ErrorCode.DOESNOTEXIST;

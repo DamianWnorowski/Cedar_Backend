@@ -5,6 +5,7 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.ManyToOne;
 import javax.persistence.OneToOne;
 
 @Entity
@@ -13,7 +14,7 @@ public class ReviewReport {
 	@Id @GeneratedValue(strategy=GenerationType.AUTO)
 	private Integer report_id;
 	private LocalDate date;
-	@OneToOne
+	@ManyToOne(targetEntity=Review.class)
 	private Review review;
 	@OneToOne
 	private User user;

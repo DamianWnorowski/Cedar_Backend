@@ -10,6 +10,7 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Inheritance;
 import javax.persistence.InheritanceType;
+import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 
@@ -23,12 +24,13 @@ public abstract class Review {
 	@ManyToOne(targetEntity=Content.class)
 	private Content content;
 	@ManyToOne(targetEntity=User.class)
+	@JoinColumn(name = "author_id")
 	private User author;
 	private int rating;
 	private LocalDateTime date;
 	private String body;
 	@JsonIgnore
-	@OneToMany(targetEntity=ReviewReport.class, mappedBy="report_id")
+	@OneToMany(targetEntity=ReviewReport.class, mappedBy="review")
 	private List<ReviewReport> reports;
 
 	public Review() {

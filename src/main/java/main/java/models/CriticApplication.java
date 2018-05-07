@@ -19,41 +19,43 @@ public class CriticApplication {
     private String reason;
     private String websiteURL;
 
-    public Integer getApplication_id() {
-        return application_id;
-    }
+	public Integer getApplication_id() {
+		return application_id;
+	}
 
-    public LocalDate getDate() {
-        return date;
-    }
+	public void setApplication_id(Integer application_id) {
+		this.application_id = application_id;
+	}
 
-    public void setDate(LocalDate date) {
-        this.date = date;
-    }
+	public LocalDate getDate() {
+		return date;
+	}
 
-    public User getUser() {
-        return user;
-    }
+	public void setDate(LocalDate date) {
+		this.date = date;
+	}
 
-    public void setUser(User user) {
-        this.user = user;
-    }
+	public User getUser() {
+		return user;
+	}
 
-    public String getReason() {
-        return reason;
-    }
+	public void setUser(User user) {
+		this.user = user;
+	}
 
-    public void setReason(String reason) {
-        this.reason = reason;
-    }
+	public String getReason() {
+		return reason;
+	}
 
-    public String getWebsiteURL() {
-        return websiteURL;
-    }
+	public void setReason(String reason) {
+		this.reason = reason;
+	}
 
-    public void setWebsiteURL(String websiteURL) {
-        this.websiteURL = websiteURL;
-    }
-    
-    
+	public String getWebsiteURL() {
+		return websiteURL;
+	}
+
+	public void setWebsiteURL(String websiteURL) {
+		this.websiteURL = websiteURL;
+	}
 }
