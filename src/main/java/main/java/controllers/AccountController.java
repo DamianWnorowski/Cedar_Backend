@@ -347,25 +347,7 @@ public class AccountController {
         um.delete(userToDelete);
         return ErrorCode.SUCCESS;
     }
-//        String email = SecurityContextHolder.getContext().getAuthentication().getName();
-//        if (email.equals("anonymousUser")) {
-//            return ErrorCode.NOTLOGGEDIN;
-//        }
-//        User currentUser = um.findByEmail(email);
-//        User userToDelete;
-//        try {
-//            userToDelete = um.findById(id).get();
-//        } catch (NoSuchElementException e) {
-//            return ErrorCode.DOESNOTEXIST;
-//        }
-//
-//        if (currentUser.getId() != userToDelete.getId() && !currentUser.hasRole(UserRole.ROLE_ADMIN)) {
-//            return ErrorCode.INVALIDPERMISSIONS;
-//        }
-//
-//        um.delete(userToDelete);
-//        return ErrorCode.SUCCESS;
-//    }
+
 
     @PostMapping("/api/followuser")
     public ErrorCode followUser(@RequestParam(value = "id") int id) {
