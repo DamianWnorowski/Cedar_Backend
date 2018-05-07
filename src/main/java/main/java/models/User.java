@@ -35,21 +35,21 @@ public class User {
     private boolean verified;
     private boolean visible;
 	@JsonIgnore
-	@ManyToMany
+	@ManyToMany(cascade = CascadeType.ALL)
 	@JoinTable(name = "users_movie_watchlist",
 	joinColumns = @JoinColumn(name = "user_id"),
 	inverseJoinColumns = @JoinColumn(name = "movie_watchlist_id"), 
 	uniqueConstraints = {@UniqueConstraint(columnNames={"user_id", "movie_watchlist_id"})})
     private Set<Movie> movieWatchlist;
 	@JsonIgnore
-	@ManyToMany
+	@ManyToMany(cascade = CascadeType.ALL)
 	@JoinTable(name = "users_television_watchlist",
 	joinColumns = @JoinColumn(name = "user_id"),
 	inverseJoinColumns = @JoinColumn(name = "television_watchlist_id"), 
 	uniqueConstraints = {@UniqueConstraint(columnNames={"user_id", "television_watchlist_id"})})
     private Set<TVShow> televisionWatchlist;
 	@JsonIgnore
-	@ManyToMany
+	@ManyToMany(cascade = CascadeType.ALL)
 	@JoinTable(name = "users_blacklist",
 	joinColumns = @JoinColumn(name = "user_id"),
 	inverseJoinColumns = @JoinColumn(name = "blacklist_id"), 
@@ -58,7 +58,7 @@ public class User {
     @ElementCollection(fetch = FetchType.EAGER)
     private List<String> roles;
     @JsonIgnore
-	@ManyToMany
+	@ManyToMany(cascade = CascadeType.ALL)
 	@JoinTable(name = "users_following",
 	joinColumns = @JoinColumn(name = "user_id"),
 	inverseJoinColumns = @JoinColumn(name = "following_id"), 
@@ -66,10 +66,14 @@ public class User {
     private Set<User> following;
 
     @JsonIgnore
-    @OneToMany(targetEntity = Review.class, mappedBy = "author")
+    @OneToMany(targetEntity = Review.class, mappedBy = "author", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Review> reviews;
     @JsonIgnore
     private int profileViews;
+	
+	@JsonIgnore
+    @OneToMany(targetEntity = ReviewReport.class, mappedBy = "user", cascade = CascadeType.ALL)
+    private List<ReviewReport> reports;
 
 	@JsonIgnore
     @OneToOne(targetEntity = PwResetToken.class,
@@ -256,6 +260,14 @@ public class User {
         this.profileViews = profileViews;
     }
 
+	public List<ReviewReport> getReports() {
+		return reports;
+	}
+
+	public void setReports(List<ReviewReport> reports) {
+		this.reports = reports;
+	}
+	
     @Override
     public boolean equals(Object obj) {
         if (this == obj) {

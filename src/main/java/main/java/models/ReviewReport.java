@@ -16,7 +16,7 @@ public class ReviewReport {
 	private LocalDate date;
 	@ManyToOne(targetEntity=Review.class)
 	private Review review;
-	@OneToOne
+	@ManyToOne(targetEntity=User.class)
 	private User user;
 	private String description;
 
