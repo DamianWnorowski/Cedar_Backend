@@ -404,9 +404,35 @@ public class ContentController {
 		return reports;
 	}
 	
-	@GetMapping("/api/newtvtonight")
-	public List<TVShow> getNewTVTonight() {
-		return contentManager.findTop10ByNextAirDate(LocalDate.now());
+	@GetMapping("/api/getmyreviewforcurrentcontent")
+    public Review getMyReview(@RequestParam(value = "id") int id) {
+		String email = SecurityContextHolder.getContext().getAuthentication().getName();
+		
+		if (email.equals("anonymousUser")) {
+			return null;
+		}
+		User currentUser = userManager.findByEmail(email);
+        
+        List<Review> myReviews =  reviewManager.findByAuthor(currentUser);
+		try {
+            Content theContent = contentManager.findById(id).get();
+			for (Review r: myReviews) {
+				if (r instanceof UserReview) {
+					if (theContent.equals(((UserReview) r).getContent())) {
+						return r;
+					}
+				}
+				else if (r instanceof CriticReview) {
+					if (theContent.equals(((CriticReview) r).getContent())) {
+						return r;
+					}
+				}
+			}
+        }
+    	catch (Exception e) {
+            System.out.println("can't get movie");
+    	}
+		return null;
 	}
 	
 //	@GetMapping("/api/getcontentreviews")

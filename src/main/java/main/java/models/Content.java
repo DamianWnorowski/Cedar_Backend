@@ -220,5 +220,25 @@ public abstract class Content {
 	public ErrorCode calculateRatings() {
 		return ErrorCode.SUCCESS;
 	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj) {
+			return true;
+		}
+		if (obj == null) {
+			return false;
+		}
+		if (getClass() != obj.getClass()) {
+			return false;
+		}
+		final Content other = (Content) obj;
+		if (this.id != other.id) {
+			return false;
+		}
+		return true;
+	}
+	
+	
 	
 }

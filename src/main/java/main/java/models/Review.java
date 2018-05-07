@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.ArrayList;
+import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -27,7 +28,7 @@ public abstract class Review {
 	private LocalDateTime date;
 	private String body;
 	@JsonIgnore
-	@OneToMany(targetEntity=ReviewReport.class, mappedBy="review")
+	@OneToMany(targetEntity=ReviewReport.class, mappedBy="review",  cascade = CascadeType.ALL)
 	private List<ReviewReport> reports;
 
 	public Review() {
