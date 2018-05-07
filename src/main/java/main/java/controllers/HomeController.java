@@ -11,13 +11,14 @@ import org.springframework.web.bind.annotation.RestController;
 import properties.PropertiesManager;
 import main.java.models.Movie;
 import main.java.managers.ContentManager;
+import main.java.models.TVShow;
 
 @CrossOrigin("http://localhost:3000")
 @RestController
 public class HomeController {
 	
 	@Autowired
-	private ContentManager movieManager;
+	private ContentManager contentManager;
 	private final PropertiesManager propertiesManager;
 
 	public HomeController() {
@@ -27,7 +28,7 @@ public class HomeController {
 	@GetMapping("/api/topboxoffice")
 	public List<Movie> displayBoxOffice() {
 		List<Movie> boxOfficeList
-			= movieManager.findTop10ByCurrentlyInTheatersTrueOrderByBoxOffice();
+			= contentManager.findTop10ByCurrentlyInTheatersTrueOrderByBoxOffice();
 		return boxOfficeList;
 	}
 
@@ -44,7 +45,7 @@ public class HomeController {
 		LocalDate lastDayOfLastWeek = LocalDate.now().minusDays(daysToSubtract);
 		LocalDate firstDayOfNextWeek = LocalDate.now().plusDays(daysToAdd);
 		List<Movie> moviesForThisWeek
-			= movieManager.findTop10ByDateAfterAndDateBefore(lastDayOfLastWeek, firstDayOfNextWeek);
+			= contentManager.findTop10ByDateAfterAndDateBefore(lastDayOfLastWeek, firstDayOfNextWeek);
 		return moviesForThisWeek;
 	}
 
@@ -53,7 +54,7 @@ public class HomeController {
 		LocalDate endDate
 			= LocalDate.now().plusWeeks(propertiesManager.getProperty("numWeeksForComingSoon"));
 		List<Movie> moviesComingSoon
-			= movieManager.findTop10ByDateAfterAndDateBefore(LocalDate.now(), endDate);
+			= contentManager.findTop10ByDateAfterAndDateBefore(LocalDate.now(), endDate);
 		return moviesComingSoon;
 	}
 	
@@ -62,8 +63,9 @@ public class HomeController {
 		return null;
 	}
 
-	public String displayNewTVTonight() {
-		return null;
+	@GetMapping("/api/newtvtonight")
+	public List<TVShow> getNewTVTonight() {
+		return contentManager.findTop10ByNextAirDate(LocalDate.now());
 	}
 
 	public String displayPopularTV() {

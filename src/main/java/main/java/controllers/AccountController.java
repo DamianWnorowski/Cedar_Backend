@@ -148,7 +148,7 @@ public class AccountController {
                 // checking if user verified their email
                 if (u.isVerified()) {
                     jwt = jwtTokenProvider.generateToken(u.getEmail());
-                    resp = new JwtAuthenticationResponse(jwt, u.getName(), (List<Content>) u.getBlacklist(), null);
+                    resp = new JwtAuthenticationResponse(jwt, u.getName(), (List<Content>) u.getBlacklist(), u.getId());
                     return resp;
                 } else {
                     throw new RuntimeException("You must verify your email address before you can login!");
@@ -156,7 +156,7 @@ public class AccountController {
             }
         }
         System.out.println("Such user does not exist");
-        throw new RuntimeException("You must verify your email address before you can login!");
+        throw new RuntimeException("User does not exist");
     }
 
     @GetMapping("/userlogout")

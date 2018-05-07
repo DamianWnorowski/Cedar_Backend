@@ -404,11 +404,6 @@ public class ContentController {
 		return reports;
 	}
 	
-	@GetMapping("/api/newtvtonight")
-	public List<TVShow> getNewTVTonight() {
-		return contentManager.findTop10ByNextAirDate(LocalDate.now());
-	}
-	
 	@GetMapping("/api/getmyreviewforcurrentcontent")
     public Review getMyReview(@RequestParam(value = "id") int id) {
 		String email = SecurityContextHolder.getContext().getAuthentication().getName();

@@ -7,13 +7,13 @@ public class JwtAuthenticationResponse {
     private String userToken;
     private String userName;
     private List<Content> userBlacklist;
-    private String errorMsg;
+    private int userId;
 
-    public JwtAuthenticationResponse(String token, String name, List<Content> blacklist, String error){
+    public JwtAuthenticationResponse(String token, String name, List<Content> blacklist, int userId){
         this.userToken = token;
         this.userName = name;
         this.userBlacklist = blacklist;
-        this.errorMsg = error;
+        this.userId = userId;
     }
     
     public String getUserToken() {
@@ -27,5 +27,8 @@ public class JwtAuthenticationResponse {
     public List<Content> getUserBlacklist() {
         return userBlacklist;
     }
-    
+
+    public int getUserId() {
+        return userId;
+    }   
 }
