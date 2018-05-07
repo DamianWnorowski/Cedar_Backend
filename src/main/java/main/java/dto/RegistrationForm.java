@@ -6,7 +6,16 @@ public class RegistrationForm {
     private String lastName;
     private String password;
     private String email;
+    private String recaptchaResponse;
 
+    public String getRecaptchaResponse() {
+        return recaptchaResponse;
+    }
+
+    public void setRecaptchaResponse(String recaptchaResponse) {
+        this.recaptchaResponse = recaptchaResponse;
+    }
+    
     public String getFirstName() {
         return firstName;
     }

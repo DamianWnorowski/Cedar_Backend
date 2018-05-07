@@ -1,10 +1,16 @@
 package main.java.controllers;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import java.io.IOException;
 import java.time.LocalDate;
+import java.util.Arrays;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Set;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import main.java.dto.CriticApplicationForm;
@@ -29,11 +35,17 @@ import main.java.models.UserRole;
 import main.java.services.EmailService;
 import main.java.services.JwtTokenProviderService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -41,6 +53,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.client.RestTemplate;
 
 @CrossOrigin("http://localhost:3000")
 @RestController
@@ -67,8 +80,35 @@ public class AccountController {
     @Autowired
     private CriticApplicationManager criticApplicationManager;
 
+    public boolean verifyCaptcha(String captchaResponse) {
+        boolean verified = false;
+        String googleURL = "https://www.google.com/recaptcha/api/siteverify";
+
+        RestTemplate restTemplate = new RestTemplate();
+        HttpHeaders headers = new HttpHeaders();
+        headers.setAccept(Arrays.asList(MediaType.APPLICATION_FORM_URLENCODED));
+
+        HttpEntity<String> entity = new HttpEntity<String>("parameters", headers);
+
+        MultiValueMap<String, String> map = new LinkedMultiValueMap<String, String>();
+        map.add("secret", "6LeIxAcTAAAAAGG-vFI1TnRWxMZNFuojJ4WifJWe");
+        map.add("response", captchaResponse);
+
+        HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<MultiValueMap<String, String>>(map, headers);
+        ResponseEntity<String> response = restTemplate.postForEntity(googleURL, request, String.class);
+        String json = response.getBody();
+
+        if(json.contains("true") && json.contains("success")){
+            System.out.println("### USED VERIFIED AS HUMAN ###");
+            return true;
+        }
+        
+        return false;
+    }
+    
     @PostMapping("/register")
     public ResponseEntity register(@RequestBody RegistrationForm rf) {
+        verifyCaptcha(rf.getRecaptchaResponse());
         User user = um.findByEmail(rf.getEmail());
         if (user != null) {
             System.out.println("ERROR: USER ALREADY EXISTS WITH EMAIL: " + user.getEmail());
@@ -224,7 +264,7 @@ public class AccountController {
         res.sendRedirect("/");
         return ResponseEntity.ok(HttpStatus.OK);
     }
-    
+
     @PostMapping("secure/changepassword")
     public ResponseEntity changePassword(@RequestBody PasswordChangeForm pcf, HttpServletResponse res) throws IOException {
         String curUser, oldPassword, newPassword;
@@ -238,8 +278,8 @@ public class AccountController {
         if (u == null) {
             return ResponseEntity.ok(HttpStatus.BAD_REQUEST);
         }
-        
-        if(!bCryptPasswordEncoder.matches(oldPassword, u.getPassword())){
+
+        if (!bCryptPasswordEncoder.matches(oldPassword, u.getPassword())) {
             throw new RuntimeException("Old password is invalid");
         }
 
