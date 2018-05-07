@@ -20,9 +20,6 @@ public abstract class Review {
 
 	@Id @GeneratedValue(strategy=GenerationType.AUTO)
 	private int review_id;
-	@JsonIgnore
-	@ManyToOne(targetEntity=Content.class)
-	private Content content;
 	@ManyToOne(targetEntity=User.class)
 	@JoinColumn(name = "author_id")
 	private User author;
@@ -37,9 +34,8 @@ public abstract class Review {
 		reports = new ArrayList<>();
 	}
 	
-	public Review(Content content, User author, int rating, LocalDateTime date, String body) {
+	public Review(User author, int rating, LocalDateTime date, String body) {
 		reports = new ArrayList<>();
-		this.content = content;
 		this.author = author;
 		this.rating = rating;
 		this.date = date;
@@ -52,14 +48,6 @@ public abstract class Review {
 
 	public void setReview_id(int review_id) {
 		this.review_id = review_id;
-	}
-
-	public Content getContent() {
-		return content;
-	}
-
-	public void setContent(Content content) {
-		this.content = content;
 	}
 
 	public User getAuthor() {
