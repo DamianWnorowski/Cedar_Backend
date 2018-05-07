@@ -3,6 +3,7 @@ package main.java.controllers;
 import java.io.IOException;
 import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.Set;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import main.java.dto.PasswordResetForm;
@@ -16,6 +17,7 @@ import main.java.models.JwtAuthenticationResponse;
 import main.java.dto.LoginForm;
 import main.java.models.PwResetToken;
 import main.java.dto.RegistrationForm;
+import main.java.models.Content;
 import main.java.models.Review;
 import main.java.models.User;
 import main.java.models.UserRole;
@@ -102,7 +104,7 @@ public class AccountController {
                 // checking if user verified their email
                 if (u.isVerified()) {
                     jwt = jwtTokenProvider.generateToken(u.getEmail());
-                    resp = new JwtAuthenticationResponse(jwt, u.getName(), u.getBlacklist(), null);
+                    resp = new JwtAuthenticationResponse(jwt, u.getName(), (List<Content>) u.getBlacklist(), null);
                     return resp;
                 } else {
                     return new JwtAuthenticationResponse(null, null, null,
@@ -264,7 +266,7 @@ public class AccountController {
             return ErrorCode.DOESNOTEXIST;
         }
 
-        List<User> usersFollowed = currentUser.getFollowing();
+        Set<User> usersFollowed = currentUser.getFollowing();
         usersFollowed.add(userToFollow);
         currentUser.setFollowing(usersFollowed);
 
@@ -286,7 +288,7 @@ public class AccountController {
             return ErrorCode.DOESNOTEXIST;
         }
 
-        List<User> usersFollowed = currentUser.getFollowing();
+        Set<User> usersFollowed = currentUser.getFollowing();
 
         if (!usersFollowed.contains(userToRemove)) {
             return ErrorCode.DOESNOTEXIST;

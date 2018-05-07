@@ -17,10 +17,10 @@ public class UserDTO {
     private boolean verified;
     private boolean visible;
     private Set<Movie> movieWatchlist;
-	private List<TVShow> televisionWatchlist;
-	private List<Content> blacklist;
+	private Set<TVShow> televisionWatchlist;
+	private Set<Content> blacklist;
     private List<String> roles;	
-    private List<User> following;
+    private Set<User> following;
 	private List<Review> reviews;
 	private int profileViews;
 
@@ -87,19 +87,19 @@ public class UserDTO {
 		this.movieWatchlist = movieWatchlist;
 	}
 
-	public List<TVShow> getTelevisionWatchlist() {
+	public Set<TVShow> getTelevisionWatchlist() {
 		return televisionWatchlist;
 	}
 
-	public void setTelevisionWatchlist(List<TVShow> televisionWatchlist) {
+	public void setTelevisionWatchlist(Set<TVShow> televisionWatchlist) {
 		this.televisionWatchlist = televisionWatchlist;
 	}
 
-	public List<Content> getBlacklist() {
+	public Set<Content> getBlacklist() {
 		return blacklist;
 	}
 
-	public void setBlacklist(List<Content> blacklist) {
+	public void setBlacklist(Set<Content> blacklist) {
 		this.blacklist = blacklist;
 	}
 
@@ -111,11 +111,11 @@ public class UserDTO {
 		this.roles = roles;
 	}
 
-	public List<User> getFollowing() {
+	public Set<User> getFollowing() {
 		return following;
 	}
 
-	public void setFollowing(List<User> following) {
+	public void setFollowing(Set<User> following) {
 		this.following = following;
 	}
 

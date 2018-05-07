@@ -41,24 +41,36 @@ public class User {
 	uniqueConstraints = {@UniqueConstraint(columnNames={"user_id", "movie_watchlist_id"})})
     private Set<Movie> movieWatchlist;
 	@JsonIgnore
-	@ElementCollection
-    //@OneToMany(targetEntity = TVShowSeason.class, mappedBy = "season_id")
-    private List<TVShow> televisionWatchlist;
+	@ManyToMany
+	@JoinTable(name = "users_television_watchlist",
+	joinColumns = @JoinColumn(name = "user_id"),
+	inverseJoinColumns = @JoinColumn(name = "television_watchlist_id"), 
+	uniqueConstraints = {@UniqueConstraint(columnNames={"user_id", "television_watchlist_id"})})
+    private Set<TVShow> televisionWatchlist;
 	@JsonIgnore
-	@ElementCollection
-    private List<Content> blacklist;
+	@ManyToMany
+	@JoinTable(name = "users_blacklist",
+	joinColumns = @JoinColumn(name = "user_id"),
+	inverseJoinColumns = @JoinColumn(name = "blacklist_id"), 
+	uniqueConstraints = {@UniqueConstraint(columnNames={"user_id", "blacklist_id"})})
+    private Set<Content> blacklist;
     @ElementCollection(fetch = FetchType.EAGER)
     private List<String> roles;
-    @ElementCollection
     @JsonIgnore
-    private List<User> following;
+	@ManyToMany
+	@JoinTable(name = "users_following",
+	joinColumns = @JoinColumn(name = "user_id"),
+	inverseJoinColumns = @JoinColumn(name = "following_id"), 
+	uniqueConstraints = {@UniqueConstraint(columnNames={"user_id", "following_id"})})
+    private Set<User> following;
 
     @JsonIgnore
-    @OneToMany(targetEntity = Review.class, mappedBy = "review_id")
+    @OneToMany(targetEntity = Review.class, mappedBy = "author")
     private List<Review> reviews;
     @JsonIgnore
     private int profileViews;
 
+	@JsonIgnore
     @OneToOne(targetEntity = PwResetToken.class,
             fetch = FetchType.LAZY,
             cascade = CascadeType.ALL)
@@ -109,11 +121,11 @@ public class User {
         this.visible = visible;
     }
 
-    public List<User> getFollowing() {
+    public Set<User> getFollowing() {
         return following;
     }
 
-    public void setFollowing(List<User> following) {
+    public void setFollowing(Set<User> following) {
         this.following = following;
     }
 
@@ -211,19 +223,19 @@ public class User {
 		this.movieWatchlist = movieWatchlist;
 	}
 
-    public List<TVShow> getTelevisionWatchlist() {
+    public Set<TVShow> getTelevisionWatchlist() {
         return televisionWatchlist;
     }
 
-    public void setTelevisionWatchlist(List<TVShow> televisionWatchlist) {
+    public void setTelevisionWatchlist(Set<TVShow> televisionWatchlist) {
         this.televisionWatchlist = televisionWatchlist;
     }
 
-    public List<Content> getBlacklist() {
+    public Set<Content> getBlacklist() {
         return blacklist;
     }
 
-    public void setBlacklist(List<Content> blacklist) {
+    public void setBlacklist(Set<Content> blacklist) {
         this.blacklist = blacklist;
     }
 
