@@ -15,48 +15,52 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import main.java.managers.ContentManager;
+import main.java.managers.UserManager;
+import main.java.models.User;
+import org.springframework.security.core.context.SecurityContextHolder;
 
 @CrossOrigin("http://localhost:3000")
 @RestController
 public class GeneralController {
+
     @Autowired
-	private ContentManager movieManager;
-	@Autowired
-	private CelebrityManager celebrityManager;
-	
-	@Autowired 
-	private TVManager tvManager;
-	@GetMapping("/api/search")
-    
-	public Map search(@RequestParam(value="search") String search) {
+    private ContentManager movieManager;
+    @Autowired
+    private CelebrityManager celebrityManager;
+    @Autowired
+    private UserManager userManager;
+    @Autowired
+    private TVManager tvManager;
+
+    @GetMapping("/api/search")
+    public Map search(@RequestParam(value = "search") String search) {
         try {
-			SearchService searchService = SearchService.getService(movieManager, celebrityManager, tvManager);
-        	Map<String, Set> results = new HashMap();
-			Set<Movie> movies = searchService.searchMovies(search);
-			Set<Celebrity> celebrities = searchService.searchCelebrities(search);
-			Set<TVShow> shows = searchService.searchTVShows(search);
-			results.put("movies", movies);
-			results.put("celebrities", celebrities);
-			results.put("tvshows", shows);
-        	return results;
-    	}
-    	catch (Exception e) {
-			e.printStackTrace();
-    		System.out.println("search failed");
-    	}
-       return null;
+            SearchService searchService = SearchService.getService(movieManager, celebrityManager, tvManager);
+            Map<String, Set> results = new HashMap();
+            Set<Movie> movies = searchService.searchMovies(search);
+            Set<Celebrity> celebrities = searchService.searchCelebrities(search);
+            Set<TVShow> shows = searchService.searchTVShows(search);
+            results.put("movies", movies);
+            results.put("celebrities", celebrities);
+            results.put("tvshows", shows);
+            return results;
+        } catch (Exception e) {
+            e.printStackTrace();
+            System.out.println("search failed");
+        }
+        return null;
     }
-	
-	public String displayNewsAndInterviews() {
-		return null;
-	}
 
-	public String viewAboutUsInfo() {
-		return null;
-	}
+    public String displayNewsAndInterviews() {
+        return null;
+    }
 
-	public String viewProfilePage(int userID) {
-		return null;
-	}
+    public String viewAboutUsInfo() {
+        return null;
+    }
 
+    public String viewProfilePage(int userID) {
+        return null;
+    }
+    
 }
