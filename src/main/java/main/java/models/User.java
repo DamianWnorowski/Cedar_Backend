@@ -80,8 +80,7 @@ public class User {
             fetch = FetchType.LAZY,
             cascade = CascadeType.ALL)
     private PwResetToken pwResetToken;
-
-
+        
     public User() {
         this.roles = new ArrayList<>();
     }

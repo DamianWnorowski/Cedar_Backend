@@ -139,7 +139,7 @@ public class AccountController {
     }
 
     @PostMapping("/login")
-    public JwtAuthenticationResponse login(@RequestBody LoginForm lf, HttpServletRequest req, HttpServletResponse res) {
+    public JwtAuthenticationResponse login(@RequestBody LoginForm lf) {
         String jwt;
         JwtAuthenticationResponse resp;
         User u = um.findByEmail(lf.getEmail());
@@ -162,7 +162,7 @@ public class AccountController {
     }
 
     @GetMapping("/userlogout")
-    public ResponseEntity logout(HttpServletRequest req) {
+    public ResponseEntity logout() {
         System.out.println("logging out...");
         Authentication auth;
         auth = SecurityContextHolder.getContext().getAuthentication();
@@ -243,88 +243,6 @@ public class AccountController {
         res.setHeader("token", newToken);
         res.sendRedirect("http://localhost:3000/secure/resetpassword/");
 
-    }
-
-    @PostMapping("secure/resetpassword")
-    public ResponseEntity resetPassword(@RequestBody PasswordResetForm prf, HttpServletResponse res) throws IOException {
-        String curUser = SecurityContextHolder.getContext().getAuthentication().getName();
-        System.out.println("Its working if my token is printed: " + prf.getToken());
-        String email = jwtTokenProvider.getEmail(prf.getToken());
-        String newPassword = prf.getPassword();
-        System.out.println("Resetting pw for user: " + email
-                + "\nnew password: " + newPassword);
-        User u = um.findByEmail(email);
-
-        if (u == null) {
-            return ResponseEntity.ok(HttpStatus.BAD_REQUEST);
-        }
-
-        String encodedPw = bCryptPasswordEncoder.encode(newPassword);
-        u.setPassword(encodedPw);
-        um.save(u);
-        // TODO: Maybe show a "password changed message before redirect?
-        res.sendRedirect("/");
-        return ResponseEntity.ok(HttpStatus.OK);
-    }
-
-    @PostMapping("secure/changepassword")
-    public ResponseEntity changePassword(@RequestBody PasswordChangeForm pcf, HttpServletResponse res) throws IOException {
-        String curUser, oldPassword, newPassword;
-        curUser = SecurityContextHolder.getContext().getAuthentication().getName();
-        oldPassword = pcf.getOldPassword();
-        newPassword = pcf.getNewPassword();
-        System.out.println("Resetting pw for user: " + curUser
-                + "\nnew password: " + newPassword);
-        User u = um.findByEmail(curUser);
-
-        if (u == null) {
-            return ResponseEntity.ok(HttpStatus.BAD_REQUEST);
-        }
-
-        if (!bCryptPasswordEncoder.matches(oldPassword.trim(), u.getPassword().trim())) {
-            throw new RuntimeException("Old password is invalid");
-        }
-
-        String encodedPw = bCryptPasswordEncoder.encode(newPassword);
-        u.setPassword(encodedPw);
-        um.save(u);
-        // TODO: Maybe show a "password changed message before redirect?
-        return ResponseEntity.ok(HttpStatus.OK);
-    }
-
-    @GetMapping("secure/changeemail")
-    public ResponseEntity changeEmail(@RequestParam(value = "email") String email, HttpServletResponse res) throws IOException {
-        String curEmail = SecurityContextHolder.getContext().getAuthentication().getName();
-        System.out.println("Replacing " + curEmail + " with: " + email);
-
-        User u = um.findByEmail(curEmail);
-        if (u == null) {
-            return ResponseEntity.ok(HttpStatus.BAD_REQUEST);
-        }
-
-        u.setEmail(email);
-        um.save(u);
-        // TODO: Maybe show a "email changed message before redirect?
-        return ResponseEntity.ok(HttpStatus.OK);
-    }
-
-    @PostMapping("secure/apply")
-    public ResponseEntity criticApplication(@RequestBody CriticApplicationForm caf, HttpServletResponse res) throws IOException {
-        String curUser = SecurityContextHolder.getContext().getAuthentication().getName();
-        User u = um.findByEmail(curUser);
-        System.out.println("User: " + curUser + " is applying to become a Critic!");
-        if (u == null) {
-            return ResponseEntity.ok(HttpStatus.BAD_REQUEST);
-        }
-        CriticApplication criticApp = new CriticApplication();
-        criticApp.setDate(LocalDate.now());
-        criticApp.setUser(u);
-        criticApp.setReason(caf.getReason());
-        if (caf.getWebsiteURL() != null) {
-            criticApp.setWebsiteURL(caf.getWebsiteURL());
-        }
-        criticApplicationManager.save(criticApp);
-        return ResponseEntity.ok(HttpStatus.OK);
     }
 
     @PostMapping("/api/deleteaccount")
