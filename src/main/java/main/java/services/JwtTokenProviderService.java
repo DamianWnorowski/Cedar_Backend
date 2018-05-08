@@ -12,6 +12,7 @@ import org.springframework.stereotype.Component;
 import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
+import main.java.models.User;
 
 
 @Component
@@ -30,12 +31,12 @@ public class JwtTokenProviderService {
     secretKey = Base64.getEncoder().encodeToString(secretKey.getBytes());
   }
 
-    public String generateToken(String email) {
+    public String generateToken(User u) {
         Date now = new Date();
         Date expiryDate = new Date(now.getTime() + validityInMilliseconds);
 
         return Jwts.builder()
-                .setSubject(email)
+                .setSubject(u.getEmail())
                 .setIssuedAt(new Date())
                 .setExpiration(expiryDate)
                 .signWith(SignatureAlgorithm.HS512, secretKey)
