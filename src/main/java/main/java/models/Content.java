@@ -10,8 +10,12 @@ import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Inheritance;
 import javax.persistence.InheritanceType;
+import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
+import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
+import javax.persistence.UniqueConstraint;
 
 @Entity
 @Inheritance(strategy = InheritanceType.TABLE_PER_CLASS)
@@ -32,7 +36,12 @@ public abstract class Content {
 	private List<CriticReview> criticReviews;
 	private String description;
 	
-//	private List<Celebrity> celebrities;
+	@ManyToMany
+	@JoinTable(name = "filmography",
+	joinColumns = @JoinColumn(name = "content_id"),
+	inverseJoinColumns = @JoinColumn(name = "celeb_id"), 
+	uniqueConstraints = {@UniqueConstraint(columnNames={"celeb_id", "content_id"})})
+	private List<Celebrity> celebrities;
 	
 	@ManyToOne(targetEntity=Celebrity.class)
 	private Celebrity director;
@@ -213,6 +222,14 @@ public abstract class Content {
 			criticReviews.add((CriticReview)review);
 		else
 			userReviews.add((UserReview)review);
+	}
+
+	public List<Celebrity> getCelebrities() {
+		return celebrities;
+	}
+
+	public void setCelebrities(List<Celebrity> celebrities) {
+		this.celebrities = celebrities;
 	}
 	
 	public ErrorCode calculateRatings() {

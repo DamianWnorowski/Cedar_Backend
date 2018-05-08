@@ -101,8 +101,7 @@ public class Celebrity {
 		this.picture = picture;
 	}
 	
-	
-	
+	@JsonIgnore
 	public List<ContentDTO> getFilmographyDTO() {
 		ArrayList<ContentDTO> filmographyDTO = new ArrayList<>();
 		for (Content c:this.filmography) {

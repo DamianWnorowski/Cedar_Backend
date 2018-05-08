@@ -1,5 +1,6 @@
 package main.java.controllers;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.util.List;
 import main.java.dto.ContentDTO;
 import main.java.managers.CelebrityManager;
