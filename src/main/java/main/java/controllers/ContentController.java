@@ -104,7 +104,7 @@ public class ContentController {
 		}
 		reviewManager.save(reviewToPost);
 		contentToRate.addReview(reviewToPost);
-		ErrorCode status = contentToRate.calculateRatings();
+		ErrorCode status = contentToRate.calculateRatings(postingUser.hasRole(UserRole.ROLE_CRITIC));
 		Content editedContent = contentManager.save(contentToRate);
 		if (editedContent == null) {
 			return ErrorCode.DATABASEERROR;
@@ -134,7 +134,34 @@ public class ContentController {
 			!reviewToEdit.getAuthor().equals(currentUser)) {
 			return ErrorCode.INVALIDPERMISSIONS;
 		}
+		int previousRating = reviewToEdit.getRating();
+		
+		if (form.getRating() == 0) {
+			form.setRating(1);
+		}
+		
+		if (form.getRating() < 1 || form.getRating() > 5) {
+			return ErrorCode.INVALIDRATING;
+		}
+		reviewToEdit.setBody(form.getBody());
+		reviewToEdit.setRating(form.getRating());
 		reviewManager.save(reviewToEdit);
+
+		if (previousRating != reviewToEdit.getRating()) {
+			Content c = null;
+			if (reviewToEdit instanceof CriticReview) {
+				c = ((CriticReview)reviewToEdit).getContent();
+				c.calculateRatings(true);
+			}
+			else if (reviewToEdit instanceof UserReview) {
+				c = ((UserReview)reviewToEdit).getContent();
+				c.calculateRatings(false);
+			}
+			else {
+				return ErrorCode.DATABASEERROR;
+			}
+			contentManager.save(c);
+		}
 		return ErrorCode.SUCCESS;
 	}
 	
@@ -157,8 +184,22 @@ public class ContentController {
 		if (!currentUser.hasRole(UserRole.ROLE_ADMIN) && 
 			!reviewToDelete.getAuthor().equals(currentUser)) {
 			return ErrorCode.INVALIDPERMISSIONS;
-		}
+		}				
 		reviewManager.delete(reviewToDelete);
+		Content c;
+		if (reviewToDelete instanceof CriticReview) {
+			c = ((CriticReview)reviewToDelete).getContent();
+			c.calculateRatings(true);
+		}
+		else if (reviewToDelete instanceof UserReview) {
+			c = ((UserReview)reviewToDelete).getContent();
+			c.calculateRatings(false);
+		}
+		else {
+			return ErrorCode.DATABASEERROR;
+		}
+		contentManager.save(c);
+
 		return ErrorCode.SUCCESS;
 	}
 	

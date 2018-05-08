@@ -14,6 +14,7 @@ import javax.persistence.InheritanceType;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
+import javax.persistence.Transient;
 
 @Entity
 @Inheritance(strategy = InheritanceType.TABLE_PER_CLASS)
@@ -26,7 +27,7 @@ public abstract class Review {
 	private User author;
 	private int rating;
 	private LocalDateTime date;
-	private String body;
+	private String body;	
 	@JsonIgnore
 	@OneToMany(targetEntity=ReviewReport.class, mappedBy="review",  cascade = CascadeType.ALL)
 	private List<ReviewReport> reports;
