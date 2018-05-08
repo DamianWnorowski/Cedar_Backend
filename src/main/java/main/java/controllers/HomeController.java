@@ -81,7 +81,6 @@ public class HomeController {
 		try {
            c = contentManager.findById(id).get();
 		   backdropPath = backdropManager.findByContent(c).getImageLocation();
-
         }
     	catch (Exception e) {
             return null;

@@ -6,7 +6,6 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
-import javax.persistence.OneToOne;
 
 @Entity
 public class ReviewReport {
@@ -18,17 +17,15 @@ public class ReviewReport {
 	private Review review;
 	@ManyToOne(targetEntity=User.class)
 	private User user;
-	private String description;
 
 	public ReviewReport() {
 	
 	}
 
-	public ReviewReport(LocalDate date, Review review, User user, String description) {
+	public ReviewReport(LocalDate date, Review review, User user) {
 		this.date = date;
 		this.review = review;
 		this.user = user;
-		this.description = description;
 	}
 
 	public Integer getReport_id() {
@@ -62,17 +59,5 @@ public class ReviewReport {
 	public void setUser(User user) {
 		this.user = user;
 	}
-
-	public String getDescription() {
-		return description;
-	}
-
-	public void setDescription(String description) {
-		this.description = description;
-	}
-	
-	
-	
-	
 	
 }

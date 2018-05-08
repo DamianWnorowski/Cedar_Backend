@@ -7,6 +7,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -30,6 +31,7 @@ import main.java.managers.TVManager;
 import main.java.managers.UserManager;
 import main.java.models.Content;
 import main.java.dto.ErrorCode;
+import main.java.dto.ReviewReportForm;
 import main.java.models.Movie;
 import main.java.models.ReviewReport;
 import main.java.models.TVShow;
@@ -517,6 +519,26 @@ public class ContentController {
 		catch (IOException | IllegalArgumentException e) {
 			return null;
 		}
+	}
+	
+	@PostMapping("/api/reportreview")
+	public ErrorCode reportReview(@RequestBody ReviewReportForm form) {
+		String email = SecurityContextHolder.getContext().getAuthentication().getName();
+		if (email.equals("anonymousUser")) {
+			return ErrorCode.NOTLOGGEDIN;
+		}
+		User reportingUser = userManager.findByEmail(email);
+		Review reviewReporting = null;
+		try {
+			 reviewReporting = reviewManager.findById(form.getReviewId()).get();
+		}
+		catch (NoSuchElementException e) {
+			return ErrorCode.DOESNOTEXIST;
+		}
+		
+		ReviewReport report = new ReviewReport(LocalDate.now(), reviewReporting, reportingUser);
+		reviewReportManager.save(report);
+		return ErrorCode.SUCCESS;
 	}
 
 		
