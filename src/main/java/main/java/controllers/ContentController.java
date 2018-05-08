@@ -141,7 +141,6 @@ public class ContentController {
 	@GetMapping("/api/deletereview")
 	public ErrorCode deleteReview(@RequestParam(value="id") int id) {
 		String email = SecurityContextHolder.getContext().getAuthentication().getName();
-		System.out.println(id);
 		if (email.equals("anonymousUser")) {
 			return ErrorCode.NOTLOGGEDIN;
 		}
