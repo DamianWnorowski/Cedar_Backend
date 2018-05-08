@@ -235,6 +235,9 @@ public abstract class Content {
 	public ErrorCode calculateRatings(boolean updateCriticInsteadOfUser) {
 		int numPositive = 0;
 		if (updateCriticInsteadOfUser) {
+			if (criticReviews.isEmpty()) {
+				return ErrorCode.NORATINGS;
+			}
 			for (Review r:criticReviews) {
 				if (r.getRating() >= 3) {
 					numPositive++;
@@ -243,6 +246,9 @@ public abstract class Content {
 			criticRating = numPositive/criticReviews.size() * 100;
 		}
 		else {
+			if (userReviews.isEmpty()) {
+				return ErrorCode.NORATINGS;
+			}
 			for (Review r:userReviews) {
 				if (r.getRating() >= 3) {
 					numPositive++;

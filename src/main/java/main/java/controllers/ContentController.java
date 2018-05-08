@@ -134,7 +134,18 @@ public class ContentController {
 			!reviewToEdit.getAuthor().equals(currentUser)) {
 			return ErrorCode.INVALIDPERMISSIONS;
 		}
+		int previousRating = reviewToEdit.getRating();
+		reviewToEdit.setBody(form.getBody());
+		reviewToEdit.setRating(form.getRating());
 		reviewManager.save(reviewToEdit);
+		if (previousRating != reviewToEdit.getRating()) {
+			if (reviewToEdit instanceof CriticReview) {
+				((CriticReview)reviewToEdit).getContent().calculateRatings(true);
+			}
+			else if (reviewToEdit instanceof UserReview) {
+				((UserReview)reviewToEdit).getContent().calculateRatings(false);
+			}
+		}
 		return ErrorCode.SUCCESS;
 	}
 	
@@ -157,8 +168,15 @@ public class ContentController {
 		if (!currentUser.hasRole(UserRole.ROLE_ADMIN) && 
 			!reviewToDelete.getAuthor().equals(currentUser)) {
 			return ErrorCode.INVALIDPERMISSIONS;
-		}
+		}				
 		reviewManager.delete(reviewToDelete);
+		if (reviewToDelete instanceof CriticReview) {
+			((CriticReview)reviewToDelete).getContent().calculateRatings(true);
+		}
+		else if (reviewToDelete instanceof UserReview) {
+			((UserReview)reviewToDelete).getContent().calculateRatings(false);
+		}
+
 		return ErrorCode.SUCCESS;
 	}
 	
