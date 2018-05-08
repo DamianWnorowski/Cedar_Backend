@@ -11,6 +11,7 @@ import javax.servlet.http.HttpServletResponse;
 import main.java.dto.CriticApplicationForm;
 import main.java.dto.PasswordChangeForm;
 import main.java.dto.PasswordResetForm;
+import main.java.dto.UserDTO;
 import main.java.dto.UserReportForm;
 import main.java.managers.CriticApplicationManager;
 import main.java.managers.CriticManagerImpl;
@@ -37,18 +38,19 @@ import org.springframework.web.bind.annotation.RestController;
 @CrossOrigin("http://localhost:3000")
 @RestController
 public class SecureController {
+
     @Autowired
     private UserManager userManager;
 
     @Autowired
     private UserReportManager userReportManager;
-    
+
     @Autowired
     private BCryptPasswordEncoder bCryptPasswordEncoder;
 
     @Autowired
     private CriticApplicationManager criticApplicationManager;
-    
+
     @PostMapping("secure/reportuser")
     public ResponseEntity reportUser(@RequestBody UserReportForm urf) throws IOException {
         String curUser = SecurityContextHolder.getContext().getAuthentication().getName();
@@ -56,14 +58,14 @@ public class SecureController {
         if (u == null) {
             throw new RuntimeException("You are not allowed to access this page");
         }
-        
+
         UserReport report = new UserReport();
         report.setUser(u);
         report.setDate(LocalDate.now());
         report.setDescription(urf.getDescription());
-        
+
         userReportManager.save(report);
-        
+
         return ResponseEntity.ok(HttpStatus.OK);
     }
 
@@ -126,13 +128,13 @@ public class SecureController {
         criticApplicationManager.save(criticApp);
         return ResponseEntity.ok(HttpStatus.OK);
     }
-    
+
     @GetMapping("/secure/verifyadmin")
-    public boolean verifyadmin(){
+    public boolean verifyadmin() {
         String curUserEmail = SecurityContextHolder.getContext().getAuthentication().getName();
         User user = userManager.findByEmail(curUserEmail);
-        if (user != null){
-            if(user.getRoles().contains("ROLE_ADMIN")){
+        if (user != null) {
+            if (user.getRoles().contains("ROLE_ADMIN")) {
                 System.out.println("User has admin role");
                 return true;
             } else {
@@ -140,5 +142,17 @@ public class SecureController {
             }
         }
         throw new RuntimeException("You are not allowed to access this page");
+    }
+
+    @GetMapping("/secure/getuser")
+    public UserDTO getUser() {
+        try {
+            User user = userManager.findByEmail(SecurityContextHolder.getContext().getAuthentication().getName());
+            UserDTO dto = new UserDTO(user);
+            return dto;
+        } catch (Exception e) {
+            System.out.println("can't get current logged in profile");
+        }
+        return null;
     }
 }

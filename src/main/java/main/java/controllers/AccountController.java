@@ -153,7 +153,7 @@ public class AccountController {
                     resp = new JwtAuthenticationResponse(jwt, u.getName(), blackList, u.getId());
                     return resp;
                 } else {
-                    throw new RuntimeException("You must verify your email address before you can login!");
+                    throw new RuntimeException("unverified");
                 }
             }
         }
