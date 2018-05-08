@@ -137,6 +137,20 @@ public class AccountController {
 
         return ResponseEntity.ok(HttpStatus.OK);
     }
+    
+    @GetMapping("/resendemail")
+    public void resendEmail(@RequestParam(name="id") int id){
+        User user = um.findById(id).get();
+        if(user == null){
+            throw new RuntimeException("User doe snot exist");
+        }
+        //Sending email verification
+        String emailToken = jwtTokenProvider.generateToken(user);
+        String body = emailService.generateVerificationEmailBody(user.getName(), user.getId(), emailToken);
+
+        emailService.sendEmail(user.getEmail(), "Please verify your Cedar account!", body);
+        System.out.println("Verification email resent to " + user.getEmail());
+    }
 
     @PostMapping("/login")
     public JwtAuthenticationResponse login(@RequestBody LoginForm lf) {
@@ -153,7 +167,7 @@ public class AccountController {
                     resp = new JwtAuthenticationResponse(jwt, u.getName(), blackList, u.getId());
                     return resp;
                 } else {
-                    throw new RuntimeException("unverified");
+                    throw new RuntimeException(u.getId()+"unverified");
                 }
             }
         }
