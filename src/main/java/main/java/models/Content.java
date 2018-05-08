@@ -5,6 +5,7 @@ import main.java.dto.ErrorCode;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Set;
+import javax.persistence.Column;
 import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
 import javax.persistence.Id;
@@ -34,6 +35,7 @@ public abstract class Content {
 	@JsonIgnore
 	@OneToMany(targetEntity=CriticReview.class, mappedBy="content")
 	private List<CriticReview> criticReviews;
+	@Column(length = 4096)
 	private String description;
 	
 	@ManyToMany

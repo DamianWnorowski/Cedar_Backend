@@ -5,6 +5,7 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
@@ -18,6 +19,7 @@ public class Celebrity {
 
 	@Id
 	private int celeb_id;
+	@Column(length = 4096)
 	private String description;
 	private String name;
 	private LocalDate birthday;

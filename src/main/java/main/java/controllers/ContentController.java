@@ -1,12 +1,16 @@
 package main.java.controllers;
 
+import java.awt.image.BufferedImage;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.io.OutputStream;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.NoSuchElementException;
+import javax.imageio.ImageIO;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -491,5 +495,29 @@ public class ContentController {
 //		}
 //		return reviewManager.findByContent(c);
 //	}
+	
+	@GetMapping(value="/api/getPoster", produces="image/jpg")
+	public byte[] getPoster(@RequestParam(value="id") int id) {
+		Content c;
+		try {
+           c = contentManager.findById(id).get();
+        }
+    	catch (Exception e) {
+            return null;
+    	}
+		
+		String posterLocation = System.getProperty("user.dir") + "/images/posters" + c.getPoster_path();
+		try {
+			BufferedImage poster = ImageIO.read(new File(posterLocation));
+			ByteArrayOutputStream output = new ByteArrayOutputStream();
+			ImageIO.write(poster, "jpg", output);
+			byte[] imageAsBytes = output.toByteArray();
+			return imageAsBytes;
+		}
+		catch (IOException | IllegalArgumentException e) {
+			return null;
+		}
+	}
+
 		
 }
