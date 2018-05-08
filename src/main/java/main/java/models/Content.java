@@ -232,7 +232,24 @@ public abstract class Content {
 		this.celebrities = celebrities;
 	}
 	
-	public ErrorCode calculateRatings() {
+	public ErrorCode calculateRatings(boolean updateCriticInsteadOfUser) {
+		int numPositive = 0;
+		if (updateCriticInsteadOfUser) {
+			for (Review r:criticReviews) {
+				if (r.getRating() >= 3) {
+					numPositive++;
+				}
+			}
+			criticRating = numPositive/criticReviews.size() * 100;
+		}
+		else {
+			for (Review r:userReviews) {
+				if (r.getRating() >= 3) {
+					numPositive++;
+				}
+			}
+			userRating = numPositive/userReviews.size() * 100;
+		}
 		return ErrorCode.SUCCESS;
 	}
 

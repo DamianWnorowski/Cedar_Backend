@@ -104,7 +104,7 @@ public class ContentController {
 		}
 		reviewManager.save(reviewToPost);
 		contentToRate.addReview(reviewToPost);
-		ErrorCode status = contentToRate.calculateRatings();
+		ErrorCode status = contentToRate.calculateRatings(postingUser.hasRole(UserRole.ROLE_CRITIC));
 		Content editedContent = contentManager.save(contentToRate);
 		if (editedContent == null) {
 			return ErrorCode.DATABASEERROR;
