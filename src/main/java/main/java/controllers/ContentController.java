@@ -135,16 +135,32 @@ public class ContentController {
 			return ErrorCode.INVALIDPERMISSIONS;
 		}
 		int previousRating = reviewToEdit.getRating();
+		
+		if (form.getRating() == 0) {
+			form.setRating(1);
+		}
+		
+		if (form.getRating() < 1 || form.getRating() > 5) {
+			return ErrorCode.INVALIDRATING;
+		}
 		reviewToEdit.setBody(form.getBody());
 		reviewToEdit.setRating(form.getRating());
 		reviewManager.save(reviewToEdit);
+
 		if (previousRating != reviewToEdit.getRating()) {
+			Content c = null;
 			if (reviewToEdit instanceof CriticReview) {
-				((CriticReview)reviewToEdit).getContent().calculateRatings(true);
+				c = ((CriticReview)reviewToEdit).getContent();
+				c.calculateRatings(true);
 			}
 			else if (reviewToEdit instanceof UserReview) {
-				((UserReview)reviewToEdit).getContent().calculateRatings(false);
+				c = ((UserReview)reviewToEdit).getContent();
+				c.calculateRatings(false);
 			}
+			else {
+				return ErrorCode.DATABASEERROR;
+			}
+			contentManager.save(c);
 		}
 		return ErrorCode.SUCCESS;
 	}
@@ -170,12 +186,19 @@ public class ContentController {
 			return ErrorCode.INVALIDPERMISSIONS;
 		}				
 		reviewManager.delete(reviewToDelete);
+		Content c;
 		if (reviewToDelete instanceof CriticReview) {
-			((CriticReview)reviewToDelete).getContent().calculateRatings(true);
+			c = ((CriticReview)reviewToDelete).getContent();
+			c.calculateRatings(true);
 		}
 		else if (reviewToDelete instanceof UserReview) {
-			((UserReview)reviewToDelete).getContent().calculateRatings(false);
+			c = ((UserReview)reviewToDelete).getContent();
+			c.calculateRatings(false);
 		}
+		else {
+			return ErrorCode.DATABASEERROR;
+		}
+		contentManager.save(c);
 
 		return ErrorCode.SUCCESS;
 	}
