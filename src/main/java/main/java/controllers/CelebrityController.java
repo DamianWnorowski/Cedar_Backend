@@ -1,5 +1,7 @@
 package main.java.controllers;
 
+import java.util.List;
+import main.java.dto.ContentDTO;
 import main.java.managers.CelebrityManager;
 import main.java.models.Celebrity;
 import org.springframework.web.bind.annotation.RestController;
@@ -25,6 +27,17 @@ public class CelebrityController {
     		System.out.println("can't get celebrity");
     	}
        return null;
+    }
+	
+	@GetMapping("/api/filmography")
+    public List<ContentDTO> getFilmography(@RequestParam(value="id") int id) {
+        try {
+        	Celebrity theCelebrity = celebrityManager.findById(id).get();
+        	return theCelebrity.getFilmographyDTO();
+    	}
+    	catch (Exception e) {
+    		return null;
+    	}
     }
 	
 }
