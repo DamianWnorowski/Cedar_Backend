@@ -99,7 +99,7 @@ public class HomeController {
 		}
 	}
 	
-	@GetMapping("/api/featuredMovie")
+	@GetMapping("/api/featuredmovie")
 	public Content getFeaturedMovie() {
 		try {
 			List<Integer> ids = new ArrayList<>();
