@@ -3,7 +3,7 @@ package main.java.controllers;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Set;
+import main.java.managers.AdManager;
 import main.java.managers.CelebrityManager;
 import main.java.managers.TVManager;
 import main.java.models.Celebrity;
@@ -17,8 +17,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import main.java.managers.ContentManager;
 import main.java.managers.UserManager;
-import main.java.models.User;
-import org.springframework.security.core.context.SecurityContextHolder;
+import main.java.models.Ad;
 
 @CrossOrigin("http://localhost:3000")
 @RestController
@@ -32,6 +31,8 @@ public class GeneralController {
     private UserManager userManager;
     @Autowired
     private TVManager tvManager;
+	@Autowired
+	private AdManager adManager;
 
     @GetMapping("/api/search")
     public Map search(@RequestParam(value = "search") String search) {
@@ -51,17 +52,16 @@ public class GeneralController {
         }
         return null;
     }
-
-    public String displayNewsAndInterviews() {
-        return null;
+	
+	@GetMapping("/api/getad")
+    public Ad search(@RequestParam(value = "id") int id) {
+        try {
+			return adManager.findById(id).get();
+        }
+		catch (Exception e) {
+            return null;
+        }
+       
     }
 
-    public String viewAboutUsInfo() {
-        return null;
-    }
-
-    public String viewProfilePage(int userID) {
-        return null;
-    }
-    
 }

@@ -1,16 +1,39 @@
 package main.java.models;
 
-import java.awt.Image;
-import java.time.LocalDate;
+import javax.persistence.Entity;
+import javax.persistence.Id;
 
+@Entity
 public class Ad {
 
+	@Id
 	private int id;
-	private String name;
-	private String contactEmail;
-	private AdType type;
-	private Image image;
-	private LocalDate startDate;
-	private LocalDate endDate;
+	private String imagePath;
+
+	public Ad() {
+	}
+
+	public Ad(int id, String imagePath) {
+		this.id = id;
+		this.imagePath = imagePath;
+	}
+	
+	public int getId() {
+		return id;
+	}
+
+	public void setId(int id) {
+		this.id = id;
+	}
+
+	public String getImagePath() {
+		return imagePath;
+	}
+
+	public void setImagePath(String imagePath) {
+		this.imagePath = imagePath;
+	}
+	
+	
 
 }
