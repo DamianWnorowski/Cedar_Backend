@@ -53,7 +53,23 @@ public class SecureController {
 
     @Autowired
     private CriticApplicationManager criticApplicationManager;
-
+    
+    @GetMapping("/secure/resetpassword")
+    public boolean resetPassword(@RequestParam(name="p") String pw){
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+        if (email.equals("anonymousUser")) {
+            return false;
+        }
+        User currentUser = userManager.findByEmail(email);
+        System.out.println("Encoding plaintext pw: " + pw.trim());
+        String encodedPw = bCryptPasswordEncoder.encode(pw.trim());
+        currentUser.setPassword(encodedPw);
+        userManager.save(currentUser);
+        System.out.println("Password successfully reset to: " + encodedPw);
+        SecurityContextHolder.clearContext();
+        return true;
+    }
+    
     @PostMapping("secure/reportuser")
     public ResponseEntity reportUser(@RequestBody UserReportForm urf) throws IOException {
         String curUser = SecurityContextHolder.getContext().getAuthentication().getName();
@@ -219,18 +235,5 @@ public class SecureController {
             throw new RuntimeException("wrong user");
         }
         return user.getFollowing();
-    }
-    
-    @GetMapping("/secure/resetpassword")
-    public boolean resetPassword(@RequestParam(name="p") String pw){
-        String email = SecurityContextHolder.getContext().getAuthentication().getName();
-        if (email.equals("anonymousUser")) {
-            return false;
-        }
-        User currentUser = userManager.findByEmail(email);
-        currentUser.setPassword(bCryptPasswordEncoder.encode(pw));
-        userManager.save(currentUser);
-        System.out.println("Password successfully reset!");
-        return true;
     }
 }
