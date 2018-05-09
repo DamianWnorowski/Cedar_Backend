@@ -9,8 +9,10 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.Set;
 import javax.imageio.ImageIO;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -38,6 +40,7 @@ import main.java.models.TVShow;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBody;
 import main.java.managers.ContentManager;
+import main.java.services.BlacklistService;
 
 @CrossOrigin("http://localhost:3000")
 @RestController
@@ -76,41 +79,6 @@ public class ContentController {
         }
 
         return null;
-    }
-
-    @PostMapping("/api/ratecontent")
-    public ErrorCode rateContent(@RequestBody ReviewForm form) {
-        String email = SecurityContextHolder.getContext().getAuthentication().getName();
-        if (email.equals("anonymousUser")) {
-            return ErrorCode.NOTLOGGEDIN;
-        }
-        User postingUser = userManager.findByEmail(email);
-        Content contentToRate = contentManager.findById(form.getContent_id()).get();
-        Review reviewToPost;
-
-        if (form.getRating() == 0) {
-            form.setRating(1);
-        }
-
-        if (form.getRating() < 1 || form.getRating() > 5) {
-            return ErrorCode.INVALIDRATING;
-        }
-
-        if (postingUser.hasRole(UserRole.ROLE_CRITIC)) {
-            reviewToPost = new CriticReview(null, contentToRate, postingUser,
-                    form.getRating(), LocalDateTime.now(), form.getBody());
-        } else {
-            reviewToPost = new UserReview(contentToRate, postingUser,
-                    form.getRating(), LocalDateTime.now(), form.getBody());
-        }
-        reviewManager.save(reviewToPost);
-        contentToRate.addReview(reviewToPost);
-        ErrorCode status = contentToRate.calculateRatings(postingUser.hasRole(UserRole.ROLE_CRITIC));
-        Content editedContent = contentManager.save(contentToRate);
-        if (editedContent == null) {
-            return ErrorCode.DATABASEERROR;
-        }
-        return status;
     }
 
     @PostMapping("/api/editreview")
@@ -161,9 +129,106 @@ public class ContentController {
         }
         return ErrorCode.SUCCESS;
     }
+    
 
-    @GetMapping("/api/deletereview")
-    public ErrorCode deleteReview(@RequestParam(value = "id") int id) {
+	
+	@PostMapping("/api/ratecontent")
+	public ErrorCode rateContent(@RequestBody ReviewForm form) {
+		String email = SecurityContextHolder.getContext().getAuthentication().getName();
+		if (email.equals("anonymousUser")) {
+			return ErrorCode.NOTLOGGEDIN;
+		}
+		User postingUser = userManager.findByEmail(email);
+		Content contentToRate = contentManager.findById(form.getContent_id()).get();
+		Review reviewToPost;
+		
+		if (form.getRating() == 0) {
+			form.setRating(1);
+		}
+		
+		if (form.getRating() < 1 || form.getRating() > 5) {
+			return ErrorCode.INVALIDRATING;
+		}
+		
+		if (postingUser.hasRole(UserRole.ROLE_CRITIC)) {
+			reviewToPost = new CriticReview(null, contentToRate, postingUser,
+				form.getRating(), LocalDateTime.now(), form.getBody());
+		}
+		else {
+			reviewToPost = new UserReview(contentToRate, postingUser,
+				form.getRating(), LocalDateTime.now(), form.getBody());
+		}
+		reviewManager.save(reviewToPost);
+		contentToRate.addReview(reviewToPost);
+		ErrorCode status = contentToRate.calculateRatings(postingUser.hasRole(UserRole.ROLE_CRITIC));
+		Content editedContent = contentManager.save(contentToRate);
+		if (editedContent == null) {
+			return ErrorCode.DATABASEERROR;
+		}
+		return status;
+	}
+	
+	@GetMapping("/api/deletereview")
+	public ErrorCode deleteReview(@RequestParam(value="id") int id) {
+		String email = SecurityContextHolder.getContext().getAuthentication().getName();
+		if (email.equals("anonymousUser")) {
+			return ErrorCode.NOTLOGGEDIN;
+		}
+		User currentUser = userManager.findByEmail(email);
+		Review reviewToDelete = null;
+		try {
+			reviewToDelete = reviewManager.findById(id).get();
+		}
+		catch (NoSuchElementException e) {
+			System.out.println("failed");
+			return ErrorCode.DOESNOTEXIST;
+		}
+	
+		if (!currentUser.hasRole(UserRole.ROLE_ADMIN) && 
+			!reviewToDelete.getAuthor().equals(currentUser)) {
+			return ErrorCode.INVALIDPERMISSIONS;
+		}				
+		reviewManager.delete(reviewToDelete);
+		Content c;
+		if (reviewToDelete instanceof CriticReview) {
+			c = ((CriticReview)reviewToDelete).getContent();
+			c.calculateRatings(true);
+		}
+		else if (reviewToDelete instanceof UserReview) {
+			c = ((UserReview)reviewToDelete).getContent();
+			c.calculateRatings(false);
+		}
+		else {
+			return ErrorCode.DATABASEERROR;
+		}
+		contentManager.save(c);
+
+		return ErrorCode.SUCCESS;
+	}
+	
+	@GetMapping("/api/highestratedmovies")
+	public List<Movie> displayHighestRatedMovies() {
+		BlacklistService blacklistService = BlacklistService.getService();
+		String email = SecurityContextHolder.getContext().getAuthentication().getName();
+		List<Movie> results = contentManager.findTop10ByOrderByCriticRatingDesc();
+		if (email.equals("anonymousUser")) {
+			return results;
+		}
+		else{
+			User currentUser = userManager.findByEmail(email);
+			results = blacklistService.filterMovie(results, currentUser);
+		}
+		
+		return results;
+	}
+	
+	@GetMapping("/api/latestcriticreviews")
+	public List<CriticReview> displayLatestCriticReviews() {
+		return reviewManager.findTop10ByDateBeforeOrderByDateDesc(LocalDateTime.now().plusDays(1));
+	}
+	
+	@GetMapping("/api/deletecontent")
+    public ErrorCode deleteContent(@RequestParam(value="id") int id) {
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
         if (email.equals("anonymousUser")) {
             return ErrorCode.NOTLOGGEDIN;
@@ -195,16 +260,6 @@ public class ContentController {
         contentManager.save(c);
 
         return ErrorCode.SUCCESS;
-    }
-
-    @GetMapping("/api/highestratedmovies")
-    public List<Movie> displayHighestRatedMovies() {
-        return contentManager.findTop10ByOrderByCriticRatingDesc();
-    }
-
-    @GetMapping("/api/latestcriticreviews")
-    public List<CriticReview> displayLatestCriticReviews() {
-        return reviewManager.findTop10ByDateBeforeOrderByDateDesc(LocalDateTime.now().plusDays(1));
     }
 
     @PostMapping("/api/addmovie")
