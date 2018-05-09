@@ -78,7 +78,32 @@ public class SearchService {
 				celebrities.addAll(celebrity_results);
 			}
 		}
-		ArrayList<Celebrity> orderedCelebrities = new ArrayList<Celebrity>(celebrities);
+		ArrayList<Celebrity> celebsToOrder = new ArrayList<Celebrity>(celebrities);
+		ArrayList<Integer> ranks = new ArrayList<Integer>();
+		ArrayList<ArrayList> celebsAndRanks = new ArrayList<ArrayList>();
+		for(Celebrity celebrity : celebsToOrder){
+			int rank = calculateRank(celebrity, tokens);
+			ranks.add(rank);
+			ArrayList<Object> temp = new ArrayList<Object>();
+			temp.add(celebrity);
+			temp.add((Integer)rank);
+			celebsAndRanks.add(temp);
+		}
+		
+		
+		Comparator<ArrayList> rankSorter = new Comparator<ArrayList>() {
+			@Override
+			public int compare(ArrayList left, ArrayList right) {
+				return (Integer) right.get(1) - (Integer) left.get(1); // use your logic
+			}
+		};
+		
+		Collections.sort(celebsAndRanks, rankSorter);
+		
+		ArrayList<Celebrity> orderedCelebrities = new ArrayList<Celebrity>();
+		for(ArrayList lists : celebsAndRanks){
+			orderedCelebrities.add((Celebrity)lists.get(0));
+		}
 		return orderedCelebrities;
 	}
 
@@ -91,7 +116,32 @@ public class SearchService {
 				shows.addAll(show_results);
 			}
 		}
-		ArrayList<TVShow> orderedShows = new ArrayList<TVShow>(shows);
+		ArrayList<TVShow> showsToOrder = new ArrayList<TVShow>(shows);
+		ArrayList<Integer> ranks = new ArrayList<Integer>();
+		ArrayList<ArrayList> showsAndRanks = new ArrayList<ArrayList>();
+		for(TVShow show : showsToOrder){
+			int rank = calculateRank(show, tokens);
+			ranks.add(rank);
+			ArrayList<Object> temp = new ArrayList<Object>();
+			temp.add(show);
+			temp.add((Integer)rank);
+			showsAndRanks.add(temp);
+		}
+		
+		
+		Comparator<ArrayList> rankSorter = new Comparator<ArrayList>() {
+			@Override
+			public int compare(ArrayList left, ArrayList right) {
+				return (Integer) right.get(1) - (Integer) left.get(1); // use your logic
+			}
+		};
+		
+		Collections.sort(showsAndRanks, rankSorter);
+		
+		ArrayList<TVShow> orderedShows = new ArrayList<TVShow>();
+		for(ArrayList lists : showsAndRanks){
+			orderedShows.add((TVShow)lists.get(0));
+		}
 		return orderedShows;
 	}
 
@@ -109,6 +159,28 @@ public class SearchService {
 	}
 
 	public int calculateRank(Movie m, ArrayList<String> tokens) {
+		int rank = 0;
+		String title = m.getTitle();
+		for(String token : tokens) {
+			if (title.toLowerCase().contains(token.toLowerCase())) {
+				rank += 1;
+			}
+		}
+		System.out.println("title: "+title+", rank: "+ rank);
+		return rank;
+	}
+	public int calculateRank(Celebrity m, ArrayList<String> tokens) {
+		int rank = 0;
+		String title = m.getName();
+		for(String token : tokens) {
+			if (title.toLowerCase().contains(token.toLowerCase())) {
+				rank += 1;
+			}
+		}
+		System.out.println("title: "+title+", rank: "+ rank);
+		return rank;
+	}
+	public int calculateRank(TVShow m, ArrayList<String> tokens) {
 		int rank = 0;
 		String title = m.getTitle();
 		for(String token : tokens) {
