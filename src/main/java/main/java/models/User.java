@@ -64,6 +64,13 @@ public class User {
 	inverseJoinColumns = @JoinColumn(name = "following_id"), 
 	uniqueConstraints = {@UniqueConstraint(columnNames={"user_id", "following_id"})})
     private Set<User> following;
+        @JsonIgnore
+	@ManyToMany
+	@JoinTable(name = "users_followers",
+	joinColumns = @JoinColumn(name = "user_id"),
+	inverseJoinColumns = @JoinColumn(name = "follower_id"), 
+	uniqueConstraints = {@UniqueConstraint(columnNames={"user_id", "follower_id"})})
+    private Set<User> followers;
 
     @JsonIgnore
     @OneToMany(targetEntity = Review.class, mappedBy = "author", cascade = CascadeType.ALL, orphanRemoval = true)
@@ -131,6 +138,14 @@ public class User {
 
     public void setFollowing(Set<User> following) {
         this.following = following;
+    }
+
+    public Set<User> getFollowers() {
+        return followers;
+    }
+
+    public void setFollowers(Set<User> followers) {
+        this.followers = followers;
     }
 
     public ErrorCode addToWatchlist(Content content) {

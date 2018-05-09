@@ -20,6 +20,7 @@ public class UserDTO {
     private Set<Content> blacklist;
     private List<String> roles;
     private Set<User> following;
+    private Set<User> followers;
     private List<Review> reviews;
     private int profileViews;
 
@@ -34,6 +35,7 @@ public class UserDTO {
         this.blacklist = u.getBlacklist();
         this.roles = u.getRoles();
         this.following = u.getFollowing();
+        this.followers = u.getFollowers();
         this.reviews = u.getReviews();
         this.profileViews = u.getProfileViews();
     }
@@ -116,6 +118,14 @@ public class UserDTO {
 
     public void setFollowing(Set<User> following) {
         this.following = following;
+    }
+
+    public Set<User> getFollowers() {
+        return followers;
+    }
+
+    public void setFollowers(Set<User> followers) {
+        this.followers = followers;
     }
 
     public List<Review> getReviews() {

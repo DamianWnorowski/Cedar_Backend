@@ -164,7 +164,7 @@ public class AccountController {
                 if (u.isVerified()) {
                     jwt = jwtTokenProvider.generateToken(u);
                     List<Content> blackList = new ArrayList(u.getBlacklist());
-                    resp = new JwtAuthenticationResponse(jwt, u.getName(), blackList, u.getId());
+                    resp = new JwtAuthenticationResponse(jwt, u.getEmail(), blackList, u.getId());
                     return resp;
                 } else {
                     throw new RuntimeException(u.getId()+"unverified");
@@ -280,54 +280,6 @@ public class AccountController {
         return ErrorCode.SUCCESS;
     }
 
-
-    @PostMapping("/api/followuser")
-    public ErrorCode followUser(@RequestParam(value = "id") int id) {
-        String email = SecurityContextHolder.getContext().getAuthentication().getName();
-        if (email.equals("anonymousUser")) {
-            return ErrorCode.NOTLOGGEDIN;
-        }
-        User currentUser = um.findByEmail(email);
-        User userToFollow;
-        try {
-            userToFollow = um.findById(id).get();
-        } catch (NoSuchElementException e) {
-            return ErrorCode.DOESNOTEXIST;
-        }
-
-        Set<User> usersFollowed = currentUser.getFollowing();
-        usersFollowed.add(userToFollow);
-        currentUser.setFollowing(usersFollowed);
-
-        um.save(currentUser);
-        return ErrorCode.SUCCESS;
-    }
-
-    @PostMapping("/api/unfollowuser")
-    public ErrorCode unfollowUser(@RequestParam(value = "id") int id) {
-        String email = SecurityContextHolder.getContext().getAuthentication().getName();
-        if (email.equals("anonymousUser")) {
-            return ErrorCode.NOTLOGGEDIN;
-        }
-        User currentUser = um.findByEmail(email);
-        User userToRemove;
-        try {
-            userToRemove = um.findById(id).get();
-        } catch (NoSuchElementException e) {
-            return ErrorCode.DOESNOTEXIST;
-        }
-
-        Set<User> usersFollowed = currentUser.getFollowing();
-
-        if (!usersFollowed.contains(userToRemove)) {
-            return ErrorCode.DOESNOTEXIST;
-        }
-        usersFollowed.remove(userToRemove);
-        currentUser.setFollowing(usersFollowed);
-        um.save(currentUser);
-        return ErrorCode.SUCCESS;
-    }
-
     @GetMapping("/api/profile")
     public UserDTO getUserInfo(@RequestParam(value = "id") int id) {
         try {
@@ -338,9 +290,8 @@ public class AccountController {
             return dto;
         } catch (Exception e) {
             System.out.println("can't get profile");
+            throw new RuntimeException("404");
         }
-
-        return null;
     }
     
     @GetMapping("/api/getusersreviews")
