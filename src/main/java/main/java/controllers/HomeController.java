@@ -148,7 +148,7 @@ public class HomeController {
 
 		try {
 			List<Integer> ids = new ArrayList<>();
-			ids.add(1);
+			ids.add(299536);
 			List<Content> featured = (List) contentManager.findAllById(ids);
 			Random random = new Random();
 			if (email.equals("anonymousUser")) {
