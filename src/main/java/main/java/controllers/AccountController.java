@@ -205,21 +205,6 @@ public class AccountController {
         throw new RuntimeException("User does not exist or password does not match!");
     }
     
-    @GetMapping("/secure/resetpassword")
-    public boolean resetPassword(@RequestParam(name="p") String pw){
-        String email = SecurityContextHolder.getContext().getAuthentication().getName();
-        if (email.equals("anonymousUser")) {
-            return false;
-        }
-        User currentUser = um.findByEmail(email);
-        System.out.println("Encoding plaintext pw: " + pw.trim());
-        String encodedPw = bCryptPasswordEncoder.encode(pw.trim());
-        currentUser.setPassword(encodedPw);
-        um.save(currentUser);
-        System.out.println("Password successfully reset to: " + encodedPw);
-        SecurityContextHolder.clearContext();
-        return true;
-    }
 
     @GetMapping("/userlogout")
     public ResponseEntity logout() {
