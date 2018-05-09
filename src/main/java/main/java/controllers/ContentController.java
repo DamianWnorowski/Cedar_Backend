@@ -9,8 +9,10 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.Set;
 import javax.imageio.ImageIO;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -38,6 +40,7 @@ import main.java.models.TVShow;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBody;
 import main.java.managers.ContentManager;
+import main.java.services.BlacklistService;
 
 
 @CrossOrigin("http://localhost:3000")
@@ -211,7 +214,18 @@ public class ContentController {
 	
 	@GetMapping("/api/highestratedmovies")
 	public List<Movie> displayHighestRatedMovies() {
-		return contentManager.findTop10ByOrderByCriticRatingDesc();
+		BlacklistService blacklistService = BlacklistService.getService();
+		String email = SecurityContextHolder.getContext().getAuthentication().getName();
+		List<Movie> results = contentManager.findTop10ByOrderByCriticRatingDesc();
+		if (email.equals("anonymousUser")) {
+			return results;
+		}
+		else{
+			User currentUser = userManager.findByEmail(email);
+			results = blacklistService.filterMovie(results, currentUser);
+		}
+		
+		return results;
 	}
 	
 	@GetMapping("/api/latestcriticreviews")
