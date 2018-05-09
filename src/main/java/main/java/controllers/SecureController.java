@@ -7,8 +7,11 @@ package main.java.controllers;
 
 import java.io.IOException;
 import java.time.LocalDate;
+import java.util.NoSuchElementException;
+import java.util.Set;
 import javax.servlet.http.HttpServletResponse;
 import main.java.dto.CriticApplicationForm;
+import main.java.dto.ErrorCode;
 import main.java.dto.PasswordChangeForm;
 import main.java.dto.PasswordResetForm;
 import main.java.dto.UserDTO;
@@ -154,5 +157,65 @@ public class SecureController {
             System.out.println("can't get current logged in profile");
         }
         return null;
+    }
+    
+    @GetMapping("/secure/follow")
+    public boolean followUser(@RequestParam(value = "id") int id) {
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+        if (email.equals("anonymousUser")) {
+            return false;
+        }
+        User currentUser = userManager.findByEmail(email);
+        User userToFollow;
+        try {
+            userToFollow = userManager.findById(id).get();
+        } catch (NoSuchElementException e) {
+            return false;
+        }
+        currentUser.getFollowing().add(userToFollow);
+        userToFollow.getFollowers().add(currentUser);
+    
+        userManager.save(currentUser);
+        userManager.save(userToFollow);
+        return true;
+    }
+    
+    @GetMapping("/secure/unfollow")
+    public boolean unfollowUser(@RequestParam(value = "id") int id) {
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+        if (email.equals("anonymousUser")) {
+            return false;
+        }
+        User currentUser = userManager.findByEmail(email);
+        User userToUnfollow;
+        try {
+            userToUnfollow = userManager.findById(id).get();
+        } catch (NoSuchElementException e) {
+            return false;
+        }
+        currentUser.getFollowing().remove(userToUnfollow);
+        userToUnfollow.getFollowers().remove(currentUser);
+    
+        userManager.save(currentUser);
+        userManager.save(userToUnfollow);
+        return true;
+    }
+    
+    @GetMapping("/secure/followers")
+    public Set<User> getFollowers(@RequestParam(value = "id") int id) {
+        User user = userManager.findById(id).get();
+        if(user == null){
+            throw new RuntimeException("wrong user");
+        }
+        return user.getFollowers();
+    }
+    
+    @GetMapping("/secure/following")
+    public Set<User> getFollowing(@RequestParam(value = "id") int id) {
+        User user = userManager.findById(id).get();
+        if(user == null){
+            throw new RuntimeException("wrong user");
+        }
+        return user.getFollowing();
     }
 }
