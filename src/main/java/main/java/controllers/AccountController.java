@@ -186,10 +186,10 @@ public class AccountController {
     public JwtAuthenticationResponse login(@RequestBody LoginForm lf) {
         String jwt;
         JwtAuthenticationResponse resp;
-        User u = um.findByEmail(lf.getEmail());
+        User u = um.findByEmail(lf.getEmail().trim());
         if (u != null) {
-            System.out.println("logging in with: " + lf.getEmail() + " and pw: " + lf.getPassword());
-            if (bCryptPasswordEncoder.matches(lf.getPassword(), u.getPassword())) {
+            System.out.println("logging in with: " + lf.getEmail() + " and pw: " + u.getPassword());
+            if (bCryptPasswordEncoder.matches(lf.getPassword().trim(), u.getPassword().trim())) {
                 // checking if user verified their email
                 if (u.isVerified()) {
                     jwt = jwtTokenProvider.generateToken(u);
@@ -203,6 +203,22 @@ public class AccountController {
         }
         System.out.println("Such user does not exist");
         throw new RuntimeException("User does not exist or password does not match!");
+    }
+    
+    @GetMapping("/secure/resetpassword")
+    public boolean resetPassword(@RequestParam(name="p") String pw){
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+        if (email.equals("anonymousUser")) {
+            return false;
+        }
+        User currentUser = um.findByEmail(email);
+        System.out.println("Encoding plaintext pw: " + pw.trim());
+        String encodedPw = bCryptPasswordEncoder.encode(pw.trim());
+        currentUser.setPassword(encodedPw);
+        um.save(currentUser);
+        System.out.println("Password successfully reset to: " + encodedPw);
+        SecurityContextHolder.clearContext();
+        return true;
     }
 
     @GetMapping("/userlogout")
@@ -279,7 +295,7 @@ public class AccountController {
             throw new RuntimeException("Token was already used");
         }
         // remove comments for it to work
-        //pwResetToken.setUsed(true);
+        pwResetToken.setUsed(true);
 
         String newToken = jwtTokenProvider.generatePasswordResetToken(u.getEmail());
         pwResetToken.setPwToken(newToken);
