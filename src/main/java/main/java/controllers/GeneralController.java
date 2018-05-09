@@ -1,5 +1,6 @@
 package main.java.controllers;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -36,10 +37,10 @@ public class GeneralController {
     public Map search(@RequestParam(value = "search") String search) {
         try {
             SearchService searchService = SearchService.getService(movieManager, celebrityManager, tvManager);
-            Map<String, Set> results = new HashMap();
-            Set<Movie> movies = searchService.searchMovies(search);
-            Set<Celebrity> celebrities = searchService.searchCelebrities(search);
-            Set<TVShow> shows = searchService.searchTVShows(search);
+            Map<String, ArrayList> results = new HashMap();
+            ArrayList<Movie> movies = searchService.searchMovies(search);
+            ArrayList<Celebrity> celebrities = searchService.searchCelebrities(search);
+            ArrayList<TVShow> shows = searchService.searchTVShows(search);
             results.put("movies", movies);
             results.put("celebrities", celebrities);
             results.put("tvshows", shows);
