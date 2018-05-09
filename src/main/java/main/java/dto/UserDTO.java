@@ -23,6 +23,7 @@ public class UserDTO {
     private Set<User> followers;
     private List<Review> reviews;
     private int profileViews;
+    private byte[] photo;
 
     public UserDTO(User u) {
         this.id = u.getId();
@@ -38,6 +39,7 @@ public class UserDTO {
         this.followers = u.getFollowers();
         this.reviews = u.getReviews();
         this.profileViews = u.getProfileViews();
+        this.photo = u.getPhoto();
     }
 
     public int getId() {
@@ -142,6 +144,14 @@ public class UserDTO {
 
     public void setProfileViews(int profileViews) {
         this.profileViews = profileViews;
+    }
+
+    public byte[] getPhoto() {
+        return photo;
+    }
+
+    public void setPhoto(byte[] photo) {
+        this.photo = photo;
     }
 
 }

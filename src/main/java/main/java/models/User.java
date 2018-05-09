@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import javax.persistence.CascadeType;
+import javax.persistence.Column;
 import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -13,6 +14,7 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
+import javax.persistence.Lob;
 import javax.persistence.ManyToMany;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
@@ -87,6 +89,11 @@ public class User {
             fetch = FetchType.LAZY,
             cascade = CascadeType.ALL)
     private PwResetToken pwResetToken;
+    
+    @JsonIgnore
+    @Lob
+    @Column(name = "photo", columnDefinition="BLOB")
+    private byte[] photo;
         
     public User() {
         this.roles = new ArrayList<>();
@@ -94,6 +101,14 @@ public class User {
 
     public User(int id) {
         this.id = id;
+    }
+
+    public byte[] getPhoto() {
+        return photo;
+    }
+
+    public void setPhoto(byte[] photo) {
+        this.photo = photo;
     }
 
     public PwResetToken getPwResetToken() {

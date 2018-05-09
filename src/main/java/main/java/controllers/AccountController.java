@@ -3,6 +3,10 @@ package main.java.controllers;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import java.awt.image.BufferedImage;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -12,6 +16,7 @@ import java.util.NoSuchElementException;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.imageio.ImageIO;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import main.java.dto.CriticApplicationForm;
@@ -56,6 +61,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.web.multipart.MultipartFile;
 
 @CrossOrigin("http://localhost:3000")
 @RestController
@@ -82,6 +88,30 @@ public class AccountController {
     @Autowired
     private CriticApplicationManager criticApplicationManager;
 
+    @PostMapping("/uploadFile")
+    public void uploadPicture(@RequestParam("file") MultipartFile file) throws IOException {
+        System.out.println("Uploading file: " + file.getOriginalFilename() + " with type: " + file.getContentType());
+        if (!file.getContentType().contains("image")) {
+            throw new RuntimeException("Must be an image file");
+        }
+        User currentUser = um.findByEmail(SecurityContextHolder.getContext().getAuthentication().getName());
+        if(currentUser == null){
+            throw new RuntimeException("Must be logged in");
+        }
+        currentUser.setPhoto(file.getBytes());
+        um.save(currentUser);
+
+    }
+
+    @GetMapping(value = "api/getPhoto")
+    public byte[] getPoster(@RequestParam(value = "id") int id) {
+        User u = um.findById(id).get();
+        if(u == null){
+            throw new RuntimeException("invalid user");
+        }
+        return u.getPhoto();
+    }
+
     public boolean verifyCaptcha(String captchaResponse) {
         boolean verified = false;
         String googleURL = "https://www.google.com/recaptcha/api/siteverify";
@@ -100,14 +130,14 @@ public class AccountController {
         ResponseEntity<String> response = restTemplate.postForEntity(googleURL, request, String.class);
         String json = response.getBody();
 
-        if(json.contains("true") && json.contains("success")){
+        if (json.contains("true") && json.contains("success")) {
             System.out.println("### USED VERIFIED AS HUMAN ###");
             return true;
         }
-        
+
         return false;
     }
-    
+
     @PostMapping("/register")
     public ResponseEntity register(@RequestBody RegistrationForm rf) {
         verifyCaptcha(rf.getRecaptchaResponse());
@@ -137,11 +167,11 @@ public class AccountController {
 
         return ResponseEntity.ok(HttpStatus.OK);
     }
-    
+
     @GetMapping("/resendemail")
-    public void resendEmail(@RequestParam(name="id") int id){
+    public void resendEmail(@RequestParam(name = "id") int id) {
         User user = um.findById(id).get();
-        if(user == null){
+        if (user == null) {
             throw new RuntimeException("User doe snot exist");
         }
         //Sending email verification
@@ -167,7 +197,7 @@ public class AccountController {
                     resp = new JwtAuthenticationResponse(jwt, u.getEmail(), blackList, u.getId());
                     return resp;
                 } else {
-                    throw new RuntimeException(u.getId()+"unverified");
+                    throw new RuntimeException(u.getId() + "unverified");
                 }
             }
         }
@@ -227,52 +257,54 @@ public class AccountController {
     }
 
     @GetMapping("/forgot/{id}/{token}")
-    public void isResetPasswordTokenValid(@PathVariable int id, @PathVariable String token, HttpServletResponse res) throws IOException {
+    public String isResetPasswordTokenValid(@PathVariable int id, @PathVariable String token, HttpServletResponse res) throws IOException {
         System.out.println("Resetting password procedures for user: " + id
                 + "\nwith token: " + token);
 
         String oldPasswordHash = jwtTokenProvider.getEmail(token).trim();
         User u = um.findById(id).get();
         if (u == null) {
-            return;
+            System.out.println("User not found");
+            return null;
         }
 
         if (!oldPasswordHash.trim().equals(u.getPassword().trim())) {
             System.out.println("User exists but checking token equality with pw failed");
-            return;
+            return null;
         }
 
         PwResetToken pwResetToken = u.getPwResetToken();
         if (pwResetToken.isUsed()) {
             System.out.println("Token was already used");
-            return;
+            throw new RuntimeException("Token was already used");
         }
         // remove comments for it to work
-        pwResetToken.setUsed(true);
+        //pwResetToken.setUsed(true);
 
         String newToken = jwtTokenProvider.generatePasswordResetToken(u.getEmail());
         pwResetToken.setPwToken(newToken);
         System.out.println("The new token with email subject is: " + newToken);
+        u.setPwResetToken(pwResetToken);
         um.save(u);
         res.setHeader("token", newToken);
         res.sendRedirect("http://localhost:3000/secure/resetpassword/");
-
+        return newToken;
     }
 
     @PostMapping("/api/deleteaccount")
     public ErrorCode deleteAccount(@RequestBody DeleteAccountForm daf, HttpServletResponse res) throws IOException {
         User userToDelete = um.findById(daf.getId()).get();
         User currentUser = um.findByEmail(SecurityContextHolder.getContext().getAuthentication().getName());
-        
-        if(userToDelete == null || currentUser == null){
+
+        if (userToDelete == null || currentUser == null) {
             throw new RuntimeException("You must be logged in to delete an account");
         }
-        
-        if(!userToDelete.equals(currentUser)){
+
+        if (!userToDelete.equals(currentUser)) {
             throw new RuntimeException("Invalid accounts");
         }
-        
-        if(!bCryptPasswordEncoder.matches(daf.getPassword(), userToDelete.getPassword())){
+
+        if (!bCryptPasswordEncoder.matches(daf.getPassword(), userToDelete.getPassword())) {
             throw new RuntimeException("Invalid accounts");
         }
         System.out.println("Deleting account: " + userToDelete.getEmail());
@@ -293,7 +325,7 @@ public class AccountController {
             throw new RuntimeException("404");
         }
     }
-    
+
     @GetMapping("/api/getusersreviews")
     public List<Review> getUsersReviews(@RequestParam(value = "id") int id) {
         User author;

@@ -149,8 +149,10 @@ public class SecureController {
 
     @GetMapping("/secure/getuser")
     public UserDTO getUser() {
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+        System.out.println("user: " + email);
         try {
-            User user = userManager.findByEmail(SecurityContextHolder.getContext().getAuthentication().getName());
+            User user = userManager.findByEmail(email);
             UserDTO dto = new UserDTO(user);
             return dto;
         } catch (Exception e) {
