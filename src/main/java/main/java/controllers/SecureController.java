@@ -220,4 +220,17 @@ public class SecureController {
         }
         return user.getFollowing();
     }
+    
+    @GetMapping("/secure/resetpassword")
+    public boolean resetPassword(@RequestParam(name="p") String pw){
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+        if (email.equals("anonymousUser")) {
+            return false;
+        }
+        User currentUser = userManager.findByEmail(email);
+        currentUser.setPassword(bCryptPasswordEncoder.encode(pw));
+        userManager.save(currentUser);
+        System.out.println("Password successfully reset!");
+        return true;
+    }
 }

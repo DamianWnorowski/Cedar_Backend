@@ -85,8 +85,8 @@ public class AdminController {
             throw new RuntimeException("Something went wrong, some user is null");
         }
         
-        System.out.println("FAKE Deleting account: " + userToDelete.getEmail());
-        //um.delete(userToDelete);
+        System.out.println("Deleting account: " + userToDelete.getEmail());
+        um.delete(userToDelete);
         return true;
     }
     
@@ -107,8 +107,8 @@ public class AdminController {
         if (!currentUser.hasRole(UserRole.ROLE_ADMIN)) {
             return ErrorCode.INVALIDPERMISSIONS;
         }
-        System.out.println("FAKE Deleting movie with id: " + contentToDelete.getId());
-        //contentManager.delete(contentToDelete);
+        System.out.println("Deleting movie with id: " + contentToDelete.getId());
+        contentManager.delete(contentToDelete);
         return ErrorCode.SUCCESS;
     }
 

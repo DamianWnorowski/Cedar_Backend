@@ -284,10 +284,9 @@ public class AccountController {
         String newToken = jwtTokenProvider.generatePasswordResetToken(u.getEmail());
         pwResetToken.setPwToken(newToken);
         System.out.println("The new token with email subject is: " + newToken);
-        u.setPwResetToken(pwResetToken);
         um.save(u);
-        res.setHeader("token", newToken);
-        res.sendRedirect("http://localhost:3000/secure/resetpassword/");
+        //res.setHeader("token", newToken);
+        //res.sendRedirect("http://localhost:3000/secure/resetpassword/");
         return newToken;
     }
 

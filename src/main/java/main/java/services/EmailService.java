@@ -44,7 +44,7 @@ public class EmailService {
     public String generateForgotPwEmailBody(String name, int id, String token) {
         String body = "Hello " + name + ",\n\n";
         body += "Please click the following link to reset your password:\n";
-        body += "http://localhost:8080/forgot/" + id + "/" + token;
+        body += "http://localhost:3000/resetpassword/" + id + "/" + token;
         body += "\nThank you for using our service!\nTeam Cedar";
 
         return body;
