@@ -39,7 +39,7 @@ public class HomeController {
 	@GetMapping("/api/topboxoffice")
 	public List<Movie> displayBoxOffice() {
 		List<Movie> boxOfficeList
-			= contentManager.findTop10ByCurrentlyInTheatersTrueOrderByBoxOffice();
+			= contentManager.findTop10ByCurrentlyInTheatersTrueOrderByBoxOfficeDesc();
 		return boxOfficeList;
 	}
 

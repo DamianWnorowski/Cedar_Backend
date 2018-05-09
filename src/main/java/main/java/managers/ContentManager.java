@@ -9,7 +9,7 @@ import org.springframework.data.repository.CrudRepository;
 
 public interface ContentManager extends CrudRepository<Content, Integer> {
 	
-	public List<Movie> findTop10ByCurrentlyInTheatersTrueOrderByBoxOffice();
+	public List<Movie> findTop10ByCurrentlyInTheatersTrueOrderByBoxOfficeDesc();
 	public List<Movie> findTop10ByDateAfterAndDateBefore(LocalDate start, LocalDate end);
 	public List<Movie> findByTitleContainingIgnoreCase(String token);
 	public List<Movie> findTop10ByOrderByCriticRatingDesc();
