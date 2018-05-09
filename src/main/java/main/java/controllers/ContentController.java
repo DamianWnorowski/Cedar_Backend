@@ -9,10 +9,8 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
-import java.util.Set;
 import javax.imageio.ImageIO;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -265,20 +263,23 @@ public class ContentController {
     @PostMapping("/api/addmovie")
     public ErrorCode addMovie(@RequestBody Movie movie) {
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
-        Movie temp = (Movie) contentManager.findById(movie.getId()).get();
-        if (temp != null) {
-            return ErrorCode.DATABASEERROR;
-        }
-        if (email.equals("anonymousUser")) {
-            return ErrorCode.NOTLOGGEDIN;
-        }
-        User currentUser = userManager.findByEmail(email);
-
-        if (!currentUser.hasRole(UserRole.ROLE_ADMIN)) {
-            return ErrorCode.INVALIDPERMISSIONS;
-        }
-
-        contentManager.save(movie);
+		try {
+			Movie temp = (Movie)contentManager.findById(movie.getId()).get();
+			return ErrorCode.DATABASEERROR;
+		}
+		catch (Exception e) {
+		
+		}
+		if (email.equals("anonymousUser")) {
+			return ErrorCode.NOTLOGGEDIN;
+		}
+		User currentUser = userManager.findByEmail(email);
+		
+		if (!currentUser.hasRole(UserRole.ROLE_ADMIN)){
+			return ErrorCode.INVALIDPERMISSIONS;
+		}
+		
+		contentManager.save(movie);
         return ErrorCode.SUCCESS;
     }
 

@@ -180,7 +180,7 @@ public class SearchService {
 				rank += 1;
 			}
 		}
-		if (m.getPicture() == null){
+		if (m.getPicture() == null || m.getDescription() == null || m.getDescription().equals("")){
 			rank = -1;
 		}
 		System.out.println("title: "+title+", rank: "+ rank);
