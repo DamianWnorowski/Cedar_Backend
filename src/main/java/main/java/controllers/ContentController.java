@@ -245,10 +245,13 @@ public class ContentController {
 	@PostMapping("/api/addmovie")
     public ErrorCode addMovie(@RequestBody Movie movie) {
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
-		Movie temp = (Movie)contentManager.findById(movie.getId()).get();
-        if (temp != null) {
-            return ErrorCode.DATABASEERROR;
-        }
+		try {
+			Movie temp = (Movie)contentManager.findById(movie.getId()).get();
+			return ErrorCode.DATABASEERROR;
+		}
+		catch (Exception e) {
+		
+		}
 		if (email.equals("anonymousUser")) {
 			return ErrorCode.NOTLOGGEDIN;
 		}
