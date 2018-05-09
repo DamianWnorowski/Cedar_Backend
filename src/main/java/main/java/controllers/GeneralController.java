@@ -2,6 +2,7 @@ package main.java.controllers;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import main.java.managers.AdManager;
 import main.java.managers.CelebrityManager;
@@ -18,50 +19,66 @@ import org.springframework.web.bind.annotation.RestController;
 import main.java.managers.ContentManager;
 import main.java.managers.UserManager;
 import main.java.models.Ad;
+import main.java.models.User;
+import main.java.services.BlacklistService;
+import org.springframework.security.core.context.SecurityContextHolder;
 
 @CrossOrigin("http://localhost:3000")
 @RestController
 public class GeneralController {
 
-    @Autowired
-    private ContentManager movieManager;
-    @Autowired
-    private CelebrityManager celebrityManager;
-    @Autowired
-    private UserManager userManager;
-    @Autowired
-    private TVManager tvManager;
+	@Autowired
+	private ContentManager movieManager;
+	@Autowired
+	private CelebrityManager celebrityManager;
+	@Autowired
+	private UserManager userManager;
+	@Autowired
+	private TVManager tvManager;
 	@Autowired
 	private AdManager adManager;
 
-    @GetMapping("/api/search")
-    public Map search(@RequestParam(value = "search") String search) {
-        try {
-            SearchService searchService = SearchService.getService(movieManager, celebrityManager, tvManager);
-            Map<String, ArrayList> results = new HashMap();
-            ArrayList<Movie> movies = searchService.searchMovies(search);
-            ArrayList<Celebrity> celebrities = searchService.searchCelebrities(search);
-            ArrayList<TVShow> shows = searchService.searchTVShows(search);
-            results.put("movies", movies);
-            results.put("celebrities", celebrities);
-            results.put("tvshows", shows);
-            return results;
-        } catch (Exception e) {
-            e.printStackTrace();
-            System.out.println("search failed");
-        }
-        return null;
-    }
-	
+	@GetMapping("/api/search")
+	public Map search(@RequestParam(value = "search") String search) {
+		try {
+			BlacklistService blacklistService = BlacklistService.getService();
+			String email = SecurityContextHolder.getContext().getAuthentication().getName();
+
+			SearchService searchService = SearchService.getService(movieManager, celebrityManager, tvManager);
+			Map<String, ArrayList> results = new HashMap();
+			ArrayList<Movie> movies = searchService.searchMovies(search);
+			ArrayList<Celebrity> celebrities = searchService.searchCelebrities(search);
+			ArrayList<TVShow> shows = searchService.searchTVShows(search);
+
+			if (email.equals("anonymousUser")) {
+				results.put("movies", movies);
+				results.put("celebrities", celebrities);
+				results.put("tvshows", shows);
+			} else {
+				User currentUser = userManager.findByEmail(email);
+				movies = blacklistService.filterMovie(movies, currentUser);
+				shows = blacklistService.filterTVShow(shows, currentUser);
+				results.put("movies", movies);
+				results.put("celebrities", celebrities);
+				results.put("tvshows", shows);
+			}
+
+			return results;
+		} catch (Exception e) {
+			e.printStackTrace();
+			System.out.println("search failed");
+		}
+		return null;
+	}
+
 	@GetMapping("/api/getad")
-    public Ad search(@RequestParam(value = "id") int id) {
-        try {
+	public Ad search(@RequestParam(value = "id") int id) {
+		try {
 			return adManager.findById(id).get();
-        }
-		catch (Exception e) {
-            return null;
-        }
-       
-    }
+		} catch (Exception e) {
+			return null;
+		}
+
+	}
 
 }

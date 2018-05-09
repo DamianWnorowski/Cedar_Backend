@@ -38,49 +38,97 @@ import main.java.models.TVShow;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBody;
 import main.java.managers.ContentManager;
-
+import main.java.services.BlacklistService;
 
 @CrossOrigin("http://localhost:3000")
 @RestController
 public class ContentController {
 
-	@Autowired
-	ContentManager contentManager;
-	@Autowired
-	ReviewManager reviewManager;
-	@Autowired
-	UserManager userManager;
-	@Autowired
-	TVManager tvManager;
-	@Autowired
-	ReviewReportManager reviewReportManager;
+    @Autowired
+    ContentManager contentManager;
+    @Autowired
+    ReviewManager reviewManager;
+    @Autowired
+    UserManager userManager;
+    @Autowired
+    TVManager tvManager;
+    @Autowired
+    ReviewReportManager reviewReportManager;
 
-	
     @GetMapping("/movie")
-    public Movie getMovieInfo(@RequestParam(value="id") int id) {
+    public Movie getMovieInfo(@RequestParam(value = "id") int id) {
         try {
-            Movie theMovie = (Movie)contentManager.findById(id).get();
+            Movie theMovie = (Movie) contentManager.findById(id).get();
             return theMovie;
-        }
-    	catch (Exception e) {
+        } catch (Exception e) {
             System.out.println("can't get movie");
-    	}
-
-       return null;
-    }
-	
-	@GetMapping("/show")
-    public TVShow getTVShowInfo(@RequestParam(value="id") int id) {
-        try {
-            TVShow show = (TVShow)tvManager.findById(id).get();
-            return show;
         }
-    	catch (Exception e) {
-            System.out.println("can't get show");
-    	}
 
-       return null;
+        return null;
     }
+
+    @GetMapping("/show")
+    public TVShow getTVShowInfo(@RequestParam(value = "id") int id) {
+        try {
+            TVShow show = (TVShow) tvManager.findById(id).get();
+            return show;
+        } catch (Exception e) {
+            System.out.println("can't get show");
+        }
+
+        return null;
+    }
+
+    @PostMapping("/api/editreview")
+    public ErrorCode editReview(@RequestParam(value = "id") int id, @RequestBody ReviewForm form) {
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+
+        if (email.equals("anonymousUser")) {
+            return ErrorCode.NOTLOGGEDIN;
+        }
+        User currentUser = userManager.findByEmail(email);
+        Review reviewToEdit;
+        try {
+            reviewToEdit = reviewManager.findById(id).get();
+        } catch (NoSuchElementException e) {
+            System.out.println("failed");
+            return ErrorCode.DOESNOTEXIST;
+        }
+
+        if (!currentUser.hasRole(UserRole.ROLE_ADMIN)
+                && !reviewToEdit.getAuthor().equals(currentUser)) {
+            return ErrorCode.INVALIDPERMISSIONS;
+        }
+        int previousRating = reviewToEdit.getRating();
+
+        if (form.getRating() == 0) {
+            form.setRating(1);
+        }
+
+        if (form.getRating() < 1 || form.getRating() > 5) {
+            return ErrorCode.INVALIDRATING;
+        }
+        reviewToEdit.setBody(form.getBody());
+        reviewToEdit.setRating(form.getRating());
+        reviewManager.save(reviewToEdit);
+
+        if (previousRating != reviewToEdit.getRating()) {
+            Content c = null;
+            if (reviewToEdit instanceof CriticReview) {
+                c = ((CriticReview) reviewToEdit).getContent();
+                c.calculateRatings(true);
+            } else if (reviewToEdit instanceof UserReview) {
+                c = ((UserReview) reviewToEdit).getContent();
+                c.calculateRatings(false);
+            } else {
+                return ErrorCode.DATABASEERROR;
+            }
+            contentManager.save(c);
+        }
+        return ErrorCode.SUCCESS;
+    }
+    
+
 	
 	@PostMapping("/api/ratecontent")
 	public ErrorCode rateContent(@RequestBody ReviewForm form) {
@@ -116,59 +164,6 @@ public class ContentController {
 			return ErrorCode.DATABASEERROR;
 		}
 		return status;
-	}
-	
-	
-	@PostMapping("/api/editreview")
-	public ErrorCode editReview(@RequestParam(value="id") int id, @RequestBody ReviewForm form) {
-		String email = SecurityContextHolder.getContext().getAuthentication().getName();
-		
-		if (email.equals("anonymousUser")) {
-			return ErrorCode.NOTLOGGEDIN;
-		}
-		User currentUser = userManager.findByEmail(email);
-		Review reviewToEdit;
-		try {
-			reviewToEdit = reviewManager.findById(id).get();
-		}
-		catch (NoSuchElementException e) {
-			System.out.println("failed");
-			return ErrorCode.DOESNOTEXIST;
-		}
-	
-		if (!currentUser.hasRole(UserRole.ROLE_ADMIN) && 
-			!reviewToEdit.getAuthor().equals(currentUser)) {
-			return ErrorCode.INVALIDPERMISSIONS;
-		}
-		int previousRating = reviewToEdit.getRating();
-		
-		if (form.getRating() == 0) {
-			form.setRating(1);
-		}
-		
-		if (form.getRating() < 1 || form.getRating() > 5) {
-			return ErrorCode.INVALIDRATING;
-		}
-		reviewToEdit.setBody(form.getBody());
-		reviewToEdit.setRating(form.getRating());
-		reviewManager.save(reviewToEdit);
-
-		if (previousRating != reviewToEdit.getRating()) {
-			Content c = null;
-			if (reviewToEdit instanceof CriticReview) {
-				c = ((CriticReview)reviewToEdit).getContent();
-				c.calculateRatings(true);
-			}
-			else if (reviewToEdit instanceof UserReview) {
-				c = ((UserReview)reviewToEdit).getContent();
-				c.calculateRatings(false);
-			}
-			else {
-				return ErrorCode.DATABASEERROR;
-			}
-			contentManager.save(c);
-		}
-		return ErrorCode.SUCCESS;
 	}
 	
 	@GetMapping("/api/deletereview")
@@ -211,7 +206,18 @@ public class ContentController {
 	
 	@GetMapping("/api/highestratedmovies")
 	public List<Movie> displayHighestRatedMovies() {
-		return contentManager.findTop10ByOrderByCriticRatingDesc();
+		BlacklistService blacklistService = BlacklistService.getService();
+		String email = SecurityContextHolder.getContext().getAuthentication().getName();
+		List<Movie> results = contentManager.findTop10ByOrderByCriticRatingDesc();
+		if (email.equals("anonymousUser")) {
+			return results;
+		}
+		else{
+			User currentUser = userManager.findByEmail(email);
+			results = blacklistService.filterMovie(results, currentUser);
+		}
+		
+		return results;
 	}
 	
 	@GetMapping("/api/latestcriticreviews")
@@ -222,27 +228,39 @@ public class ContentController {
 	@GetMapping("/api/deletecontent")
     public ErrorCode deleteContent(@RequestParam(value="id") int id) {
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
-		if (email.equals("anonymousUser")) {
-			return ErrorCode.NOTLOGGEDIN;
-		}
-		User currentUser = userManager.findByEmail(email);
-		Content contentToDelete;
-		try {
-			contentToDelete = contentManager.findById(id).get();
-		}
-		catch (NoSuchElementException e) {
-			return ErrorCode.DOESNOTEXIST;
-		}
-		
-		if (!currentUser.hasRole(UserRole.ROLE_ADMIN)){
-			return ErrorCode.INVALIDPERMISSIONS;
-		}
-		
-		contentManager.delete(contentToDelete);
+        if (email.equals("anonymousUser")) {
+            return ErrorCode.NOTLOGGEDIN;
+        }
+        User currentUser = userManager.findByEmail(email);
+        Review reviewToDelete = null;
+        try {
+            reviewToDelete = reviewManager.findById(id).get();
+        } catch (NoSuchElementException e) {
+            System.out.println("failed");
+            return ErrorCode.DOESNOTEXIST;
+        }
+
+        if (!currentUser.hasRole(UserRole.ROLE_ADMIN)
+                && !reviewToDelete.getAuthor().equals(currentUser)) {
+            return ErrorCode.INVALIDPERMISSIONS;
+        }
+        reviewManager.delete(reviewToDelete);
+        Content c;
+        if (reviewToDelete instanceof CriticReview) {
+            c = ((CriticReview) reviewToDelete).getContent();
+            c.calculateRatings(true);
+        } else if (reviewToDelete instanceof UserReview) {
+            c = ((UserReview) reviewToDelete).getContent();
+            c.calculateRatings(false);
+        } else {
+            return ErrorCode.DATABASEERROR;
+        }
+        contentManager.save(c);
+
         return ErrorCode.SUCCESS;
     }
-	
-	@PostMapping("/api/addmovie")
+
+    @PostMapping("/api/addmovie")
     public ErrorCode addMovie(@RequestBody Movie movie) {
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
 		try {
@@ -264,28 +282,28 @@ public class ContentController {
 		contentManager.save(movie);
         return ErrorCode.SUCCESS;
     }
-	
-	@PostMapping("/api/editmovie")
+
+    @PostMapping("/api/editmovie")
     public ErrorCode editMovie(@RequestBody Movie movie) {
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
-		Movie temp = (Movie)contentManager.findById(movie.getId()).get();
+        Movie temp = (Movie) contentManager.findById(movie.getId()).get();
         if (temp == null) {
             return ErrorCode.DATABASEERROR;
         }
-		if (email.equals("anonymousUser")) {
-			return ErrorCode.NOTLOGGEDIN;
-		}
-		User currentUser = userManager.findByEmail(email);
-		
-		if (!currentUser.hasRole(UserRole.ROLE_ADMIN)){
-			return ErrorCode.INVALIDPERMISSIONS;
-		}
-		
-		contentManager.save(movie);
+        if (email.equals("anonymousUser")) {
+            return ErrorCode.NOTLOGGEDIN;
+        }
+        User currentUser = userManager.findByEmail(email);
+
+        if (!currentUser.hasRole(UserRole.ROLE_ADMIN)) {
+            return ErrorCode.INVALIDPERMISSIONS;
+        }
+
+        contentManager.save(movie);
         return ErrorCode.SUCCESS;
     }
-	
-	@GetMapping("/api/playtrailer")
+
+    @GetMapping("/api/playtrailer")
     public StreamingResponseBody playTrailer(@RequestParam(value = "id") int id) {
         String trailerPath = "";
         try {
@@ -303,24 +321,24 @@ public class ContentController {
         } catch (FileNotFoundException f) {
             return null;
         }
- 
+
         int bufsize = 8388608;
         byte[] buffer = new byte[bufsize];
-       
+
         return (OutputStream out) -> {
             int i;
             try {
-                while ((i = inputStream.read(buffer))!=-1) {
+                while ((i = inputStream.read(buffer)) != -1) {
                     out.write(buffer);
                     out.flush();
                 }
-            } catch(Exception e)  {
-               
+            } catch (Exception e) {
+
             }
         };
- 
+
     }
-	
+
 //	@GetMapping("/api/playtrailer")
 //	public byte[] playTrailer(@RequestParam(value="id") int id, @RequestParam(value="nextByte") int nextByte) {
 //		String trailerPath = "";
@@ -354,136 +372,128 @@ public class ContentController {
 //		}
 //		return videoPart;
 //	}
-	
-	@GetMapping("/api/addtolist")
-	public ErrorCode addToList(@RequestParam(value="id") int id, @RequestParam(value="wantToSee") boolean wantToSee) {
-		String email = SecurityContextHolder.getContext().getAuthentication().getName();
-		if (email.equals("anonymousUser")) {
-			return ErrorCode.NOTLOGGEDIN;
-		}
-		User currentUser = userManager.findByEmail(email);
-		Content theContent = null;
-		try {
-			theContent = contentManager.findById(id).get();
-		}
-		catch (NoSuchElementException e) {
-			return ErrorCode.DOESNOTEXIST;
-		}
-		ErrorCode successfulAddition;
-		if (wantToSee) {
-			successfulAddition = currentUser.addToWatchlist(theContent);
-		}
-		else {
-			successfulAddition = currentUser.addToBlacklist(theContent);
-		}
-		if (!successfulAddition.equals(ErrorCode.SUCCESS)) {
-			return successfulAddition;
-		}
-		if (userManager.save(currentUser) == null) {
-			return ErrorCode.DATABASEERROR;
-		}
-		return ErrorCode.SUCCESS;
-	}
-	
-	@GetMapping("/api/removefromlist")
-	public ErrorCode removeFromList(@RequestParam(value="id") int id, @RequestParam(value="wantToSee") boolean wantToSee) {
-		String email = SecurityContextHolder.getContext().getAuthentication().getName();
-		if (email.equals("anonymousUser")) {
-			return ErrorCode.NOTLOGGEDIN;
-		}
-		User currentUser = userManager.findByEmail(email);
-		Movie theMovie = null;
-		try {
-			theMovie = (Movie)contentManager.findById(id).get();
-		}
-		catch (NoSuchElementException e) {
-			return ErrorCode.DOESNOTEXIST;
-		}
-		ErrorCode successfulRemoval;
-		if (wantToSee) {
-			successfulRemoval = currentUser.removeFromWatchlist(theMovie);
-		}
-		else {
-			successfulRemoval = currentUser.removeFromBlacklist(theMovie);
-		}
-		
-		if (!successfulRemoval.equals(ErrorCode.SUCCESS)) {
-			return successfulRemoval;
-		}
-
-		if (userManager.save(currentUser) == null) {
-			return ErrorCode.DATABASEERROR;
-		}
-		return ErrorCode.SUCCESS;
-	}
-	
-	@GetMapping("/api/removereport")
-	public ErrorCode removeReport(@RequestParam(value="id") int id) {
-		String email = SecurityContextHolder.getContext().getAuthentication().getName();
-		if (email.equals("anonymousUser")) {
-			return ErrorCode.NOTLOGGEDIN;
-		}
-		User user = userManager.findByEmail(email);
-		if (!user.getRoles().contains(UserRole.ROLE_ADMIN.name())) {
-			return ErrorCode.INVALIDPERMISSIONS;
-		}
-		ReviewReport report = null;
-		try {
-			report = reviewReportManager.findById(id).get();
-			reviewReportManager.delete(report);
-		}
-		catch (NoSuchElementException | IllegalArgumentException e) {
-			return ErrorCode.DOESNOTEXIST;
-		}
-		
-		return ErrorCode.SUCCESS;
-	}
-	
-	@GetMapping("/api/viewreports")
-	public List<ReviewReport> viewReports() {
-		String email = SecurityContextHolder.getContext().getAuthentication().getName();
-		if (email.equals("anonymousUser")) {
-			return null;
-		}
-		User user = userManager.findByEmail(email);
-		if (!user.getRoles().contains(UserRole.ROLE_ADMIN.name())) {
-			return null;
-		}
-		List<ReviewReport> reports = (List)reviewReportManager.findAll();
-		return reports;
-	}
-	
-	@GetMapping("/api/getmyreviewforcurrentcontent")
-    public Review getMyReview(@RequestParam(value = "id") int id) {
-		String email = SecurityContextHolder.getContext().getAuthentication().getName();
-		
-		if (email.equals("anonymousUser")) {
-			return null;
-		}
-		User currentUser = userManager.findByEmail(email);
-        
-        List<Review> myReviews =  reviewManager.findByAuthor(currentUser);
-		try {
-            Content theContent = contentManager.findById(id).get();
-			for (Review r: myReviews) {
-				if (r instanceof UserReview) {
-					if (theContent.equals(((UserReview) r).getContent())) {
-						return r;
-					}
-				}
-				else if (r instanceof CriticReview) {
-					if (theContent.equals(((CriticReview) r).getContent())) {
-						return r;
-					}
-				}
-			}
+    @GetMapping("/api/addtolist")
+    public ErrorCode addToList(@RequestParam(value = "id") int id, @RequestParam(value = "wantToSee") boolean wantToSee) {
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+        if (email.equals("anonymousUser")) {
+            return ErrorCode.NOTLOGGEDIN;
         }
-    	catch (Exception e) {
+        User currentUser = userManager.findByEmail(email);
+        Content theContent = null;
+        try {
+            theContent = contentManager.findById(id).get();
+        } catch (NoSuchElementException e) {
+            return ErrorCode.DOESNOTEXIST;
+        }
+        ErrorCode successfulAddition;
+        if (wantToSee) {
+            successfulAddition = currentUser.addToWatchlist(theContent);
+        } else {
+            successfulAddition = currentUser.addToBlacklist(theContent);
+        }
+        if (!successfulAddition.equals(ErrorCode.SUCCESS)) {
+            return successfulAddition;
+        }
+        if (userManager.save(currentUser) == null) {
+            return ErrorCode.DATABASEERROR;
+        }
+        return ErrorCode.SUCCESS;
+    }
+
+    @GetMapping("/api/removefromlist")
+    public ErrorCode removeFromList(@RequestParam(value = "id") int id, @RequestParam(value = "wantToSee") boolean wantToSee) {
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+        if (email.equals("anonymousUser")) {
+            return ErrorCode.NOTLOGGEDIN;
+        }
+        User currentUser = userManager.findByEmail(email);
+        Movie theMovie = null;
+        try {
+            theMovie = (Movie) contentManager.findById(id).get();
+        } catch (NoSuchElementException e) {
+            return ErrorCode.DOESNOTEXIST;
+        }
+        ErrorCode successfulRemoval;
+        if (wantToSee) {
+            successfulRemoval = currentUser.removeFromWatchlist(theMovie);
+        } else {
+            successfulRemoval = currentUser.removeFromBlacklist(theMovie);
+        }
+
+        if (!successfulRemoval.equals(ErrorCode.SUCCESS)) {
+            return successfulRemoval;
+        }
+
+        if (userManager.save(currentUser) == null) {
+            return ErrorCode.DATABASEERROR;
+        }
+        return ErrorCode.SUCCESS;
+    }
+
+    @GetMapping("/api/removereport")
+    public ErrorCode removeReport(@RequestParam(value = "id") int id) {
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+        if (email.equals("anonymousUser")) {
+            return ErrorCode.NOTLOGGEDIN;
+        }
+        User user = userManager.findByEmail(email);
+        if (!user.getRoles().contains(UserRole.ROLE_ADMIN.name())) {
+            return ErrorCode.INVALIDPERMISSIONS;
+        }
+        ReviewReport report = null;
+        try {
+            report = reviewReportManager.findById(id).get();
+            reviewReportManager.delete(report);
+        } catch (NoSuchElementException | IllegalArgumentException e) {
+            return ErrorCode.DOESNOTEXIST;
+        }
+
+        return ErrorCode.SUCCESS;
+    }
+
+    @GetMapping("/api/viewreports")
+    public List<ReviewReport> viewReports() {
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+        if (email.equals("anonymousUser")) {
+            return null;
+        }
+        User user = userManager.findByEmail(email);
+        if (!user.getRoles().contains(UserRole.ROLE_ADMIN.name())) {
+            return null;
+        }
+        List<ReviewReport> reports = (List) reviewReportManager.findAll();
+        return reports;
+    }
+
+    @GetMapping("/api/getmyreviewforcurrentcontent")
+    public Review getMyReview(@RequestParam(value = "id") int id) {
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+
+        if (email.equals("anonymousUser")) {
+            return null;
+        }
+        User currentUser = userManager.findByEmail(email);
+
+        List<Review> myReviews = reviewManager.findByAuthor(currentUser);
+        try {
+            Content theContent = contentManager.findById(id).get();
+            for (Review r : myReviews) {
+                if (r instanceof UserReview) {
+                    if (theContent.equals(((UserReview) r).getContent())) {
+                        return r;
+                    }
+                } else if (r instanceof CriticReview) {
+                    if (theContent.equals(((CriticReview) r).getContent())) {
+                        return r;
+                    }
+                }
+            }
+        } catch (Exception e) {
             System.out.println("can't get movie");
-    	}
-		return null;
-	}
-	
+        }
+        return null;
+    }
+
 //	@GetMapping("/api/getcontentreviews")
 //	public List<Review> getContentReviews(@RequestParam(value="id") int id) {
 //		Content c;
@@ -500,49 +510,44 @@ public class ContentController {
 //		}
 //		return reviewManager.findByContent(c);
 //	}
-	
-	@GetMapping(value="/api/getPoster", produces="image/jpg")
-	public byte[] getPoster(@RequestParam(value="id") int id) {
-		Content c;
-		try {
-           c = contentManager.findById(id).get();
-        }
-    	catch (Exception e) {
+    @GetMapping(value = "/api/getPoster", produces = "image/jpg")
+    public byte[] getPoster(@RequestParam(value = "id") int id) {
+        Content c;
+        try {
+            c = contentManager.findById(id).get();
+        } catch (Exception e) {
             return null;
-    	}
-		
-		String posterLocation = System.getProperty("user.dir") + "/images/posters" + c.getPoster_path();
-		try {
-			BufferedImage poster = ImageIO.read(new File(posterLocation));
-			ByteArrayOutputStream output = new ByteArrayOutputStream();
-			ImageIO.write(poster, "jpg", output);
-			byte[] imageAsBytes = output.toByteArray();
-			return imageAsBytes;
-		}
-		catch (IOException | IllegalArgumentException e) {
-			return null;
-		}
-	}
-	
-	@PostMapping("/api/reportreview")
-	public ErrorCode reportReview(@RequestBody ReviewReportForm form) {
-		String email = SecurityContextHolder.getContext().getAuthentication().getName();
-		if (email.equals("anonymousUser")) {
-			return ErrorCode.NOTLOGGEDIN;
-		}
-		User reportingUser = userManager.findByEmail(email);
-		Review reviewReporting = null;
-		try {
-			 reviewReporting = reviewManager.findById(form.getReviewId()).get();
-		}
-		catch (NoSuchElementException e) {
-			return ErrorCode.DOESNOTEXIST;
-		}
-		
-		ReviewReport report = new ReviewReport(LocalDate.now(), reviewReporting, reportingUser);
-		reviewReportManager.save(report);
-		return ErrorCode.SUCCESS;
-	}
+        }
 
-		
+        String posterLocation = System.getProperty("user.dir") + "/images/posters" + c.getPoster_path();
+        try {
+            BufferedImage poster = ImageIO.read(new File(posterLocation));
+            ByteArrayOutputStream output = new ByteArrayOutputStream();
+            ImageIO.write(poster, "jpg", output);
+            byte[] imageAsBytes = output.toByteArray();
+            return imageAsBytes;
+        } catch (IOException | IllegalArgumentException e) {
+            return null;
+        }
+    }
+
+    @PostMapping("/api/reportreview")
+    public ErrorCode reportReview(@RequestBody ReviewReportForm form) {
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+        if (email.equals("anonymousUser")) {
+            return ErrorCode.NOTLOGGEDIN;
+        }
+        User reportingUser = userManager.findByEmail(email);
+        Review reviewReporting = null;
+        try {
+            reviewReporting = reviewManager.findById(form.getReviewId()).get();
+        } catch (NoSuchElementException e) {
+            return ErrorCode.DOESNOTEXIST;
+        }
+
+        ReviewReport report = new ReviewReport(LocalDate.now(), reviewReporting, reportingUser);
+        reviewReportManager.save(report);
+        return ErrorCode.SUCCESS;
+    }
+
 }

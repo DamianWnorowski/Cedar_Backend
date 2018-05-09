@@ -149,8 +149,10 @@ public class SecureController {
 
     @GetMapping("/secure/getuser")
     public UserDTO getUser() {
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+        System.out.println("user: " + email);
         try {
-            User user = userManager.findByEmail(SecurityContextHolder.getContext().getAuthentication().getName());
+            User user = userManager.findByEmail(email);
             UserDTO dto = new UserDTO(user);
             return dto;
         } catch (Exception e) {
@@ -217,5 +219,18 @@ public class SecureController {
             throw new RuntimeException("wrong user");
         }
         return user.getFollowing();
+    }
+    
+    @GetMapping("/secure/resetpassword")
+    public boolean resetPassword(@RequestParam(name="p") String pw){
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+        if (email.equals("anonymousUser")) {
+            return false;
+        }
+        User currentUser = userManager.findByEmail(email);
+        currentUser.setPassword(bCryptPasswordEncoder.encode(pw));
+        userManager.save(currentUser);
+        System.out.println("Password successfully reset!");
+        return true;
     }
 }

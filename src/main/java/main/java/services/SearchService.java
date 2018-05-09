@@ -166,6 +166,9 @@ public class SearchService {
 				rank += 1;
 			}
 		}
+		if (m.getPoster_path()== null){
+			rank = -1;
+		}
 		System.out.println("title: "+title+", rank: "+ rank);
 		return rank;
 	}
@@ -177,6 +180,9 @@ public class SearchService {
 				rank += 1;
 			}
 		}
+		if (m.getPicture() == null || m.getDescription() == null || m.getDescription().equals("")){
+			rank = -1;
+		}
 		System.out.println("title: "+title+", rank: "+ rank);
 		return rank;
 	}
@@ -187,6 +193,9 @@ public class SearchService {
 			if (title.toLowerCase().contains(token.toLowerCase())) {
 				rank += 1;
 			}
+		}
+		if (m.getPoster_path() == null){
+			rank = -1;
 		}
 		System.out.println("title: "+title+", rank: "+ rank);
 		return rank;
